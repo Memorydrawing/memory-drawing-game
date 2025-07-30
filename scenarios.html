@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scenarios</title>
+  <style>
+    body{font-family:sans-serif;background:#f0f0f0;margin:0;padding:20px;}
+    h2{text-align:center;}
+    ul{list-style:none;padding:0;}
+    li{display:flex;gap:8px;align-items:center;margin:4px 0;}
+    button{cursor:pointer;}
+    #creator{display:none;border:1px solid #ccc;padding:10px;margin-top:20px;background:#fff;}
+    #creator .row{margin:6px 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  </style>
+</head>
+<body>
+  <button onclick="window.location.href='index.html'">&larr; Back</button>
+  <h2>Scenarios</h2>
+  <ul id="scenarioList"></ul>
+  <button id="addBtn">Create Scenario</button>
+
+  <div id="creator">
+    <h3>New Scenario</h3>
+    <div class="row"><label>Name: <input id="scName"></label></div>
+    <div class="row">
+      <label>Time <input type="number" id="scTime" value="5" min="1" max="60"></label>
+      <label><input type="checkbox" id="lockTime">Lock</label>
+    </div>
+    <div class="row">
+      <label>Sides
+        <select id="scSides">
+          <option value="1">Point</option>
+          <option value="2">Line Segment</option>
+          <option value="3">3</option>
+          <option value="4" selected>4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="lockSides">Lock</label>
+    </div>
+    <div class="row">
+      <label>Size
+        <select id="scSize">
+          <option value="small">Small</option>
+          <option value="medium" selected>Medium</option>
+          <option value="big">Big</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="lockSize">Lock</label>
+    </div>
+    <div class="row">
+      <label>Grid
+        <select id="scGrid">
+          <option value="0">None</option>
+          <option value="2">2x2</option>
+          <option value="3">3x3</option>
+          <option value="4">4x4</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="lockGrid">Lock</label>
+    </div>
+    <div class="row">
+      <label>Draw Mode
+        <select id="scDrawMode">
+          <option value="point" selected>Point-to-Point</option>
+          <option value="free">Freehand</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="lockDrawMode">Lock</label>
+    </div>
+    <div class="row">
+      <label><input type="checkbox" id="scHigh"> Highest</label>
+      <label><input type="checkbox" id="lockHigh">Lock</label>
+    </div>
+    <div class="row">
+      <label><input type="checkbox" id="scLow"> Lowest</label>
+      <label><input type="checkbox" id="lockLow">Lock</label>
+    </div>
+    <div class="row">
+      <label><input type="checkbox" id="scLeft"> Left-most</label>
+      <label><input type="checkbox" id="lockLeft">Lock</label>
+    </div>
+    <div class="row">
+      <label><input type="checkbox" id="scRight"> Right-most</label>
+      <label><input type="checkbox" id="lockRight">Lock</label>
+    </div>
+    <div class="row">
+      <button id="saveBtn">Save</button>
+      <button id="cancelBtn">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    const list = document.getElementById('scenarioList');
+    const addBtn = document.getElementById('addBtn');
+    const creator = document.getElementById('creator');
+    function getScenarios(){
+      const data = localStorage.getItem('scenarios');
+      if(data) return JSON.parse(data);
+      const defaults=[{name:'Quick Triangle',time:3,sides:3,size:'small',grid:3,drawMode:'point',giveHighest:false,giveLowest:false,giveLeftmost:false,giveRightmost:false,locked:{time:true,sides:true,size:true,grid:true,drawMode:true}}];
+      localStorage.setItem('scenarios',JSON.stringify(defaults));
+      return defaults;
+    }
+    function saveScenarios(arr){localStorage.setItem('scenarios',JSON.stringify(arr));}
+    function refresh(){
+      const arr=getScenarios();
+      list.innerHTML='';
+      arr.forEach((sc,i)=>{
+        const li=document.createElement('li');
+        li.innerHTML=`<span>${sc.name}</span>`;
+        const play=document.createElement('button');
+        play.textContent='Play';
+        play.onclick=()=>start(i);
+        const del=document.createElement('button');
+        del.textContent='Delete';
+        del.onclick=()=>{arr.splice(i,1);saveScenarios(arr);refresh();};
+        li.appendChild(play);li.appendChild(del);
+        list.appendChild(li);
+      });
+    }
+    function start(i){
+      const sc=getScenarios()[i];
+      if(!sc) return;
+      localStorage.setItem('currentScenario',JSON.stringify(sc));
+      window.location.href='practice.html?scenario=1';
+    }
+    addBtn.onclick=()=>{creator.style.display='block';};
+    document.getElementById('cancelBtn').onclick=()=>{creator.style.display='none';};
+    document.getElementById('saveBtn').onclick=()=>{
+      const sc={
+        name:document.getElementById('scName').value||'Scenario',
+        time:parseFloat(document.getElementById('scTime').value),
+        sides:parseInt(document.getElementById('scSides').value),
+        size:document.getElementById('scSize').value,
+        grid:parseInt(document.getElementById('scGrid').value),
+        drawMode:document.getElementById('scDrawMode').value,
+        giveHighest:document.getElementById('scHigh').checked,
+        giveLowest:document.getElementById('scLow').checked,
+        giveLeftmost:document.getElementById('scLeft').checked,
+        giveRightmost:document.getElementById('scRight').checked,
+        locked:{
+          time:document.getElementById('lockTime').checked,
+          sides:document.getElementById('lockSides').checked,
+          size:document.getElementById('lockSize').checked,
+          grid:document.getElementById('lockGrid').checked,
+          drawMode:document.getElementById('lockDrawMode').checked,
+          highest:document.getElementById('lockHigh').checked,
+          lowest:document.getElementById('lockLow').checked,
+          left:document.getElementById('lockLeft').checked,
+          right:document.getElementById('lockRight').checked
+        }
+      };
+      const arr=getScenarios();
+      arr.push(sc);saveScenarios(arr);creator.style.display='none';refresh();
+    };
+    refresh();
+  </script>
+</body>
+</html>

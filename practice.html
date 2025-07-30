@@ -167,6 +167,48 @@
     let drawingEnabled = false;
     let lastShape = [];
 
+    // Apply scenario configuration if provided
+    (function(){
+      const params = new URLSearchParams(location.search);
+      if(!params.has('scenario')) return;
+      const data = localStorage.getItem('currentScenario');
+      if(!data) return;
+      const sc = JSON.parse(data);
+      const timeInput = document.getElementById('timeInput');
+      if(sc.time !== undefined){
+        timeInput.value = sc.time;
+        if(sc.locked && sc.locked.time) timeInput.disabled = true;
+      }
+      const sidesSelect = document.getElementById('sidesSelect');
+      if(sc.sides !== undefined){
+        sidesSelect.value = sc.sides;
+        if(sc.locked && sc.locked.sides) sidesSelect.disabled = true;
+      }
+      const sizeSelect = document.getElementById('sizeSelect');
+      if(sc.size){
+        sizeSelect.value = sc.size;
+        if(sc.locked && sc.locked.size) sizeSelect.disabled = true;
+      }
+      if(sc.grid !== undefined){
+        gridSelect.value = sc.grid;
+        if(sc.locked && sc.locked.grid) gridSelect.disabled = true;
+      }
+      if(sc.drawMode){
+        drawModeToggle.checked = sc.drawMode === 'point';
+        drawModeLabel.textContent = drawModeToggle.checked ? 'Point-to-Point' : 'Freehand';
+        if(sc.locked && sc.locked.drawMode) drawModeToggle.disabled = true;
+      }
+      const setChk = (id,val,lockKey)=>{
+        const el=document.getElementById(id);
+        if(val!==undefined) el.checked=val;
+        if(sc.locked && sc.locked[lockKey]) el.disabled=true;
+      };
+      setChk('giveHighest',sc.giveHighest,'highest');
+      setChk('giveLowest',sc.giveLowest,'lowest');
+      setChk('giveLeftmost',sc.giveLeftmost,'left');
+      setChk('giveRightmost',sc.giveRightmost,'right');
+    })();
+
     drawModeToggle.addEventListener("change", () => {
       drawModeLabel.textContent = drawModeToggle.checked ? "Point-to-Point" : "Freehand";
     });
