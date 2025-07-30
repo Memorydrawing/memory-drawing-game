@@ -166,6 +166,7 @@
     let isDrawing = false;
     let drawingEnabled = false;
     let lastShape = [];
+    let viewTimer = null;
 
     drawModeToggle.addEventListener("change", () => {
       drawModeLabel.textContent = drawModeToggle.checked ? "Point-to-Point" : "Freehand";
@@ -214,6 +215,7 @@
     }
 
     function newShape() {
+      clearTimeout(viewTimer);
       const sides = parseInt(document.getElementById("sidesSelect").value);
       const time = getTimeMs();
       lastShape = originalShape.map(p => ({ ...p }));
@@ -224,7 +226,7 @@
       clearCanvas();
       drawGrid();
       drawShape(originalShape, "black");
-      setTimeout(() => {
+      viewTimer = setTimeout(() => {
         clearCanvas();
         drawGrid();
         drawGivenPoints(originalShape);
@@ -233,6 +235,7 @@
     }
 
     function previousShape() {
+      clearTimeout(viewTimer);
       if (!lastShape.length) return;
       originalShape = lastShape.map(p => ({ ...p }));
       playerShape = [];
@@ -242,7 +245,7 @@
       drawGrid();
       drawShape(originalShape, "black");
       const time = getTimeMs();
-      setTimeout(() => {
+      viewTimer = setTimeout(() => {
         clearCanvas();
         drawGrid();
         drawGivenPoints(originalShape);
@@ -251,6 +254,7 @@
     }
 
     function retryShape() {
+      clearTimeout(viewTimer);
       const time = getTimeMs();
       playerShape = [];
       drawingEnabled = false;
@@ -258,7 +262,7 @@
       clearCanvas();
       drawGrid();
       drawShape(originalShape, "black");
-      setTimeout(() => {
+      viewTimer = setTimeout(() => {
         clearCanvas();
         drawGrid();
         drawGivenPoints(originalShape);
