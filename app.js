@@ -1,8 +1,3 @@
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('visible'));
-  document.getElementById(id).classList.add('visible');
-}
-
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const drawModeToggle = document.getElementById("drawModeToggle");
