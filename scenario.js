@@ -45,18 +45,28 @@ function onShapeRevealed() {
 
 document.addEventListener('shapeRevealed', onShapeRevealed);
 
-function loadSavedScenarios() {
-  const list = document.getElementById('savedScenarios');
-  if (!list) return;
-  list.innerHTML = '';
-  const data = JSON.parse(localStorage.getItem('scenarios') || '{}');
+function getSavedScenarios() {
+  return JSON.parse(localStorage.getItem('scenarios') || '{}');
+}
+
+function populateScenarioSelect(id) {
+  const select = document.getElementById(id);
+  if (!select) return;
+  select.innerHTML = '';
+  const data = getSavedScenarios();
   Object.keys(data).forEach(name => {
     const opt = document.createElement('option');
     opt.value = name;
     opt.textContent = name;
-    list.appendChild(opt);
+    select.appendChild(opt);
   });
-  if (list.options.length > 0) {
+}
+
+function loadSavedScenarios() {
+  populateScenarioSelect('savedScenarios');
+  populateScenarioSelect('editScenarioSelect');
+  const list = document.getElementById('savedScenarios');
+  if (list && list.options.length > 0) {
     list.selectedIndex = 0;
     applyScenario();
   }
@@ -114,9 +124,33 @@ function applyScenario() {
   toggleThreshold();
 }
 
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(el => el.classList.remove('visible'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('visible');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  loadSavedScenarios();
+  populateScenarioSelect('savedScenarios');
+  populateScenarioSelect('editScenarioSelect');
   toggleThreshold();
+
+  const newBtn = document.getElementById('newScenarioBtn');
+  const editBtn = document.getElementById('editScenarioBtn');
+  const loadBtn = document.getElementById('loadScenarioBtn');
+  const backBtn = document.getElementById('selectBackBtn');
+
+  if (newBtn) newBtn.addEventListener('click', () => showScreen('scenarioScreen'));
+  if (editBtn) editBtn.addEventListener('click', () => showScreen('selectScreen'));
+  if (backBtn) backBtn.addEventListener('click', () => showScreen('modeScreen'));
+  if (loadBtn) loadBtn.addEventListener('click', () => {
+    const sel = document.getElementById('editScenarioSelect');
+    if (!sel || !sel.value) return;
+    const list = document.getElementById('savedScenarios');
+    if (list) list.value = sel.value;
+    applyScenario();
+    showScreen('scenarioScreen');
+  });
 });
 
 function startScenario(repeat = false) {
