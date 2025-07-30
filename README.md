@@ -1,5 +1,6 @@
 # Memory Shape Drawing Game
 
+
 This project is a small browser game where you try to memorize and recreate randomly generated shapes. It was created by Sawyer Wall.
 
 ## Running the Game
@@ -24,3 +25,10 @@ When you are done drawing, the original shape is revealed so you can compare.
 ## Dependencies
 
 There are no external dependencies aside from a modern web browser that supports HTML5 and JavaScript.
+=======
+This project is a simple browser game where you attempt to reproduce shapes from memory. Choose the practice mode or try a set of predefined scenarios and see how close your drawing is to the original.
+
+## License
+
+This repository is licensed under the [MIT License](LICENSE).
+
