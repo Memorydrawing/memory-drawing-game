@@ -1,4 +1,49 @@
 let scenarioTimer = null;
+let scoreSummary = { green: 0, yellow: 0, red: 0 };
+let shapesNoRed = 0;
+let scenarioConfig = null;
+
+function toggleThreshold() {
+  const wrapper = document.getElementById('thresholdWrapper');
+  const val = document.getElementById('afterSelect').value;
+  if (wrapper) wrapper.style.display = val === 'repeat' ? 'inline-flex' : 'none';
+}
+
+function computeGrades() {
+  const counts = { green: 0, yellow: 0, red: 0 };
+  playerShape.forEach(p => {
+    const closest = originalShape.reduce((min, q) => {
+      const d = Math.hypot(p.x - q.x, p.y - q.y);
+      return d < min ? d : min;
+    }, Infinity);
+    if (closest <= 5) counts.green++; else if (closest <= 10) counts.yellow++; else counts.red++;
+  });
+  return counts;
+}
+
+function onShapeRevealed() {
+  if (!scenarioConfig) return;
+  const counts = computeGrades();
+  scoreSummary.green += counts.green;
+  scoreSummary.yellow += counts.yellow;
+  scoreSummary.red += counts.red;
+  if (counts.red === 0) shapesNoRed++;
+  result.textContent = `Green: ${scoreSummary.green}, Yellow: ${scoreSummary.yellow}, Red: ${scoreSummary.red}, Shapes w/out Red: ${shapesNoRed}`;
+
+  if (scenarioConfig.afterAction === 'end') return;
+  if (scenarioConfig.afterAction === 'next') {
+    setTimeout(() => startScenario(false), 1000);
+  } else if (scenarioConfig.afterAction === 'repeat') {
+    const gradeVal = counts[scenarioConfig.thresholdGrade] || 0;
+    if (gradeVal >= scenarioConfig.thresholdPoints) {
+      setTimeout(() => startScenario(false), 1000);
+    } else {
+      setTimeout(() => startScenario(true), 1000);
+    }
+  }
+}
+
+document.addEventListener('shapeRevealed', onShapeRevealed);
 
 function loadSavedScenarios() {
   const list = document.getElementById('savedScenarios');
@@ -32,7 +77,10 @@ function saveScenario() {
     giveHighest: document.getElementById('giveHighest').checked,
     giveLowest: document.getElementById('giveLowest').checked,
     giveLeftmost: document.getElementById('giveLeftmost').checked,
-    giveRightmost: document.getElementById('giveRightmost').checked
+    giveRightmost: document.getElementById('giveRightmost').checked,
+    afterAction: document.getElementById('afterSelect').value,
+    thresholdPoints: parseInt(document.getElementById('thresholdPoints').value) || 1,
+    thresholdGrade: document.getElementById('thresholdGrade').value
   };
   localStorage.setItem('scenarios', JSON.stringify(scenarios));
   loadSavedScenarios();
@@ -60,11 +108,18 @@ function applyScenario() {
   document.getElementById('giveLowest').checked = scn.giveLowest;
   document.getElementById('giveLeftmost').checked = scn.giveLeftmost;
   document.getElementById('giveRightmost').checked = scn.giveRightmost;
+  document.getElementById('afterSelect').value = scn.afterAction || 'next';
+  document.getElementById('thresholdPoints').value = scn.thresholdPoints || 1;
+  document.getElementById('thresholdGrade').value = scn.thresholdGrade || 'green';
+  toggleThreshold();
 }
 
-document.addEventListener('DOMContentLoaded', loadSavedScenarios);
+document.addEventListener('DOMContentLoaded', () => {
+  loadSavedScenarios();
+  toggleThreshold();
+});
 
-function startScenario() {
+function startScenario(repeat = false) {
   clearTimeout(viewTimer);
   clearTimeout(scenarioTimer);
 
@@ -73,8 +128,20 @@ function startScenario() {
   const challengeLength = Math.max(1000, parseFloat(document.getElementById('challengeInput').value) * 1000);
   const sides = parseInt(document.getElementById('sidesSelect').value);
 
-  lastShape = originalShape.map(p => ({ ...p }));
-  originalShape = generateShape(sides);
+  if (!repeat) {
+    scoreSummary = { green: 0, yellow: 0, red: 0 };
+    shapesNoRed = 0;
+    scenarioConfig = {
+      afterAction: document.getElementById('afterSelect').value,
+      thresholdPoints: parseInt(document.getElementById('thresholdPoints').value) || 1,
+      thresholdGrade: document.getElementById('thresholdGrade').value
+    };
+  }
+
+  if (!repeat) {
+    lastShape = originalShape.map(p => ({ ...p }));
+    originalShape = generateShape(sides);
+  }
   playerShape = [];
   drawingEnabled = false;
   result.textContent = '';

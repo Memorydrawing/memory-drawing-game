@@ -212,6 +212,7 @@ function revealShape() {
     ctx.fillText(i + 1, p.x + 6, p.y - 6);
   });
   result.textContent = "Reveal complete.";
+  document.dispatchEvent(new CustomEvent('shapeRevealed'));
 }
 
 function drawFreehand() {

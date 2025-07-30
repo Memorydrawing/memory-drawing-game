@@ -60,6 +60,27 @@
       </label>
     </div>
 
+    <div class="controls">
+      <label>After Grading:
+        <select id="afterSelect" onchange="toggleThreshold()">
+          <option value="next">Next Shape</option>
+          <option value="repeat">Repeat Until Threshold</option>
+          <option value="end">End Scenario</option>
+        </select>
+      </label>
+      <span id="thresholdWrapper" style="display:none;">
+        <label>Points Needed:
+          <input type="number" id="thresholdPoints" value="1" min="1" style="width:4em;">
+        </label>
+        <label>Grade:
+          <select id="thresholdGrade">
+            <option value="green">Green</option>
+            <option value="yellow">Yellow</option>
+          </select>
+        </label>
+      </span>
+    </div>
+
     <div class="switches-group">
       <label class="switch-label-container">
         <div class="switch">
