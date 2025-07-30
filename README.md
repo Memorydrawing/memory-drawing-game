@@ -1,7 +1,34 @@
 # Memory Shape Drawing Game
 
+
+This project is a small browser game where you try to memorize and recreate randomly generated shapes. It was created by Sawyer Wall.
+
+## Running the Game
+
+1. Open `index.html` in any modern web browser. No build step or server is required—just open the file directly.
+2. The menu provides buttons for **Practice**, **Scenarios**, and **About**. Practice is the main gameplay mode.
+
+## Basic Controls
+
+- **Time (sec)** – How long the shape stays visible before you draw.
+- **Sides** – The number of sides of the polygon (or pick *Point* or *Line Segment*).
+- **Size** – Small, Medium, or Big shapes.
+- **Grid** – Show an optional grid on the canvas.
+- **Point-to-Point / Freehand** – Toggle how you draw. Point-to-point lets you place dots; freehand lets you draw with the pointer.
+- **Highest/Lowest/Left-most/Right-most** – When checked, these reference points of the shape will remain visible while you draw.
+- **New Shape** – Generate a new random shape.
+- **Previous Shape** – View the last shape again.
+- **Retry Shape** – Try drawing the current shape again.
+
+When you are done drawing, the original shape is revealed so you can compare.
+
+## Dependencies
+
+There are no external dependencies aside from a modern web browser that supports HTML5 and JavaScript.
+=======
 This project is a simple browser game where you attempt to reproduce shapes from memory. Choose the practice mode or try a set of predefined scenarios and see how close your drawing is to the original.
 
 ## License
 
 This repository is licensed under the [MIT License](LICENSE).
+
