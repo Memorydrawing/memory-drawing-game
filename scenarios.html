@@ -3,13 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Scenario Builder - Memory Shape Drawing Game</title>
+  <title>Scenario Creation Tool - Memory Shape Drawing Game</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="scenarioScreen" class="screen practice-screen">
     <button onclick="window.location.href='index.html'">← Back to Menu</button>
-    <h2>Create Scenario</h2>
+    <h2>Scenario Creation Tool</h2>
+    <div class="controls">
+      <label>Saved Scenarios:
+        <select id="savedScenarios" onchange="applyScenario()"></select>
+      </label>
+    </div>
+    <div class="controls">
+      <input type="text" id="scenarioName" placeholder="Scenario name">
+      <button onclick="saveScenario()">Save Scenario</button>
+    </div>
     <div class="controls">
       <label>Look Time (sec):
         <input type="number" id="timeInput" value="5" min="1" max="60">
@@ -69,7 +78,7 @@
     </div>
 
     <div class="controls">
-      <button onclick="startScenario()">Start Challenge</button>
+      <button onclick="startScenario()">Start Scenario</button>
     </div>
 
     <canvas id="gameCanvas" width="500" height="500"></canvas>
