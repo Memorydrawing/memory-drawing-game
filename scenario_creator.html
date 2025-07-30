@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scenario Creator - Memory Shape Drawing Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="scenarioScreen" class="screen practice-screen">
+    <button onclick="window.location.href='index.html'">← Back to Menu</button>
+    <h2>Scenario Creator</h2>
+    <div class="controls">
+      <label>Saved Scenarios:
+        <select id="savedScenarios" onchange="applyScenario()"></select>
+      </label>
+    </div>
+    <div class="controls">
+      <input type="text" id="scenarioName" placeholder="Scenario name">
+      <button onclick="saveScenario()">Save Scenario</button>
+    </div>
+    <div class="controls">
+      <label>Look Time (sec):
+        <input type="number" id="timeInput" value="5" min="1" max="60">
+      </label>
+      <label>Buffer Time (sec):
+        <input type="number" id="bufferInput" value="1" min="0" max="60">
+      </label>
+      <label>Challenge Length (sec):
+        <input type="number" id="challengeInput" value="10" min="1" max="300">
+      </label>
+      <label>Sides:
+        <select id="sidesSelect">
+          <option value="1">Point</option>
+          <option value="2">Line Segment</option>
+          <option value="3">3</option>
+          <option value="4" selected>4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+      </label>
+      <label>Size:
+        <select id="sizeSelect">
+          <option value="small">Small</option>
+          <option value="medium" selected>Medium</option>
+          <option value="big">Big</option>
+        </select>
+      </label>
+      <label>Grid:
+        <select id="gridSelect">
+          <option value="0">None</option>
+          <option value="2">2x2</option>
+          <option value="3">3x3</option>
+          <option value="4">4x4</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="controls">
+      <label>After Grading:
+        <select id="afterSelect" onchange="toggleThreshold()">
+          <option value="next">Next Shape</option>
+          <option value="repeat">Repeat Until Threshold</option>
+          <option value="end">End Scenario</option>
+        </select>
+      </label>
+      <span id="thresholdWrapper" style="display:none;">
+        <label>Points Needed:
+          <input type="number" id="thresholdPoints" value="1" min="1" style="width:4em;">
+        </label>
+        <label>Grade:
+          <select id="thresholdGrade">
+            <option value="green">Green</option>
+            <option value="yellow">Yellow</option>
+          </select>
+        </label>
+      </span>
+    </div>
+
+    <div class="switches-group">
+      <label class="switch-label-container">
+        <div class="switch">
+          <input type="checkbox" id="drawModeToggle" checked />
+          <span class="slider"></span>
+        </div>
+        <span class="switch-text" id="drawModeLabel">Point-to-Point</span>
+      </label>
+    </div>
+
+    <div class="checkboxes-group">
+      <label><input type="checkbox" id="giveHighest" /> Highest</label>
+      <label><input type="checkbox" id="giveLowest" /> Lowest</label>
+      <label><input type="checkbox" id="giveLeftmost" /> Left-most</label>
+      <label><input type="checkbox" id="giveRightmost" /> Right-most</label>
+    </div>
+
+    <div class="controls">
+      <button onclick="startScenario()">Start Scenario</button>
+    </div>
+
+    <canvas id="gameCanvas" width="500" height="500"></canvas>
+    <p class="score" id="result"></p>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="scenario.js"></script>
+</body>
+</html>

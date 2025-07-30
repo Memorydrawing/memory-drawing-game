@@ -3,21 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Scenario Creation Tool - Memory Shape Drawing Game</title>
+  <title>Saved Scenarios - Memory Shape Drawing Game</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="scenarioScreen" class="screen practice-screen">
     <button onclick="window.location.href='index.html'">← Back to Menu</button>
-    <h2>Scenario Creation Tool</h2>
+    <h2>Saved Scenarios</h2>
     <div class="controls">
       <label>Saved Scenarios:
         <select id="savedScenarios" onchange="applyScenario()"></select>
       </label>
-    </div>
-    <div class="controls">
-      <input type="text" id="scenarioName" placeholder="Scenario name">
-      <button onclick="saveScenario()">Save Scenario</button>
     </div>
     <div class="controls">
       <label>Look Time (sec):
