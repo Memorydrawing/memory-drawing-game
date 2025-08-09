@@ -41,5 +41,7 @@ function getScenario(name) {
 }
 
 function getScenarioNames() {
-  return Object.keys(builtInScenarios);
+  return Object.keys(builtInScenarios).filter(
+    name => name !== "Triangle Warmup" && name !== "Square Drill"
+  );
 }
