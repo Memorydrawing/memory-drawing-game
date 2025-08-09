@@ -33,7 +33,10 @@
     }
     function playSelectedScenario() {
       const name = document.getElementById('scenarioList').value;
-      if (name) {
+      if (!name) return;
+      if (name === 'Point Warmup') {
+        window.location.href = 'point_warmup.html';
+      } else {
         window.location.href = 'scenario_play.html?name=' + encodeURIComponent(name);
       }
     }

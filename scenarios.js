@@ -30,6 +30,9 @@ const builtInScenarios = {
     afterAction: "end",
     thresholdPoints: 1,
     thresholdGrade: "green"
+  },
+  "Point Warmup": {
+    special: true
   }
 };
 
