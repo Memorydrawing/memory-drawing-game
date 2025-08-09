@@ -41,7 +41,12 @@
       }
     }
     document.getElementById('playBtn').addEventListener('click', playSelectedScenario);
-    document.addEventListener('DOMContentLoaded', loadScenarioList);
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadScenarioList);
+    } else {
+      loadScenarioList();
+    }
   </script>
 </body>
 </html>
