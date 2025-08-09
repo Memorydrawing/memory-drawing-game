@@ -43,10 +43,20 @@
         } else {
           window.location.href = 'scenario_play.html?name=' + encodeURIComponent(name);
         }
+      if (!name) return;
+      if (name === 'Point Warmup') {
+        window.location.href = 'point_warmup.html';
+      } else {
+        window.location.href = 'scenario_play.html?name=' + encodeURIComponent(name);
       }
     }
     document.getElementById('playBtn').addEventListener('click', playSelectedScenario);
-    document.addEventListener('DOMContentLoaded', loadScenarioList);
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadScenarioList);
+    } else {
+      loadScenarioList();
+    }
   </script>
 </body>
 </html>
