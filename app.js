@@ -198,7 +198,18 @@ function drawDots() {
 
 function revealShape() {
   drawingEnabled = false;
-  clearCanvas(); drawGrid(); drawShape(originalShape, "black");
+  clearCanvas();
+  drawGrid();
+  drawShape(originalShape, "black");
+  if (drawModeToggle.checked) {
+    evaluatePointToPoint();
+  } else {
+    evaluateFreehand();
+  }
+  document.dispatchEvent(new CustomEvent('shapeRevealed'));
+}
+
+function evaluatePointToPoint() {
   playerShape.forEach((p, i) => {
     const closest = originalShape.reduce((min, q) => {
       const d = Math.hypot(p.x - q.x, p.y - q.y);
@@ -213,7 +224,51 @@ function revealShape() {
     ctx.fillText(i + 1, p.x + 6, p.y - 6);
   });
   result.textContent = "Reveal complete.";
-  document.dispatchEvent(new CustomEvent('shapeRevealed'));
+}
+
+function evaluateFreehand() {
+  if (playerShape.length < 2) {
+    result.textContent = "No drawing to grade.";
+    return;
+  }
+  let totalDist = 0;
+  for (let i = 1; i < playerShape.length; i++) {
+    const p = playerShape[i];
+    const d = distanceToPolygon(p, originalShape);
+    totalDist += d;
+    let color = "red";
+    if (d <= 5) color = "green";
+    else if (d <= 10) color = "orange";
+    ctx.beginPath();
+    ctx.moveTo(playerShape[i - 1].x, playerShape[i - 1].y);
+    ctx.lineTo(p.x, p.y);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+  const avg = totalDist / (playerShape.length - 1);
+  result.textContent = `Average error: ${avg.toFixed(1)} px`;
+}
+
+function distanceToPolygon(p, poly) {
+  let min = Infinity;
+  for (let i = 0; i < poly.length; i++) {
+    const a = poly[i];
+    const b = poly[(i + 1) % poly.length];
+    const d = distancePointToSegment(p, a, b);
+    if (d < min) min = d;
+  }
+  return min;
+}
+
+function distancePointToSegment(p, a, b) {
+  const ab = { x: b.x - a.x, y: b.y - a.y };
+  const ap = { x: p.x - a.x, y: p.y - a.y };
+  const abLenSq = ab.x * ab.x + ab.y * ab.y;
+  const t = abLenSq === 0 ? 0 : ((ap.x * ab.x + ap.y * ab.y) / abLenSq);
+  const clampedT = Math.max(0, Math.min(1, t));
+  const proj = { x: a.x + clampedT * ab.x, y: a.y + clampedT * ab.y };
+  return Math.hypot(p.x - proj.x, p.y - proj.y);
 }
 
 function drawFreehand() {
