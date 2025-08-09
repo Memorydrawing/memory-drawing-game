@@ -2,21 +2,24 @@ const canvas = document.getElementById('angleCanvas');
 const ctx = canvas.getContext('2d');
 const optionsContainer = document.getElementById('angleOptions');
 const result = document.getElementById('angleResult');
+const startBtn = document.getElementById('startBtn');
 
-let availableAngles = [];
+let remainingAngles = [];
 let currentAngle = null;
-let correctCount = 0;
-let totalSelected = 0;
+let correct = 0;
+let total = 0;
+let playing = false;
 
-function initOptions() {
+function createOptions() {
+  optionsContainer.innerHTML = '';
   for (let a = 5; a <= 180; a += 5) {
-    availableAngles.push(a);
     const label = document.createElement('label');
     label.className = 'angle-option';
 
     const input = document.createElement('input');
     input.type = 'checkbox';
     input.dataset.angle = a;
+    input.disabled = true;
 
     const box = document.createElement('span');
     box.className = 'box';
@@ -30,6 +33,24 @@ function initOptions() {
 
     input.addEventListener('click', onSelect);
   }
+}
+
+function startGame() {
+  remainingAngles = [];
+  for (let a = 5; a <= 180; a += 5) remainingAngles.push(a);
+  currentAngle = null;
+  correct = 0;
+  total = 0;
+  result.textContent = '';
+  optionsContainer.querySelectorAll('input').forEach(inp => {
+    inp.disabled = false;
+    inp.checked = false;
+    const parent = inp.parentElement;
+    parent.classList.remove('correct', 'incorrect');
+  });
+  startBtn.disabled = true;
+  playing = true;
+  nextAngle();
 }
 
 function drawAngle(angle) {
@@ -59,34 +80,35 @@ function drawAngle(angle) {
 }
 
 function onSelect(e) {
+  if (!playing) return;
   const selected = parseInt(e.target.dataset.angle);
   e.target.disabled = true;
   const label = e.target.parentElement;
   if (selected === currentAngle) {
     label.classList.add('correct');
-    correctCount++;
+    correct++;
   } else {
     label.classList.add('incorrect');
   }
-  totalSelected++;
-  availableAngles = availableAngles.filter(a => a !== selected);
-
-  if (totalSelected === 36) {
+  total++;
+  remainingAngles = remainingAngles.filter(a => a !== selected);
+  if (remainingAngles.length === 0) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    result.textContent = `You got ${correctCount} out of 36 correct.`;
+    result.textContent = `You got ${correct} out of ${total} correct.`;
+    playing = false;
+    startBtn.disabled = false;
   } else {
     nextAngle();
   }
 }
 
 function nextAngle() {
-  if (!availableAngles.length) return;
-  const idx = Math.floor(Math.random() * availableAngles.length);
-  currentAngle = availableAngles[idx];
+  const idx = Math.floor(Math.random() * remainingAngles.length);
+  currentAngle = remainingAngles[idx];
   drawAngle(currentAngle);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  initOptions();
-  nextAngle();
+  createOptions();
+  startBtn.addEventListener('click', startGame);
 });
