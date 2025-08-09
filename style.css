@@ -103,3 +103,55 @@ button {
   cursor: pointer;
 }
 h2, h1 { margin: 10px 0; }
+
+/* Angle memorization styles */
+.angle-options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.angle-option {
+  position: relative;
+  padding-left: 20px;
+  font-size: 14px;
+}
+
+.angle-option input {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 16px;
+  height: 16px;
+  opacity: 0;
+}
+
+.angle-option .box {
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #333;
+  box-sizing: border-box;
+}
+
+.angle-option.correct .box::after {
+  content: '\2713';
+  color: green;
+  position: absolute;
+  left: 2px;
+  top: -3px;
+  font-size: 18px;
+}
+
+.angle-option.incorrect .box::after {
+  content: '\2717';
+  color: red;
+  position: absolute;
+  left: 2px;
+  top: -3px;
+  font-size: 18px;
+}

@@ -30,9 +30,19 @@
         opt.textContent = name;
         list.appendChild(opt);
       });
+      const angleOpt = document.createElement('option');
+      angleOpt.value = 'Angle Challenge';
+      angleOpt.textContent = 'Angle Challenge';
+      list.appendChild(angleOpt);
     }
     function playSelectedScenario() {
       const name = document.getElementById('scenarioList').value;
+      if (name) {
+        if (name === 'Angle Challenge') {
+          window.location.href = 'angles.html';
+        } else {
+          window.location.href = 'scenario_play.html?name=' + encodeURIComponent(name);
+        }
       if (!name) return;
       if (name === 'Point Warmup') {
         window.location.href = 'point_warmup.html';
