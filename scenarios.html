@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Saved Scenarios - Memory Shape Drawing Game</title>
+  <title>Scenarios - Memory Shape Drawing Game</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="menu-screen">
     <button onclick="window.location.href='index.html'">← Back to Menu</button>
-    <h2>Saved Scenarios</h2>
+    <h2>Scenarios</h2>
     <div class="controls">
       <label>Choose Scenario:
         <select id="scenarioList"></select>
@@ -19,12 +19,12 @@
       <button id="playBtn">Play Scenario</button>
     </div>
   </div>
+  <script src="scenarios.js"></script>
   <script>
     function loadScenarioList() {
       const list = document.getElementById('scenarioList');
-      const data = JSON.parse(localStorage.getItem('scenarios') || '{}');
       list.innerHTML = '';
-      Object.keys(data).forEach(name => {
+      getScenarioNames().forEach(name => {
         const opt = document.createElement('option');
         opt.value = name;
         opt.textContent = name;
