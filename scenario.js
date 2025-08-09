@@ -1,6 +1,5 @@
 let scenarioTimer = null;
-let scoreSummary = { green: 0, yellow: 0, red: 0 };
-let shapesNoRed = 0;
+let scoreSummary = { totalDist: 0, totalPoints: 0 };
 let scenarioConfig = null;
 
 function toggleThreshold() {
@@ -9,33 +8,32 @@ function toggleThreshold() {
   if (wrapper) wrapper.style.display = val === 'repeat' ? 'inline-flex' : 'none';
 }
 
-function computeGrades() {
-  const counts = { green: 0, yellow: 0, red: 0 };
+function computeAverageError() {
+  if (!playerShape.length) return 0;
+  let total = 0;
   playerShape.forEach(p => {
     const closest = originalShape.reduce((min, q) => {
       const d = Math.hypot(p.x - q.x, p.y - q.y);
       return d < min ? d : min;
     }, Infinity);
-    if (closest <= 5) counts.green++; else if (closest <= 10) counts.yellow++; else counts.red++;
+    total += closest;
   });
-  return counts;
+  return total / playerShape.length;
 }
 
 function onShapeRevealed() {
   if (!scenarioConfig) return;
-  const counts = computeGrades();
-  scoreSummary.green += counts.green;
-  scoreSummary.yellow += counts.yellow;
-  scoreSummary.red += counts.red;
-  if (counts.red === 0) shapesNoRed++;
-  result.textContent = `Green: ${scoreSummary.green}, Yellow: ${scoreSummary.yellow}, Red: ${scoreSummary.red}, Shapes w/out Red: ${shapesNoRed}`;
+  const avg = computeAverageError();
+  scoreSummary.totalDist += avg * playerShape.length;
+  scoreSummary.totalPoints += playerShape.length;
+  const overall = scoreSummary.totalPoints ? scoreSummary.totalDist / scoreSummary.totalPoints : 0;
+  result.textContent = `Current avg: ${avg.toFixed(1)} px | Overall avg: ${overall.toFixed(1)} px`;
 
   if (scenarioConfig.afterAction === 'end') return;
   if (scenarioConfig.afterAction === 'next') {
     setTimeout(() => startScenario(false), 1000);
   } else if (scenarioConfig.afterAction === 'repeat') {
-    const gradeVal = counts[scenarioConfig.thresholdGrade] || 0;
-    if (gradeVal >= scenarioConfig.thresholdPoints) {
+    if (avg <= scenarioConfig.thresholdPoints) {
       setTimeout(() => startScenario(false), 1000);
     } else {
       setTimeout(() => startScenario(true), 1000);
@@ -163,8 +161,7 @@ function startScenario(repeat = false) {
   const sides = parseInt(document.getElementById('sidesSelect').value);
 
   if (!repeat) {
-    scoreSummary = { green: 0, yellow: 0, red: 0 };
-    shapesNoRed = 0;
+    scoreSummary = { totalDist: 0, totalPoints: 0 };
     scenarioConfig = {
       afterAction: document.getElementById('afterSelect').value,
       thresholdPoints: parseInt(document.getElementById('thresholdPoints').value) || 1,
