@@ -24,25 +24,22 @@ function clearCanvas() {
 }
 
 function drawArrow() {
+  const len = 40;
+  const head = 10;
+  const margin = PPI + len + head;
   currentArrow = {
-    x: Math.random() * (canvas.width - 80) + 40,
-    y: Math.random() * (canvas.height - 80) + 40,
+    x: Math.random() * (canvas.width - 2 * margin) + margin,
+    y: Math.random() * (canvas.height - 2 * margin) + margin,
     angle: Math.random() * Math.PI * 2
   };
-  const len = 40;
   const endX = currentArrow.x + Math.cos(currentArrow.angle) * len;
   const endY = currentArrow.y + Math.sin(currentArrow.angle) * len;
   clearCanvas();
-  ctx.fillStyle = 'black';
-  ctx.beginPath();
-  ctx.arc(currentArrow.x, currentArrow.y, 5, 0, Math.PI * 2);
-  ctx.fill();
   ctx.strokeStyle = 'black';
   ctx.beginPath();
   ctx.moveTo(currentArrow.x, currentArrow.y);
   ctx.lineTo(endX, endY);
   ctx.stroke();
-  const head = 10;
   ctx.beginPath();
   ctx.moveTo(endX, endY);
   ctx.lineTo(endX + Math.cos(currentArrow.angle + Math.PI * 5 / 6) * head,
@@ -80,6 +77,23 @@ function playSound(grade) {
   }
 }
 
+function flashCorrectLine(callback) {
+  const correctX = currentArrow.x + Math.cos(currentArrow.angle) * PPI;
+  const correctY = currentArrow.y + Math.sin(currentArrow.angle) * PPI;
+  ctx.save();
+  ctx.strokeStyle = 'rgba(0, 128, 0, 0.7)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(currentArrow.x, currentArrow.y);
+  ctx.lineTo(correctX, correctY);
+  ctx.stroke();
+  ctx.restore();
+  setTimeout(() => {
+    clearCanvas();
+    callback();
+  }, 300);
+}
+
 function pointerDown(e) {
   if (!playing) return;
   drawing = true;
@@ -115,11 +129,13 @@ function pointerUp(e) {
     stats.red++;
   }
   playSound(grade);
-  if (Date.now() < endTime) {
-    drawArrow();
-  } else {
-    endGame();
-  }
+  flashCorrectLine(() => {
+    if (Date.now() < endTime) {
+      drawArrow();
+    } else {
+      endGame();
+    }
+  });
 }
 
 function startGame() {
