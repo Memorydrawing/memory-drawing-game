@@ -210,11 +210,13 @@ function revealShape() {
 }
 
 function evaluatePointToPoint() {
+  let totalDist = 0;
   playerShape.forEach((p, i) => {
     const closest = originalShape.reduce((min, q) => {
       const d = Math.hypot(p.x - q.x, p.y - q.y);
       return d < min.d ? { d, q } : min;
     }, { d: Infinity });
+    totalDist += closest.d;
     let color = "red";
     if (closest.d <= 5) color = "green";
     else if (closest.d <= 10) color = "orange";
@@ -223,7 +225,8 @@ function evaluatePointToPoint() {
     ctx.font = "16px sans-serif";
     ctx.fillText(i + 1, p.x + 6, p.y - 6);
   });
-  result.textContent = "Reveal complete.";
+  const avg = playerShape.length ? totalDist / playerShape.length : 0;
+  result.textContent = `Average error: ${avg.toFixed(1)} px`;
 }
 
 function evaluateFreehand() {
