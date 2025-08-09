@@ -8,7 +8,7 @@
 </head>
 <body>
   <div class="practice-screen">
-    <button onclick="window.location.href='saved_scenarios.html'">← Back</button>
+    <button onclick="window.location.href='scenarios.html'">← Back</button>
     <h2 id="scenarioTitle">Scenario</h2>
     <button id="startBtn">Start Challenge</button>
     <canvas id="gameCanvas" width="500" height="500"></canvas>
@@ -61,12 +61,12 @@
   </div>
   <script src="app.js"></script>
   <script src="scenario.js"></script>
+  <script src="scenarios.js"></script>
   <script>
     const params = new URLSearchParams(window.location.search);
     const name = params.get('name') || '';
     document.getElementById('scenarioTitle').textContent = name || 'Scenario';
-    const scenarios = JSON.parse(localStorage.getItem('scenarios') || '{}');
-    const scn = scenarios[name];
+    const scn = getScenario(name);
     const startBtn = document.getElementById('startBtn');
     if (!scn) {
       document.getElementById('result').textContent = 'Scenario not found.';
