@@ -33,6 +33,9 @@ const builtInScenarios = {
   },
   "Point Warmup": {
     special: true
+  },
+  "Inch Drill": {
+    special: true
   }
 };
 
