@@ -25,8 +25,6 @@ When you are done drawing, the original shape is revealed so you can compare.
 ## Dependencies
 
 There are no external dependencies aside from a modern web browser that supports HTML5 and JavaScript.
-=======
-This project is a simple browser game where you attempt to reproduce shapes from memory. Choose the practice mode or try a set of predefined scenarios and see how close your drawing is to the original.
 
 ## License
 
