@@ -34,6 +34,14 @@
       angleOpt.value = 'Angle Challenge';
       angleOpt.textContent = 'Angle Challenge';
       list.appendChild(angleOpt);
+      const pointOpt = document.createElement('option');
+      pointOpt.value = 'Point Warmup';
+      pointOpt.textContent = 'Point Warmup';
+      list.appendChild(pointOpt);
+      const inchOpt = document.createElement('option');
+      inchOpt.value = 'Inch Drill';
+      inchOpt.textContent = 'Inch Drill';
+      list.appendChild(inchOpt);
     }
     function playSelectedScenario() {
       const name = document.getElementById('scenarioList').value;
