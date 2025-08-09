@@ -207,6 +207,7 @@ function revealShape() {
     let color = "red";
     if (closest.d <= 5) color = "green";
     else if (closest.d <= 10) color = "orange";
+    drawDot(p, color);
     ctx.fillStyle = color;
     ctx.font = "16px sans-serif";
     ctx.fillText(i + 1, p.x + 6, p.y - 6);
