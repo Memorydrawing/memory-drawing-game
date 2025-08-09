@@ -2,6 +2,7 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const startBtn = document.getElementById('startBtn');
 const result = document.getElementById('result');
+const ppiInput = document.getElementById('ppiInput');
 
 let playing = false;
 let drawing = false;
@@ -12,7 +13,23 @@ let stats = null;
 let currentArrow = null;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-const PPI = window.devicePixelRatio * 96;
+
+const tmp = document.createElement('div');
+tmp.style.width = '1in';
+tmp.style.position = 'absolute';
+tmp.style.visibility = 'hidden';
+document.body.appendChild(tmp);
+let PPI = tmp.offsetWidth;   // true pixels per inch
+document.body.removeChild(tmp);
+
+ppiInput.value = PPI.toFixed(1);
+ppiInput.addEventListener('input', () => {
+  const val = parseFloat(ppiInput.value);
+  if (!isNaN(val) && val > 0) {
+    PPI = val;
+    if (playing) drawArrow();
+  }
+});
 
 function getCanvasPos(e) {
   const rect = canvas.getBoundingClientRect();
