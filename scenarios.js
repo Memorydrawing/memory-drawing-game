@@ -13,5 +13,5 @@ function getScenario(name) {
 }
 
 function getScenarioNames() {
-  return Object.keys(builtInScenarios);
+  return [...Object.keys(builtInScenarios), ...Object.keys(getSavedScenarios())];
 }
