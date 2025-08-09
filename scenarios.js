@@ -39,12 +39,20 @@ const builtInScenarios = {
   }
 };
 
+function getSavedScenarios() {
+  return JSON.parse(localStorage.getItem('scenarios') || '{}');
+}
+
 function getScenario(name) {
-  return builtInScenarios[name];
+  return builtInScenarios[name] || getSavedScenarios()[name];
 }
 
 function getScenarioNames() {
-  return Object.keys(builtInScenarios).filter(
-    name => name !== "Triangle Warmup" && name !== "Square Drill"
-  );
+  const saved = getSavedScenarios();
+  return [
+    ...Object.keys(builtInScenarios).filter(
+      name => name !== "Triangle Warmup" && name !== "Square Drill"
+    ),
+    ...Object.keys(saved)
+  ];
 }
