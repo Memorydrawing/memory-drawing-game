@@ -1,5 +1,8 @@
 const canvas = document.getElementById('angleCanvas');
 const ctx = canvas.getContext('2d');
+let dpr = 1;
+let displayWidth = 0;
+let displayHeight = 0;
 const optionsContainer = document.getElementById('angleOptions');
 const result = document.getElementById('angleResult');
 const startBtn = document.getElementById('startBtn');
@@ -56,9 +59,9 @@ function startGame() {
 
 function drawAngle(angle) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const centerX = canvas.width / 2;
-  const centerY = canvas.height / 2;
-  const length = 200;
+  const centerX = displayWidth / 2;
+  const centerY = displayHeight / 2;
+  const length = Math.min(displayWidth, displayHeight) / 2.5;
   const rotation = Math.random() * Math.PI * 2;
 
   const x1 = centerX + length * Math.cos(rotation);
@@ -109,6 +112,18 @@ function nextAngle() {
   drawAngle(currentAngle);
 }
 
+function resizeCanvas() {
+  dpr = window.devicePixelRatio || 1;
+  displayWidth = window.innerWidth;
+  displayHeight = window.innerHeight;
+  canvas.style.width = displayWidth + 'px';
+  canvas.style.height = displayHeight + 'px';
+  canvas.width = displayWidth * dpr;
+  canvas.height = displayHeight * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  if (currentAngle !== null) drawAngle(currentAngle);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('backBtn')?.addEventListener('click', () => {
     window.location.href = 'scenarios.html';
@@ -120,4 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.title = title;
   }
   startBtn.addEventListener('click', startGame);
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
 });

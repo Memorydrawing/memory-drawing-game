@@ -1,4 +1,5 @@
 let canvas, ctx, startBtn, result, ppiInput;
+let displayWidth = 0, displayHeight = 0;
 
 let playing = false;
 let drawing = false;
@@ -20,10 +21,24 @@ let PPI = tmp.offsetWidth;   // CSS pixels per inch
 document.body.removeChild(tmp);
 
 // Show the approximate physical PPI to the user but store CSS pixels per inch internally.
+function resizeCanvas() {
+  if (!canvas || !ctx) return;
+  const dpr = window.devicePixelRatio || 1;
+  displayWidth = window.innerWidth;
+  displayHeight = window.innerHeight;
+  canvas.style.width = displayWidth + 'px';
+  canvas.style.height = displayHeight + 'px';
+  canvas.width = displayWidth * dpr;
+  canvas.height = displayHeight * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   canvas = document.getElementById('gameCanvas');
   if (!canvas) return;
   ctx = canvas.getContext('2d');
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
   startBtn = document.getElementById('startBtn');
   result = document.getElementById('result');
   ppiInput = document.getElementById('ppiInput');
@@ -60,8 +75,8 @@ function drawArrow() {
   const head = 10;
   const margin = PPI + len + head;
   currentArrow = {
-    x: Math.random() * (canvas.width - 2 * margin) + margin,
-    y: Math.random() * (canvas.height - 2 * margin) + margin,
+    x: Math.random() * (displayWidth - 2 * margin) + margin,
+    y: Math.random() * (displayHeight - 2 * margin) + margin,
     angle: Math.random() * Math.PI * 2
   };
   const endX = currentArrow.x + Math.cos(currentArrow.angle) * len;

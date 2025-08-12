@@ -1,16 +1,32 @@
 let canvas, ctx, drawModeToggle, drawModeLabel, gridSelect, result;
-
 let originalShape = [];
 let playerShape = [];
 let isDrawing = false;
 let drawingEnabled = false;
 let lastShape = [];
 let viewTimer = null;
+let dpr = 1;
+let displayWidth = 0;
+let displayHeight = 0;
+
+function resizeCanvas() {
+  if (!canvas || !ctx) return;
+  dpr = window.devicePixelRatio || 1;
+  displayWidth = window.innerWidth;
+  displayHeight = window.innerHeight;
+  canvas.style.width = displayWidth + 'px';
+  canvas.style.height = displayHeight + 'px';
+  canvas.width = displayWidth * dpr;
+  canvas.height = displayHeight * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   canvas = document.getElementById('gameCanvas');
   if (!canvas) return;
   ctx = canvas.getContext('2d');
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
   drawModeToggle = document.getElementById('drawModeToggle');
   drawModeLabel = document.getElementById('drawModeLabel');
   gridSelect = document.getElementById('gridSelect');
@@ -78,7 +94,7 @@ function newShape() {
   const time = getTimeMs();
   lastShape = originalShape.map(p => ({ ...p }));
   const size = document.getElementById("sizeSelect").value;
-  originalShape = generateShape(sides, canvas.width, canvas.height, size);
+  originalShape = generateShape(sides, displayWidth, displayHeight, size);
   playerShape = [];
   drawingEnabled = false;
   result.textContent = "";
@@ -136,13 +152,15 @@ function clearCanvas() {
 function drawGrid() {
   const gridVal = parseInt(gridSelect.value);
   if (gridVal < 2) return;
-  const spacing = canvas.width / gridVal;
+  const width = displayWidth;
+  const height = displayHeight;
+  const spacing = width / gridVal;
   ctx.strokeStyle = "#000";
   ctx.lineWidth = 0.5;
   for (let i = 1; i < gridVal; i++) {
     let pos = spacing * i;
-    ctx.beginPath(); ctx.moveTo(pos, 0); ctx.lineTo(pos, canvas.height); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(0, pos); ctx.lineTo(canvas.width, pos); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(pos, 0); ctx.lineTo(pos, height); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, pos); ctx.lineTo(width, pos); ctx.stroke();
   }
 }
 

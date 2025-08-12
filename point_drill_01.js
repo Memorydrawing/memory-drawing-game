@@ -9,6 +9,20 @@ let stats = null;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
+let displayWidth = 0, displayHeight = 0;
+
+function resizeCanvas() {
+  if (!canvas || !ctx) return;
+  const dpr = window.devicePixelRatio || 1;
+  displayWidth = window.innerWidth;
+  displayHeight = window.innerHeight;
+  canvas.style.width = displayWidth + 'px';
+  canvas.style.height = displayHeight + 'px';
+  canvas.width = displayWidth * dpr;
+  canvas.height = displayHeight * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
 function getCanvasPos(e) {
   const rect = canvas.getBoundingClientRect();
   return { x: e.clientX - rect.left, y: e.clientY - rect.top };
@@ -21,8 +35,8 @@ function clearCanvas() {
 function drawTarget() {
   const margin = 20;
   target = {
-    x: Math.random() * (canvas.width - 2 * margin) + margin,
-    y: Math.random() * (canvas.height - 2 * margin) + margin
+    x: Math.random() * (displayWidth - 2 * margin) + margin,
+    y: Math.random() * (displayHeight - 2 * margin) + margin
   };
   clearCanvas();
   ctx.fillStyle = 'black';
@@ -128,6 +142,8 @@ document.addEventListener('DOMContentLoaded', () => {
   canvas = document.getElementById('gameCanvas');
   if (!canvas) return;
   ctx = canvas.getContext('2d');
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
   startBtn = document.getElementById('startBtn');
   result = document.getElementById('result');
 
