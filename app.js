@@ -63,7 +63,8 @@ function newShape() {
   const sides = parseInt(document.getElementById("sidesSelect").value);
   const time = getTimeMs();
   lastShape = originalShape.map(p => ({ ...p }));
-  originalShape = generateShape(sides);
+  const size = document.getElementById("sizeSelect").value;
+  originalShape = generateShape(sides, canvas.width, canvas.height, size);
   playerShape = [];
   drawingEnabled = false;
   result.textContent = "";
@@ -112,41 +113,6 @@ function retryShape() {
     drawGivenPoints(originalShape);
     drawingEnabled = true;
   }, time);
-}
-
-function generateShape(sides) {
-  if (sides === 1) {
-    return [{
-      x: Math.random() * (canvas.width - 40) + 20,
-      y: Math.random() * (canvas.height - 40) + 20
-    }];
-  }
-
-  const sizeMap = {
-    small: 60,
-    medium: 120,
-    big: 180
-  };
-  const selectedSize = document.getElementById("sizeSelect");
-  const radius = sizeMap[selectedSize.value] || 120;
-
-  const cx = canvas.width / 2;
-  const cy = canvas.height / 2;
-  const angleOffset = Math.random() * Math.PI * 2;
-
-  const points = [];
-  const angleStep = (2 * Math.PI) / sides;
-
-  for (let i = 0; i < sides; i++) {
-    const angle = angleStep * i + angleOffset;
-    const r = radius * (0.9 + Math.random() * 0.2);
-    points.push({
-      x: cx + r * Math.cos(angle),
-      y: cy + r * Math.sin(angle)
-    });
-  }
-
-  return points;
 }
 
 function clearCanvas() {
@@ -262,16 +228,6 @@ function distanceToPolygon(p, poly) {
     if (d < min) min = d;
   }
   return min;
-}
-
-function distancePointToSegment(p, a, b) {
-  const ab = { x: b.x - a.x, y: b.y - a.y };
-  const ap = { x: p.x - a.x, y: p.y - a.y };
-  const abLenSq = ab.x * ab.x + ab.y * ab.y;
-  const t = abLenSq === 0 ? 0 : ((ap.x * ab.x + ap.y * ab.y) / abLenSq);
-  const clampedT = Math.max(0, Math.min(1, t));
-  const proj = { x: a.x + clampedT * ab.x, y: a.y + clampedT * ab.y };
-  return Math.hypot(p.x - proj.x, p.y - proj.y);
 }
 
 function drawFreehand() {

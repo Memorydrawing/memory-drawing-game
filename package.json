@@ -2,6 +2,9 @@
   "name": "memory-drawing-game",
   "version": "1.0.0",
   "scripts": {
-    "test": "node --check angles.js scenarios.js"
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^30.0.5"
   }
 }
