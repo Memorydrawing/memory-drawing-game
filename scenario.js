@@ -171,7 +171,8 @@ function startScenario(repeat = false) {
 
   if (!repeat) {
     lastShape = originalShape.map(p => ({ ...p }));
-    originalShape = generateShape(sides);
+    const size = document.getElementById('sizeSelect').value;
+    originalShape = generateShape(sides, canvas.width, canvas.height, size);
   }
   playerShape = [];
   drawingEnabled = false;
