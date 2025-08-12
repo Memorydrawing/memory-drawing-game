@@ -1,4 +1,5 @@
 import { getCanvasPos, clearCanvas } from './src/utils.js';
+import { generateShape, distancePointToSegment } from './geometry.js';
 
 export let canvas, ctx, drawModeToggle, drawModeLabel, gridSelect, result;
 

@@ -1,4 +1,4 @@
-function generateShape(sides, width, height, size = 'medium') {
+export function generateShape(sides, width, height, size = 'medium') {
   if (sides === 1) {
     return [{
       x: Math.random() * (width - 40) + 20,
@@ -32,7 +32,7 @@ function generateShape(sides, width, height, size = 'medium') {
   return points;
 }
 
-function distancePointToSegment(p, a, b) {
+export function distancePointToSegment(p, a, b) {
   const ab = { x: b.x - a.x, y: b.y - a.y };
   const ap = { x: p.x - a.x, y: p.y - a.y };
   const abLenSq = ab.x * ab.x + ab.y * ab.y;
@@ -42,9 +42,3 @@ function distancePointToSegment(p, a, b) {
   return Math.hypot(p.x - proj.x, p.y - proj.y);
 }
 
-if (typeof module !== 'undefined') {
-  module.exports = { generateShape, distancePointToSegment };
-} else {
-  window.generateShape = (sides, width, height, size) => generateShape(sides, width, height, size);
-  window.distancePointToSegment = distancePointToSegment;
-}
