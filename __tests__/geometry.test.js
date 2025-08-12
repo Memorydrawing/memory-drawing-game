@@ -1,4 +1,4 @@
-const { generateShape, distancePointToSegment } = require('../geometry');
+import { generateShape, distancePointToSegment } from '../geometry.js';
 
 describe('generateShape', () => {
   const width = 500;

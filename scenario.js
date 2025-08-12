@@ -1,4 +1,5 @@
 import { clearCanvas } from './src/utils.js';
+import { generateShape } from './geometry.js';
 import {
   canvas,
   ctx,
