@@ -1,9 +1,4 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-const drawModeToggle = document.getElementById("drawModeToggle");
-const drawModeLabel = document.getElementById("drawModeLabel");
-const gridSelect = document.getElementById("gridSelect");
-const result = document.getElementById("result");
+let canvas, ctx, drawModeToggle, drawModeLabel, gridSelect, result;
 
 let originalShape = [];
 let playerShape = [];
@@ -12,37 +7,56 @@ let drawingEnabled = false;
 let lastShape = [];
 let viewTimer = null;
 
-drawModeToggle.addEventListener("change", () => {
-  drawModeLabel.textContent = drawModeToggle.checked ? "Point-to-Point" : "Freehand";
-});
+document.addEventListener('DOMContentLoaded', () => {
+  canvas = document.getElementById('gameCanvas');
+  if (!canvas) return;
+  ctx = canvas.getContext('2d');
+  drawModeToggle = document.getElementById('drawModeToggle');
+  drawModeLabel = document.getElementById('drawModeLabel');
+  gridSelect = document.getElementById('gridSelect');
+  result = document.getElementById('result');
 
-canvas.addEventListener("pointerdown", (e) => {
-  if (!drawingEnabled) return;
-  const pos = getCanvasPos(e);
-  if (drawModeToggle.checked) {
-    playerShape.push(pos);
-    drawDots();
-    if (playerShape.length === originalShape.length) {
-      setTimeout(revealShape, 300);
-    }
-  } else {
-    isDrawing = true;
-    playerShape = [pos];
-    drawFreehand();
+  if (drawModeToggle && drawModeLabel) {
+    drawModeToggle.addEventListener('change', () => {
+      drawModeLabel.textContent = drawModeToggle.checked ? 'Point-to-Point' : 'Freehand';
+    });
   }
-});
 
-canvas.addEventListener("pointermove", (e) => {
-  if (!drawingEnabled || drawModeToggle.checked || !isDrawing) return;
-  const pos = getCanvasPos(e);
-  playerShape.push(pos);
-  drawFreehand();
-});
+  canvas.addEventListener('pointerdown', (e) => {
+    if (!drawingEnabled) return;
+    const pos = getCanvasPos(e);
+    if (drawModeToggle?.checked) {
+      playerShape.push(pos);
+      drawDots();
+      if (playerShape.length === originalShape.length) {
+        setTimeout(revealShape, 300);
+      }
+    } else {
+      isDrawing = true;
+      playerShape = [pos];
+      drawFreehand();
+    }
+  });
 
-canvas.addEventListener("pointerup", () => {
-  if (!drawingEnabled || drawModeToggle.checked) return;
-  isDrawing = false;
-  revealShape();
+  canvas.addEventListener('pointermove', (e) => {
+    if (!drawingEnabled || drawModeToggle?.checked || !isDrawing) return;
+    const pos = getCanvasPos(e);
+    playerShape.push(pos);
+    drawFreehand();
+  });
+
+  canvas.addEventListener('pointerup', () => {
+    if (!drawingEnabled || drawModeToggle?.checked) return;
+    isDrawing = false;
+    revealShape();
+  });
+
+  document.getElementById('newShapeBtn')?.addEventListener('click', newShape);
+  document.getElementById('previousShapeBtn')?.addEventListener('click', previousShape);
+  document.getElementById('retryShapeBtn')?.addEventListener('click', retryShape);
+  document.getElementById('menuBtn')?.addEventListener('click', () => {
+    window.location.href = 'index.html';
+  });
 });
 
 function getCanvasPos(e) {
