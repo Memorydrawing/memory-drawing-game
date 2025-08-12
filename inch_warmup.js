@@ -1,8 +1,6 @@
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const startBtn = document.getElementById('startBtn');
-const result = document.getElementById('result');
-const ppiInput = document.getElementById('ppiInput');
+import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
+
+let canvas, ctx, startBtn, result, ppiInput;
 
 let playing = false;
 let drawing = false;
@@ -24,23 +22,31 @@ let PPI = tmp.offsetWidth;   // CSS pixels per inch
 document.body.removeChild(tmp);
 
 // Show the approximate physical PPI to the user but store CSS pixels per inch internally.
-ppiInput.value = (PPI * DPR).toFixed(1);
-ppiInput.addEventListener('input', () => {
-  const val = parseFloat(ppiInput.value);
-  if (!isNaN(val) && val > 0) {
-    PPI = val / DPR; // convert physical PPI to CSS pixels per inch
-    if (playing) drawArrow();
-  }
+document.addEventListener('DOMContentLoaded', () => {
+  canvas = document.getElementById('gameCanvas');
+  if (!canvas) return;
+  ctx = canvas.getContext('2d');
+  startBtn = document.getElementById('startBtn');
+  result = document.getElementById('result');
+  ppiInput = document.getElementById('ppiInput');
+
+  ppiInput.value = (PPI * DPR).toFixed(1);
+  ppiInput.addEventListener('input', () => {
+    const val = parseFloat(ppiInput.value);
+    if (!isNaN(val) && val > 0) {
+      PPI = val / DPR; // convert physical PPI to CSS pixels per inch
+      if (playing) drawArrow();
+    }
+  });
+
+  canvas.addEventListener('pointerdown', pointerDown);
+  canvas.addEventListener('pointermove', pointerMove);
+  canvas.addEventListener('pointerup', pointerUp);
+  startBtn.addEventListener('click', startGame);
+  document.getElementById('backBtn')?.addEventListener('click', () => {
+    window.location.href = 'scenarios.html';
+  });
 });
-
-function getCanvasPos(e) {
-  const rect = canvas.getBoundingClientRect();
-  return { x: e.clientX - rect.left, y: e.clientY - rect.top };
-}
-
-function clearCanvas() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
 
 function drawArrow() {
   const len = 40;
@@ -53,7 +59,7 @@ function drawArrow() {
   };
   const endX = currentArrow.x + Math.cos(currentArrow.angle) * len;
   const endY = currentArrow.y + Math.sin(currentArrow.angle) * len;
-  clearCanvas();
+  clearCanvas(ctx);
   ctx.strokeStyle = 'black';
   ctx.beginPath();
   ctx.moveTo(currentArrow.x, currentArrow.y);
@@ -69,32 +75,6 @@ function drawArrow() {
   ctx.fill();
 }
 
-function playSound(grade) {
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.connect(gain).connect(audioCtx.destination);
-  const now = audioCtx.currentTime;
-  if (grade === 'green') {
-    osc.frequency.setValueAtTime(800, now);
-    gain.gain.setValueAtTime(1, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-    osc.start(now);
-    osc.stop(now + 0.1);
-  } else if (grade === 'yellow') {
-    osc.frequency.setValueAtTime(400, now);
-    gain.gain.setValueAtTime(0.6, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-    osc.start(now);
-    osc.stop(now + 0.15);
-  } else {
-    osc.frequency.setValueAtTime(200, now);
-    osc.frequency.linearRampToValueAtTime(100, now + 0.3);
-    gain.gain.setValueAtTime(0.7, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-    osc.start(now);
-    osc.stop(now + 0.3);
-  }
-}
 
 function flashCorrectLine(callback) {
   const correctX = currentArrow.x + Math.cos(currentArrow.angle) * PPI;
@@ -108,7 +88,7 @@ function flashCorrectLine(callback) {
   ctx.stroke();
   ctx.restore();
   setTimeout(() => {
-    clearCanvas();
+    clearCanvas(ctx);
     callback();
   }, 300);
 }
@@ -116,14 +96,14 @@ function flashCorrectLine(callback) {
 function pointerDown(e) {
   if (!playing) return;
   drawing = true;
-  startPos = getCanvasPos(e);
+  startPos = getCanvasPos(canvas, e);
   ctx.beginPath();
   ctx.moveTo(startPos.x, startPos.y);
 }
 
 function pointerMove(e) {
   if (!drawing) return;
-  const pos = getCanvasPos(e);
+  const pos = getCanvasPos(canvas, e);
   ctx.lineTo(pos.x, pos.y);
   ctx.stroke();
 }
@@ -131,7 +111,7 @@ function pointerMove(e) {
 function pointerUp(e) {
   if (!drawing) return;
   drawing = false;
-  const pos = getCanvasPos(e);
+  const pos = getCanvasPos(canvas, e);
   const d = Math.hypot(pos.x - startPos.x, pos.y - startPos.y);
   const inches = d / PPI;
   const err = Math.abs(inches - 1);
@@ -147,7 +127,7 @@ function pointerUp(e) {
   } else {
     stats.red++;
   }
-  playSound(grade);
+  playSound(audioCtx, grade);
   flashCorrectLine(() => {
     if (Date.now() < endTime) {
       drawArrow();
@@ -172,11 +152,12 @@ function endGame() {
   if (!playing) return;
   playing = false;
   clearTimeout(gameTimer);
-  clearCanvas();
+  clearCanvas(ctx);
   const avg = stats.totalPoints ? stats.totalErr / stats.totalPoints : 0;
   result.textContent = `Average error: ${avg.toFixed(3)} in | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
   startBtn.disabled = false;
 }
+
 
 canvas.addEventListener('pointerdown', pointerDown);
 canvas.addEventListener('pointermove', pointerMove);
@@ -188,3 +169,5 @@ window.addEventListener('DOMContentLoaded', () => {
     navigator.serviceWorker.register('service-worker.js');
   }
 });
+
+

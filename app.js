@@ -1,57 +1,71 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-const drawModeToggle = document.getElementById("drawModeToggle");
-const drawModeLabel = document.getElementById("drawModeLabel");
-const gridSelect = document.getElementById("gridSelect");
-const result = document.getElementById("result");
+import { getCanvasPos, clearCanvas } from './src/utils.js';
 
-let originalShape = [];
-let playerShape = [];
+export let canvas, ctx, drawModeToggle, drawModeLabel, gridSelect, result;
+
+export let originalShape = [];
+export let playerShape = [];
 let isDrawing = false;
-let drawingEnabled = false;
-let lastShape = [];
-let viewTimer = null;
+export let drawingEnabled = false;
+export let lastShape = [];
+export let viewTimer = null;
 
-drawModeToggle.addEventListener("change", () => {
-  drawModeLabel.textContent = drawModeToggle.checked ? "Point-to-Point" : "Freehand";
-});
+export function setPlayerShape(shape) { playerShape = shape; }
+export function setOriginalShape(shape) { originalShape = shape; }
+export function setDrawingEnabled(val) { drawingEnabled = val; }
+export function setLastShape(shape) { lastShape = shape; }
+export function setViewTimer(timer) { viewTimer = timer; }
 
-canvas.addEventListener("pointerdown", (e) => {
-  if (!drawingEnabled) return;
-  const pos = getCanvasPos(e);
-  if (drawModeToggle.checked) {
-    playerShape.push(pos);
-    drawDots();
-    if (playerShape.length === originalShape.length) {
-      setTimeout(revealShape, 300);
-    }
-  } else {
-    isDrawing = true;
-    playerShape = [pos];
-    drawFreehand();
+document.addEventListener('DOMContentLoaded', () => {
+  canvas = document.getElementById('gameCanvas');
+  if (!canvas) return;
+  ctx = canvas.getContext('2d');
+  drawModeToggle = document.getElementById('drawModeToggle');
+  drawModeLabel = document.getElementById('drawModeLabel');
+  gridSelect = document.getElementById('gridSelect');
+  result = document.getElementById('result');
+
+  if (drawModeToggle && drawModeLabel) {
+    drawModeToggle.addEventListener('change', () => {
+      drawModeLabel.textContent = drawModeToggle.checked ? 'Point-to-Point' : 'Freehand';
+    });
   }
-});
 
-canvas.addEventListener("pointermove", (e) => {
-  if (!drawingEnabled || drawModeToggle.checked || !isDrawing) return;
-  const pos = getCanvasPos(e);
-  playerShape.push(pos);
-  drawFreehand();
-});
+  canvas.addEventListener('pointerdown', (e) => {
+    if (!drawingEnabled) return;
+    const pos = getCanvasPos(canvas, e);
+    if (drawModeToggle?.checked) {
+      playerShape.push(pos);
+      drawDots();
+      if (playerShape.length === originalShape.length) {
+        setTimeout(revealShape, 300);
+      }
+    } else {
+      isDrawing = true;
+      playerShape = [pos];
+      drawFreehand();
+    }
+  });
 
-canvas.addEventListener("pointerup", () => {
-  if (!drawingEnabled || drawModeToggle.checked) return;
-  isDrawing = false;
-  revealShape();
-});
+  canvas.addEventListener('pointermove', (e) => {
+    if (!drawingEnabled || drawModeToggle?.checked || !isDrawing) return;
+    const pos = getCanvasPos(canvas, e);
+    playerShape.push(pos);
+    drawFreehand();
+  });
 
-function getCanvasPos(e) {
-  const rect = canvas.getBoundingClientRect();
-  return {
-    x: e.clientX - rect.left,
-    y: e.clientY - rect.top
-  };
-}
+  canvas.addEventListener('pointerup', () => {
+    if (!drawingEnabled || drawModeToggle?.checked) return;
+    isDrawing = false;
+    revealShape();
+  });
+
+  document.getElementById('newShapeBtn')?.addEventListener('click', newShape);
+  document.getElementById('previousShapeBtn')?.addEventListener('click', previousShape);
+  document.getElementById('retryShapeBtn')?.addEventListener('click', retryShape);
+  document.getElementById('menuBtn')?.addEventListener('click', () => {
+    window.location.href = 'index.html';
+  });
+});
 
 function getTimeMs() {
   const sec = parseFloat(document.getElementById("timeInput").value);
@@ -63,15 +77,16 @@ function newShape() {
   const sides = parseInt(document.getElementById("sidesSelect").value);
   const time = getTimeMs();
   lastShape = originalShape.map(p => ({ ...p }));
-  originalShape = generateShape(sides);
+  const size = document.getElementById("sizeSelect").value;
+  originalShape = generateShape(sides, canvas.width, canvas.height, size);
   playerShape = [];
   drawingEnabled = false;
   result.textContent = "";
-  clearCanvas();
+  clearCanvas(ctx);
   drawGrid();
   drawShape(originalShape, "black");
   viewTimer = setTimeout(() => {
-    clearCanvas();
+    clearCanvas(ctx);
     drawGrid();
     drawGivenPoints(originalShape);
     drawingEnabled = true;
@@ -85,12 +100,12 @@ function previousShape() {
   playerShape = [];
   drawingEnabled = false;
   result.textContent = "";
-  clearCanvas();
+  clearCanvas(ctx);
   drawGrid();
   drawShape(originalShape, "black");
   const time = getTimeMs();
   viewTimer = setTimeout(() => {
-    clearCanvas();
+    clearCanvas(ctx);
     drawGrid();
     drawGivenPoints(originalShape);
     drawingEnabled = true;
@@ -103,57 +118,18 @@ function retryShape() {
   playerShape = [];
   drawingEnabled = false;
   result.textContent = "";
-  clearCanvas();
+  clearCanvas(ctx);
   drawGrid();
   drawShape(originalShape, "black");
   viewTimer = setTimeout(() => {
-    clearCanvas();
+    clearCanvas(ctx);
     drawGrid();
     drawGivenPoints(originalShape);
     drawingEnabled = true;
   }, time);
 }
 
-function generateShape(sides) {
-  if (sides === 1) {
-    return [{
-      x: Math.random() * (canvas.width - 40) + 20,
-      y: Math.random() * (canvas.height - 40) + 20
-    }];
-  }
-
-  const sizeMap = {
-    small: 60,
-    medium: 120,
-    big: 180
-  };
-  const selectedSize = document.getElementById("sizeSelect");
-  const radius = sizeMap[selectedSize.value] || 120;
-
-  const cx = canvas.width / 2;
-  const cy = canvas.height / 2;
-  const angleOffset = Math.random() * Math.PI * 2;
-
-  const points = [];
-  const angleStep = (2 * Math.PI) / sides;
-
-  for (let i = 0; i < sides; i++) {
-    const angle = angleStep * i + angleOffset;
-    const r = radius * (0.9 + Math.random() * 0.2);
-    points.push({
-      x: cx + r * Math.cos(angle),
-      y: cy + r * Math.sin(angle)
-    });
-  }
-
-  return points;
-}
-
-function clearCanvas() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
-
-function drawGrid() {
+export function drawGrid() {
   const gridVal = parseInt(gridSelect.value);
   if (gridVal < 2) return;
   const spacing = canvas.width / gridVal;
@@ -166,14 +142,14 @@ function drawGrid() {
   }
 }
 
-function drawShape(points, color) {
+export function drawShape(points, color) {
   if (points.length === 1) { drawDot(points[0], color); return; }
   ctx.beginPath(); ctx.moveTo(points[0].x, points[0].y);
   for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
   ctx.closePath(); ctx.fillStyle = color; ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.fill(); ctx.stroke();
 }
 
-function drawGivenPoints(points) {
+export function drawGivenPoints(points) {
   const extremes = {
     top: points.reduce((a, b) => (a.y < b.y ? a : b)),
     bottom: points.reduce((a, b) => (a.y > b.y ? a : b)),
@@ -191,14 +167,14 @@ function drawDot(pt, color) {
 }
 
 function drawDots() {
-  clearCanvas(); drawGrid();
+  clearCanvas(ctx); drawGrid();
   drawGivenPoints(originalShape);
   playerShape.forEach(pt => drawDot(pt, "red"));
 }
 
-function revealShape() {
+export function revealShape() {
   drawingEnabled = false;
-  clearCanvas();
+  clearCanvas(ctx);
   drawGrid();
   drawShape(originalShape, "black");
   if (drawModeToggle.checked) {
@@ -226,7 +202,12 @@ function evaluatePointToPoint() {
     ctx.fillText(i + 1, p.x + 6, p.y - 6);
   });
   const avg = playerShape.length ? totalDist / playerShape.length : 0;
-  result.textContent = `Average error: ${avg.toFixed(1)} px`;
+  let best = parseFloat(localStorage.getItem('p2pBest'));
+  if (isNaN(best) || avg < best) {
+    best = avg;
+    localStorage.setItem('p2pBest', best.toString());
+  }
+  result.textContent = `Average error: ${avg.toFixed(1)} px (Best: ${best.toFixed(1)} px)`;
 }
 
 function evaluateFreehand() {
@@ -250,7 +231,12 @@ function evaluateFreehand() {
     ctx.stroke();
   }
   const avg = totalDist / (playerShape.length - 1);
-  result.textContent = `Average error: ${avg.toFixed(1)} px`;
+  let best = parseFloat(localStorage.getItem('freehandBest'));
+  if (isNaN(best) || avg < best) {
+    best = avg;
+    localStorage.setItem('freehandBest', best.toString());
+  }
+  result.textContent = `Average error: ${avg.toFixed(1)} px (Best: ${best.toFixed(1)} px)`;
 }
 
 function distanceToPolygon(p, poly) {
@@ -264,18 +250,8 @@ function distanceToPolygon(p, poly) {
   return min;
 }
 
-function distancePointToSegment(p, a, b) {
-  const ab = { x: b.x - a.x, y: b.y - a.y };
-  const ap = { x: p.x - a.x, y: p.y - a.y };
-  const abLenSq = ab.x * ab.x + ab.y * ab.y;
-  const t = abLenSq === 0 ? 0 : ((ap.x * ab.x + ap.y * ab.y) / abLenSq);
-  const clampedT = Math.max(0, Math.min(1, t));
-  const proj = { x: a.x + clampedT * ab.x, y: a.y + clampedT * ab.y };
-  return Math.hypot(p.x - proj.x, p.y - proj.y);
-}
-
 function drawFreehand() {
-  clearCanvas(); drawGrid(); drawGivenPoints(originalShape);
+  clearCanvas(ctx); drawGrid(); drawGivenPoints(originalShape);
   if (playerShape.length < 2) return;
   ctx.beginPath(); ctx.moveTo(playerShape[0].x, playerShape[0].y);
   for (let i = 1; i < playerShape.length; i++) ctx.lineTo(playerShape[i].x, playerShape[i].y);

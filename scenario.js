@@ -1,3 +1,25 @@
+import { clearCanvas } from './src/utils.js';
+import {
+  canvas,
+  ctx,
+  result,
+  originalShape,
+  playerShape,
+  drawingEnabled,
+  lastShape,
+  viewTimer,
+  drawGrid,
+  drawShape,
+  drawGivenPoints,
+  revealShape,
+  setPlayerShape,
+  setOriginalShape,
+  setDrawingEnabled,
+  setLastShape,
+  setViewTimer
+} from './app.js';
+import { getScenario } from './scenarios.js';
+
 let scenarioTimer = null;
 let scoreSummary = { totalDist: 0, totalPoints: 0 };
 let scenarioConfig = null;
@@ -149,8 +171,49 @@ document.addEventListener('DOMContentLoaded', () => {
     applyScenario();
     showScreen('scenarioScreen');
   });
+
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js');
+
+  const backScenarioBtn = document.getElementById('scenarioBackBtn');
+  if (backScenarioBtn) {
+    backScenarioBtn.addEventListener('click', () => {
+      window.location.href = 'scenarios.html';
+    });
+  }
+
+  const startBtn = document.getElementById('startBtn');
+  if (startBtn) {
+    const params = new URLSearchParams(window.location.search);
+    const name = params.get('name') || '';
+    const titleEl = document.getElementById('scenarioTitle');
+    if (titleEl) titleEl.textContent = name || 'Scenario';
+    const scn = getScenario(name);
+    if (!scn) {
+      document.getElementById('result').textContent = 'Scenario not found.';
+      startBtn.disabled = true;
+    } else {
+      document.getElementById('timeInput').value = scn.time;
+      document.getElementById('bufferInput').value = scn.buffer;
+      document.getElementById('challengeInput').value = scn.challenge;
+      document.getElementById('sidesSelect').value = scn.sides;
+      document.getElementById('sizeSelect').value = scn.size;
+      document.getElementById('gridSelect').value = scn.grid;
+      document.getElementById('drawModeToggle').checked = scn.drawMode;
+      document.getElementById('drawModeLabel').textContent = scn.drawMode ? 'Point-to-Point' : 'Freehand';
+      document.getElementById('giveHighest').checked = scn.giveHighest;
+      document.getElementById('giveLowest').checked = scn.giveLowest;
+      document.getElementById('giveLeftmost').checked = scn.giveLeftmost;
+      document.getElementById('giveRightmost').checked = scn.giveRightmost;
+      document.getElementById('afterSelect').value = scn.afterAction || 'end';
+      document.getElementById('thresholdPoints').value = scn.thresholdPoints || 1;
+      document.getElementById('thresholdGrade').value = scn.thresholdGrade || 'green';
+      toggleThreshold();
+    }
+    startBtn.addEventListener('click', () => {
+      result.textContent = '';
+      startScenario();
+    });
   }
 });
 
@@ -173,25 +236,26 @@ function startScenario(repeat = false) {
   }
 
   if (!repeat) {
-    lastShape = originalShape.map(p => ({ ...p }));
-    originalShape = generateShape(sides);
+    setLastShape(originalShape.map(p => ({ ...p })));
+    const size = document.getElementById('sizeSelect').value;
+    setOriginalShape(generateShape(sides, canvas.width, canvas.height, size));
   }
-  playerShape = [];
-  drawingEnabled = false;
+  setPlayerShape([]);
+  setDrawingEnabled(false);
   result.textContent = '';
-  clearCanvas();
+  clearCanvas(ctx);
   drawGrid();
   drawShape(originalShape, 'black');
 
-  viewTimer = setTimeout(() => {
-    clearCanvas();
+  setViewTimer(setTimeout(() => {
+    clearCanvas(ctx);
     drawGrid();
     drawGivenPoints(originalShape);
     setTimeout(() => {
-      drawingEnabled = true;
+      setDrawingEnabled(true);
       scenarioTimer = setTimeout(() => {
         revealShape();
       }, challengeLength);
     }, bufferTime);
-  }, lookTime);
+  }, lookTime));
 }

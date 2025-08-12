@@ -1,7 +1,6 @@
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const startBtn = document.getElementById('startBtn');
-const result = document.getElementById('result');
+import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
+
+let canvas, ctx, startBtn, result;
 
 let playing = false;
 let awaitingClick = false;
@@ -12,58 +11,23 @@ let stats = null;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-function getCanvasPos(e) {
-  const rect = canvas.getBoundingClientRect();
-  return { x: e.clientX - rect.left, y: e.clientY - rect.top };
-}
-
-function clearCanvas() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
-
 function drawTarget() {
   const margin = 20;
   target = {
     x: Math.random() * (canvas.width - 2 * margin) + margin,
     y: Math.random() * (canvas.height - 2 * margin) + margin
   };
-  clearCanvas();
+  clearCanvas(ctx);
   ctx.fillStyle = 'black';
   ctx.beginPath();
   ctx.arc(target.x, target.y, 5, 0, Math.PI * 2);
   ctx.fill();
   setTimeout(() => {
-    clearCanvas();
+    clearCanvas(ctx);
     awaitingClick = true;
   }, 500);
 }
 
-function playSound(grade) {
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.connect(gain).connect(audioCtx.destination);
-  const now = audioCtx.currentTime;
-  if (grade === 'green') {
-    osc.frequency.setValueAtTime(800, now);
-    gain.gain.setValueAtTime(1, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-    osc.start(now);
-    osc.stop(now + 0.1);
-  } else if (grade === 'yellow') {
-    osc.frequency.setValueAtTime(400, now);
-    gain.gain.setValueAtTime(0.6, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-    osc.start(now);
-    osc.stop(now + 0.15);
-  } else {
-    osc.frequency.setValueAtTime(200, now);
-    osc.frequency.linearRampToValueAtTime(100, now + 0.3);
-    gain.gain.setValueAtTime(0.7, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-    osc.start(now);
-    osc.stop(now + 0.3);
-  }
-}
 
 function flashTarget(callback) {
   ctx.save();
@@ -73,7 +37,7 @@ function flashTarget(callback) {
   ctx.fill();
   ctx.restore();
   setTimeout(() => {
-    clearCanvas();
+    clearCanvas(ctx);
     callback();
   }, 300);
 }
@@ -81,7 +45,7 @@ function flashTarget(callback) {
 function pointerDown(e) {
   if (!awaitingClick) return;
   awaitingClick = false;
-  const pos = getCanvasPos(e);
+  const pos = getCanvasPos(canvas, e);
   const d = Math.hypot(pos.x - target.x, pos.y - target.y);
   stats.totalErr += d;
   stats.totalPoints++;
@@ -95,7 +59,7 @@ function pointerDown(e) {
   } else {
     stats.red++;
   }
-  playSound(grade);
+  playSound(audioCtx, grade);
   flashTarget(() => {
     if (Date.now() < endTime) {
       drawTarget();
@@ -121,11 +85,12 @@ function endGame() {
   if (!playing) return;
   playing = false;
   clearTimeout(gameTimer);
-  clearCanvas();
+  clearCanvas(ctx);
   const avg = stats.totalPoints ? stats.totalErr / stats.totalPoints : 0;
   result.textContent = `Average error: ${avg.toFixed(1)} px | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
   startBtn.disabled = false;
 }
+
 
 canvas.addEventListener('pointerdown', pointerDown);
 startBtn.addEventListener('click', startGame);
@@ -134,4 +99,16 @@ window.addEventListener('DOMContentLoaded', () => {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js');
   }
+document.addEventListener('DOMContentLoaded', () => {
+  canvas = document.getElementById('gameCanvas');
+  if (!canvas) return;
+  ctx = canvas.getContext('2d');
+  startBtn = document.getElementById('startBtn');
+  result = document.getElementById('result');
+
+  canvas.addEventListener('pointerdown', pointerDown);
+  startBtn.addEventListener('click', startGame);
+  document.getElementById('backBtn')?.addEventListener('click', () => {
+    window.location.href = 'scenarios.html';
+  });
 });
