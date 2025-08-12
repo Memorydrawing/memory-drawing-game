@@ -120,7 +120,4 @@ document.addEventListener('DOMContentLoaded', () => {
     document.title = title;
   }
   startBtn.addEventListener('click', startGame);
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js');
-  }
 });
