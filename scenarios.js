@@ -11,7 +11,7 @@ function getSavedScenarios() {
   return JSON.parse(localStorage.getItem('scenarios') || '{}');
 }
 
-function getScenario(name) {
+export function getScenario(name) {
   return builtInScenarios[name] || getSavedScenarios()[name];
 }
 
