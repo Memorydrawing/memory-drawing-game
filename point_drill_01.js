@@ -91,6 +91,13 @@ function endGame() {
   startBtn.disabled = false;
 }
 
+canvas.addEventListener('pointerdown', pointerDown);
+startBtn.addEventListener('click', startGame);
+
+window.addEventListener('DOMContentLoaded', () => {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js');
+  }
 document.addEventListener('DOMContentLoaded', () => {
   canvas = document.getElementById('gameCanvas');
   if (!canvas) return;

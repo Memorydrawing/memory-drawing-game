@@ -172,6 +172,9 @@ document.addEventListener('DOMContentLoaded', () => {
     showScreen('scenarioScreen');
   });
 
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js');
+
   const backScenarioBtn = document.getElementById('scenarioBackBtn');
   if (backScenarioBtn) {
     backScenarioBtn.addEventListener('click', () => {
