@@ -281,3 +281,9 @@ function drawFreehand() {
   for (let i = 1; i < playerShape.length; i++) ctx.lineTo(playerShape[i].x, playerShape[i].y);
   ctx.strokeStyle = "red"; ctx.lineWidth = 1.5; ctx.stroke();
 }
+
+window.addEventListener('DOMContentLoaded', () => {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js');
+  }
+});

@@ -18,3 +18,9 @@ function getScenario(name) {
 function getScenarioNames() {
   return [...Object.keys(builtInScenarios), ...Object.keys(getSavedScenarios())];
 }
+
+window.addEventListener('DOMContentLoaded', () => {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js');
+  }
+});

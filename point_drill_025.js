@@ -129,3 +129,9 @@ function endGame() {
 
 canvas.addEventListener('pointerdown', pointerDown);
 startBtn.addEventListener('click', startGame);
+
+window.addEventListener('DOMContentLoaded', () => {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js');
+  }
+});
