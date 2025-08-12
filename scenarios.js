@@ -1,11 +1,15 @@
-const builtInScenarios = {
-  "Angle Challenge": { special: true },
-  "Angle Challenge (10\u00B0 increments)": { special: true },
-  "Inch Drill": { special: true },
-  "Point Drill 0.5 sec Look": { special: true },
-  "Point Drill 0.25 sec Look": { special: true },
-  "Point Drill 0.1 sec Look": { special: true }
+export const scenarioUrls = {
+  "Angle Challenge": 'angles.html',
+  "Angle Challenge (10\u00B0 increments)": 'angles.html?step=10',
+  "Inch Drill": 'inch_warmup.html',
+  "Point Drill 0.5 sec Look": 'point_drill_05.html',
+  "Point Drill 0.25 sec Look": 'point_drill_025.html',
+  "Point Drill 0.1 sec Look": 'point_drill_01.html'
 };
+
+const builtInScenarios = Object.fromEntries(
+  Object.keys(scenarioUrls).map(name => [name, { special: true }])
+);
 
 function getSavedScenarios() {
   try {
@@ -36,24 +40,14 @@ function loadScenarioList() {
   });
 }
 
-function playSelectedScenario() {
+export function getScenarioUrl(name) {
+  return scenarioUrls[name] || `scenario_play.html?name=${encodeURIComponent(name)}`;
+}
+
+export function playSelectedScenario() {
   const name = document.getElementById('scenarioList')?.value;
   if (!name) return;
-  if (name === 'Angle Challenge') {
-    window.location.href = 'angles.html';
-  } else if (name === 'Angle Challenge (10\u00B0 increments)') {
-    window.location.href = 'angles.html?step=10';
-  } else if (name === 'Inch Drill') {
-    window.location.href = 'inch_warmup.html';
-  } else if (name === 'Point Drill 0.5 sec Look') {
-    window.location.href = 'point_drill_05.html';
-  } else if (name === 'Point Drill 0.25 sec Look') {
-    window.location.href = 'point_drill_025.html';
-  } else if (name === 'Point Drill 0.1 sec Look') {
-    window.location.href = 'point_drill_01.html';
-  } else {
-    window.location.href = 'scenario_play.html?name=' + encodeURIComponent(name);
-  }
+  window.location.assign(getScenarioUrl(name));
 }
 
 document.addEventListener('DOMContentLoaded', () => {
