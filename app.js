@@ -206,7 +206,12 @@ function evaluatePointToPoint() {
     ctx.fillText(i + 1, p.x + 6, p.y - 6);
   });
   const avg = playerShape.length ? totalDist / playerShape.length : 0;
-  result.textContent = `Average error: ${avg.toFixed(1)} px`;
+  let best = parseFloat(localStorage.getItem('p2pBest'));
+  if (isNaN(best) || avg < best) {
+    best = avg;
+    localStorage.setItem('p2pBest', best.toString());
+  }
+  result.textContent = `Average error: ${avg.toFixed(1)} px (Best: ${best.toFixed(1)} px)`;
 }
 
 function evaluateFreehand() {
@@ -230,7 +235,12 @@ function evaluateFreehand() {
     ctx.stroke();
   }
   const avg = totalDist / (playerShape.length - 1);
-  result.textContent = `Average error: ${avg.toFixed(1)} px`;
+  let best = parseFloat(localStorage.getItem('freehandBest'));
+  if (isNaN(best) || avg < best) {
+    best = avg;
+    localStorage.setItem('freehandBest', best.toString());
+  }
+  result.textContent = `Average error: ${avg.toFixed(1)} px (Best: ${best.toFixed(1)} px)`;
 }
 
 function distanceToPolygon(p, poly) {
