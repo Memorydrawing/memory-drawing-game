@@ -14,19 +14,21 @@ let currentArrow = null;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
+const DPR = window.devicePixelRatio || 1;
 const tmp = document.createElement('div');
 tmp.style.width = '1in';
 tmp.style.position = 'absolute';
 tmp.style.visibility = 'hidden';
 document.body.appendChild(tmp);
-let PPI = tmp.offsetWidth;   // true pixels per inch
+let PPI = tmp.offsetWidth;   // CSS pixels per inch
 document.body.removeChild(tmp);
 
-ppiInput.value = PPI.toFixed(1);
+// Show the approximate physical PPI to the user but store CSS pixels per inch internally.
+ppiInput.value = (PPI * DPR).toFixed(1);
 ppiInput.addEventListener('input', () => {
   const val = parseFloat(ppiInput.value);
   if (!isNaN(val) && val > 0) {
-    PPI = val;
+    PPI = val / DPR; // convert physical PPI to CSS pixels per inch
     if (playing) drawArrow();
   }
 });
