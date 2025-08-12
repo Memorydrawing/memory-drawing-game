@@ -1,7 +1,9 @@
 const builtInScenarios = {
   "Angle Challenge": { special: true },
   "Inch Drill": { special: true },
-  "Point Warmup": { special: true }
+  "Point Drill 0.5 sec Look": { special: true },
+  "Point Drill 0.25 sec Look": { special: true },
+  "Point Drill 0.1 sec Look": { special: true }
 };
 
 function getSavedScenarios() {

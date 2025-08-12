@@ -35,7 +35,7 @@ function drawTarget() {
   setTimeout(() => {
     clearCanvas();
     awaitingClick = true;
-  }, 700);
+  }, 100);
 }
 
 function playSound(grade) {
