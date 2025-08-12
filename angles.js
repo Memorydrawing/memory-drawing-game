@@ -3,6 +3,7 @@ const ctx = canvas.getContext('2d');
 const optionsContainer = document.getElementById('angleOptions');
 const result = document.getElementById('angleResult');
 const startBtn = document.getElementById('startBtn');
+const step = parseInt(new URLSearchParams(window.location.search).get('step')) || 5;
 
 let remainingAngles = [];
 let currentAngle = null;
@@ -12,7 +13,7 @@ let playing = false;
 
 function createOptions() {
   optionsContainer.innerHTML = '';
-  for (let a = 5; a <= 180; a += 5) {
+  for (let a = step; a <= 180; a += step) {
     const label = document.createElement('label');
     label.className = 'angle-option';
 
@@ -37,7 +38,7 @@ function createOptions() {
 
 function startGame() {
   remainingAngles = [];
-  for (let a = 5; a <= 180; a += 5) remainingAngles.push(a);
+  for (let a = step; a <= 180; a += step) remainingAngles.push(a);
   currentAngle = null;
   correct = 0;
   total = 0;
@@ -110,5 +111,10 @@ function nextAngle() {
 
 document.addEventListener('DOMContentLoaded', () => {
   createOptions();
+  if (step !== 5) {
+    const title = `Angle Challenge Drill (${step}\u00B0 increments)`;
+    document.querySelector('h2').textContent = title;
+    document.title = title;
+  }
   startBtn.addEventListener('click', startGame);
 });
