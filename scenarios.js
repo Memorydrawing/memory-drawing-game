@@ -19,11 +19,6 @@ function getScenarioNames() {
   return [...Object.keys(builtInScenarios), ...Object.keys(getSavedScenarios())];
 }
 
-
-window.addEventListener('DOMContentLoaded', () => {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js');
-  }
 function loadScenarioList() {
   const list = document.getElementById('scenarioList');
   if (!list) return;
