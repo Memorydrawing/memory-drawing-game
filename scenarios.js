@@ -8,7 +8,12 @@ const builtInScenarios = {
 };
 
 function getSavedScenarios() {
-  return JSON.parse(localStorage.getItem('scenarios') || '{}');
+  try {
+    return JSON.parse(localStorage.getItem('scenarios') || '{}');
+  } catch (err) {
+    console.warn('Failed to parse saved scenarios:', err);
+    return {};
+  }
 }
 
 export function getScenario(name) {
