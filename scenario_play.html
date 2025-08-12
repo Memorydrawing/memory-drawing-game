@@ -8,7 +8,7 @@
 </head>
 <body>
   <div class="practice-screen">
-    <button onclick="window.location.href='scenarios.html'">← Back</button>
+    <button id="scenarioBackBtn">← Back</button>
     <h2 id="scenarioTitle">Scenario</h2>
     <button id="startBtn">Start Challenge</button>
     <canvas id="gameCanvas" width="500" height="500"></canvas>
@@ -63,37 +63,5 @@
   <script src="app.js"></script>
   <script src="scenario.js"></script>
   <script src="scenarios.js"></script>
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const name = params.get('name') || '';
-    document.getElementById('scenarioTitle').textContent = name || 'Scenario';
-    const scn = getScenario(name);
-    const startBtn = document.getElementById('startBtn');
-    if (!scn) {
-      document.getElementById('result').textContent = 'Scenario not found.';
-      startBtn.disabled = true;
-    } else {
-      document.getElementById('timeInput').value = scn.time;
-      document.getElementById('bufferInput').value = scn.buffer;
-      document.getElementById('challengeInput').value = scn.challenge;
-      document.getElementById('sidesSelect').value = scn.sides;
-      document.getElementById('sizeSelect').value = scn.size;
-      document.getElementById('gridSelect').value = scn.grid;
-      document.getElementById('drawModeToggle').checked = scn.drawMode;
-      document.getElementById('drawModeLabel').textContent = scn.drawMode ? 'Point-to-Point' : 'Freehand';
-      document.getElementById('giveHighest').checked = scn.giveHighest;
-      document.getElementById('giveLowest').checked = scn.giveLowest;
-      document.getElementById('giveLeftmost').checked = scn.giveLeftmost;
-      document.getElementById('giveRightmost').checked = scn.giveRightmost;
-      document.getElementById('afterSelect').value = scn.afterAction || 'end';
-      document.getElementById('thresholdPoints').value = scn.thresholdPoints || 1;
-      document.getElementById('thresholdGrade').value = scn.thresholdGrade || 'green';
-      toggleThreshold();
-    }
-    startBtn.addEventListener('click', () => {
-      result.textContent = '';
-      startScenario();
-    });
-  </script>
 </body>
 </html>

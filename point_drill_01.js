@@ -1,7 +1,4 @@
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const startBtn = document.getElementById('startBtn');
-const result = document.getElementById('result');
+let canvas, ctx, startBtn, result;
 
 let playing = false;
 let awaitingClick = false;
@@ -127,5 +124,16 @@ function endGame() {
   startBtn.disabled = false;
 }
 
-canvas.addEventListener('pointerdown', pointerDown);
-startBtn.addEventListener('click', startGame);
+document.addEventListener('DOMContentLoaded', () => {
+  canvas = document.getElementById('gameCanvas');
+  if (!canvas) return;
+  ctx = canvas.getContext('2d');
+  startBtn = document.getElementById('startBtn');
+  result = document.getElementById('result');
+
+  canvas.addEventListener('pointerdown', pointerDown);
+  startBtn.addEventListener('click', startGame);
+  document.getElementById('backBtn')?.addEventListener('click', () => {
+    window.location.href = 'scenarios.html';
+  });
+});

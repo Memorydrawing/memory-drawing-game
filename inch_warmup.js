@@ -1,8 +1,4 @@
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const startBtn = document.getElementById('startBtn');
-const result = document.getElementById('result');
-const ppiInput = document.getElementById('ppiInput');
+let canvas, ctx, startBtn, result, ppiInput;
 
 let playing = false;
 let drawing = false;
@@ -24,13 +20,30 @@ let PPI = tmp.offsetWidth;   // CSS pixels per inch
 document.body.removeChild(tmp);
 
 // Show the approximate physical PPI to the user but store CSS pixels per inch internally.
-ppiInput.value = (PPI * DPR).toFixed(1);
-ppiInput.addEventListener('input', () => {
-  const val = parseFloat(ppiInput.value);
-  if (!isNaN(val) && val > 0) {
-    PPI = val / DPR; // convert physical PPI to CSS pixels per inch
-    if (playing) drawArrow();
-  }
+document.addEventListener('DOMContentLoaded', () => {
+  canvas = document.getElementById('gameCanvas');
+  if (!canvas) return;
+  ctx = canvas.getContext('2d');
+  startBtn = document.getElementById('startBtn');
+  result = document.getElementById('result');
+  ppiInput = document.getElementById('ppiInput');
+
+  ppiInput.value = (PPI * DPR).toFixed(1);
+  ppiInput.addEventListener('input', () => {
+    const val = parseFloat(ppiInput.value);
+    if (!isNaN(val) && val > 0) {
+      PPI = val / DPR; // convert physical PPI to CSS pixels per inch
+      if (playing) drawArrow();
+    }
+  });
+
+  canvas.addEventListener('pointerdown', pointerDown);
+  canvas.addEventListener('pointermove', pointerMove);
+  canvas.addEventListener('pointerup', pointerUp);
+  startBtn.addEventListener('click', startGame);
+  document.getElementById('backBtn')?.addEventListener('click', () => {
+    window.location.href = 'scenarios.html';
+  });
 });
 
 function getCanvasPos(e) {
@@ -178,7 +191,3 @@ function endGame() {
   startBtn.disabled = false;
 }
 
-canvas.addEventListener('pointerdown', pointerDown);
-canvas.addEventListener('pointermove', pointerMove);
-canvas.addEventListener('pointerup', pointerUp);
-startBtn.addEventListener('click', startGame);
