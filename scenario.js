@@ -1,3 +1,25 @@
+import { clearCanvas } from './src/utils.js';
+import {
+  canvas,
+  ctx,
+  result,
+  originalShape,
+  playerShape,
+  drawingEnabled,
+  lastShape,
+  viewTimer,
+  drawGrid,
+  drawShape,
+  drawGivenPoints,
+  revealShape,
+  setPlayerShape,
+  setOriginalShape,
+  setDrawingEnabled,
+  setLastShape,
+  setViewTimer
+} from './app.js';
+import { getScenario } from './scenarios.js';
+
 let scenarioTimer = null;
 let scoreSummary = { totalDist: 0, totalPoints: 0 };
 let scenarioConfig = null;
@@ -211,26 +233,26 @@ function startScenario(repeat = false) {
   }
 
   if (!repeat) {
-    lastShape = originalShape.map(p => ({ ...p }));
+    setLastShape(originalShape.map(p => ({ ...p })));
     const size = document.getElementById('sizeSelect').value;
-    originalShape = generateShape(sides, canvas.width, canvas.height, size);
+    setOriginalShape(generateShape(sides, canvas.width, canvas.height, size));
   }
-  playerShape = [];
-  drawingEnabled = false;
+  setPlayerShape([]);
+  setDrawingEnabled(false);
   result.textContent = '';
-  clearCanvas();
+  clearCanvas(ctx);
   drawGrid();
   drawShape(originalShape, 'black');
 
-  viewTimer = setTimeout(() => {
-    clearCanvas();
+  setViewTimer(setTimeout(() => {
+    clearCanvas(ctx);
     drawGrid();
     drawGivenPoints(originalShape);
     setTimeout(() => {
-      drawingEnabled = true;
+      setDrawingEnabled(true);
       scenarioTimer = setTimeout(() => {
         revealShape();
       }, challengeLength);
     }, bufferTime);
-  }, lookTime);
+  }, lookTime));
 }

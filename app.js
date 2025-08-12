@@ -1,11 +1,19 @@
-let canvas, ctx, drawModeToggle, drawModeLabel, gridSelect, result;
+import { getCanvasPos, clearCanvas } from './src/utils.js';
 
-let originalShape = [];
-let playerShape = [];
+export let canvas, ctx, drawModeToggle, drawModeLabel, gridSelect, result;
+
+export let originalShape = [];
+export let playerShape = [];
 let isDrawing = false;
-let drawingEnabled = false;
-let lastShape = [];
-let viewTimer = null;
+export let drawingEnabled = false;
+export let lastShape = [];
+export let viewTimer = null;
+
+export function setPlayerShape(shape) { playerShape = shape; }
+export function setOriginalShape(shape) { originalShape = shape; }
+export function setDrawingEnabled(val) { drawingEnabled = val; }
+export function setLastShape(shape) { lastShape = shape; }
+export function setViewTimer(timer) { viewTimer = timer; }
 
 document.addEventListener('DOMContentLoaded', () => {
   canvas = document.getElementById('gameCanvas');
@@ -24,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   canvas.addEventListener('pointerdown', (e) => {
     if (!drawingEnabled) return;
-    const pos = getCanvasPos(e);
+    const pos = getCanvasPos(canvas, e);
     if (drawModeToggle?.checked) {
       playerShape.push(pos);
       drawDots();
@@ -40,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   canvas.addEventListener('pointermove', (e) => {
     if (!drawingEnabled || drawModeToggle?.checked || !isDrawing) return;
-    const pos = getCanvasPos(e);
+    const pos = getCanvasPos(canvas, e);
     playerShape.push(pos);
     drawFreehand();
   });
@@ -59,14 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-function getCanvasPos(e) {
-  const rect = canvas.getBoundingClientRect();
-  return {
-    x: e.clientX - rect.left,
-    y: e.clientY - rect.top
-  };
-}
-
 function getTimeMs() {
   const sec = parseFloat(document.getElementById("timeInput").value);
   return Math.max(1000, sec * 1000);
@@ -82,11 +82,11 @@ function newShape() {
   playerShape = [];
   drawingEnabled = false;
   result.textContent = "";
-  clearCanvas();
+  clearCanvas(ctx);
   drawGrid();
   drawShape(originalShape, "black");
   viewTimer = setTimeout(() => {
-    clearCanvas();
+    clearCanvas(ctx);
     drawGrid();
     drawGivenPoints(originalShape);
     drawingEnabled = true;
@@ -100,12 +100,12 @@ function previousShape() {
   playerShape = [];
   drawingEnabled = false;
   result.textContent = "";
-  clearCanvas();
+  clearCanvas(ctx);
   drawGrid();
   drawShape(originalShape, "black");
   const time = getTimeMs();
   viewTimer = setTimeout(() => {
-    clearCanvas();
+    clearCanvas(ctx);
     drawGrid();
     drawGivenPoints(originalShape);
     drawingEnabled = true;
@@ -118,22 +118,18 @@ function retryShape() {
   playerShape = [];
   drawingEnabled = false;
   result.textContent = "";
-  clearCanvas();
+  clearCanvas(ctx);
   drawGrid();
   drawShape(originalShape, "black");
   viewTimer = setTimeout(() => {
-    clearCanvas();
+    clearCanvas(ctx);
     drawGrid();
     drawGivenPoints(originalShape);
     drawingEnabled = true;
   }, time);
 }
 
-function clearCanvas() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
-
-function drawGrid() {
+export function drawGrid() {
   const gridVal = parseInt(gridSelect.value);
   if (gridVal < 2) return;
   const spacing = canvas.width / gridVal;
@@ -146,14 +142,14 @@ function drawGrid() {
   }
 }
 
-function drawShape(points, color) {
+export function drawShape(points, color) {
   if (points.length === 1) { drawDot(points[0], color); return; }
   ctx.beginPath(); ctx.moveTo(points[0].x, points[0].y);
   for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
   ctx.closePath(); ctx.fillStyle = color; ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.fill(); ctx.stroke();
 }
 
-function drawGivenPoints(points) {
+export function drawGivenPoints(points) {
   const extremes = {
     top: points.reduce((a, b) => (a.y < b.y ? a : b)),
     bottom: points.reduce((a, b) => (a.y > b.y ? a : b)),
@@ -171,14 +167,14 @@ function drawDot(pt, color) {
 }
 
 function drawDots() {
-  clearCanvas(); drawGrid();
+  clearCanvas(ctx); drawGrid();
   drawGivenPoints(originalShape);
   playerShape.forEach(pt => drawDot(pt, "red"));
 }
 
-function revealShape() {
+export function revealShape() {
   drawingEnabled = false;
-  clearCanvas();
+  clearCanvas(ctx);
   drawGrid();
   drawShape(originalShape, "black");
   if (drawModeToggle.checked) {
@@ -245,7 +241,7 @@ function distanceToPolygon(p, poly) {
 }
 
 function drawFreehand() {
-  clearCanvas(); drawGrid(); drawGivenPoints(originalShape);
+  clearCanvas(ctx); drawGrid(); drawGivenPoints(originalShape);
   if (playerShape.length < 2) return;
   ctx.beginPath(); ctx.moveTo(playerShape[0].x, playerShape[0].y);
   for (let i = 1; i < playerShape.length; i++) ctx.lineTo(playerShape[i].x, playerShape[i].y);
