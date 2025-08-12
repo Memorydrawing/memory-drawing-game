@@ -1,5 +1,6 @@
 const builtInScenarios = {
   "Angle Challenge": { special: true },
+  "Angle Challenge (10\u00B0 increments)": { special: true },
   "Inch Drill": { special: true },
   "Point Warmup": { special: true }
 };
