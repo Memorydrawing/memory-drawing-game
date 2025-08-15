@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
   canvas.addEventListener('pointerup', () => {
     if (!drawingEnabled || drawModeToggle?.checked) return;
     isDrawing = false;
+    audioCtx.resume();
     revealShape();
   });
 
@@ -201,6 +202,12 @@ function gradePoint(p) {
   return { color, sound, dist };
 }
 
+function gradeDistance(d) {
+  if (d <= 5) return 'green';
+  if (d <= 10) return 'yellow';
+  return 'red';
+}
+
 function drawDots() {
   clearCanvas(ctx); drawGrid();
   drawGivenPoints(originalShape);
@@ -265,6 +272,7 @@ function evaluateFreehand() {
     localStorage.setItem('freehandBest', best.toString());
   }
   result.textContent = `Average error: ${avg.toFixed(1)} px (Best: ${best.toFixed(1)} px)`;
+  playSound(audioCtx, gradeDistance(avg));
 }
 
 function distanceToPolygon(p, poly) {
