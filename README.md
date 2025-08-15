@@ -15,6 +15,7 @@ This project is a small browser game where you try to memorize and recreate rand
 - **Size** – Small, Medium, or Big shapes.
 - **Grid** – Show an optional grid on the canvas.
 - **Point-to-Point / Freehand** – Toggle how you draw. Point-to-point lets you place dots; freehand lets you draw with the pointer.
+  In freehand mode, once you release your line a tone plays indicating how close your drawing was to the hidden shape.
 - **Highest/Lowest/Left-most/Right-most** – When checked, these reference points of the shape will remain visible while you draw.
 - **New Shape** – Generate a new random shape.
 - **Previous Shape** – View the last shape again.
