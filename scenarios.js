@@ -1,5 +1,5 @@
 export const scenarioUrls = {
-  "Angle Challenge": 'angles.html',
+  "Angle Challenge (5\u00B0 increments)": 'angles.html',
   "Angle Challenge (10\u00B0 increments)": 'angles.html?step=10',
   "Inch Drill": 'inch_warmup.html',
   "Point Drill 0.5 sec Look": 'point_drill_05.html',
