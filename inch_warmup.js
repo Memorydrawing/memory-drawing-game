@@ -129,6 +129,10 @@ function pointerUp(e) {
   } else {
     stats.red++;
   }
+
+  // Remove the arrow and the initially drawn line before displaying the grade
+  clearCanvas(ctx);
+
   ctx.save();
   ctx.strokeStyle = grade === 'yellow' ? 'orange' : grade;
   ctx.beginPath();
