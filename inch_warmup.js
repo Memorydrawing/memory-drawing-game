@@ -126,7 +126,7 @@ function pointerUp(e) {
     stats.red++;
   }
   ctx.save();
-  ctx.strokeStyle = grade;
+  ctx.strokeStyle = grade === 'yellow' ? 'orange' : grade;
   ctx.beginPath();
   ctx.moveTo(startPos.x, startPos.y);
   ctx.lineTo(pos.x, pos.y);

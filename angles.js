@@ -92,7 +92,7 @@ function showSelection(angle, grade) {
   const x = centerX + length * Math.cos(rotation + angle * Math.PI / 180);
   const y = centerY + length * Math.sin(rotation + angle * Math.PI / 180);
   ctx.save();
-  ctx.strokeStyle = grade === 'green' ? 'green' : grade === 'yellow' ? 'yellow' : 'red';
+  ctx.strokeStyle = grade === 'green' ? 'green' : grade === 'yellow' ? 'orange' : 'red';
   ctx.lineWidth = 4;
   ctx.beginPath();
   ctx.moveTo(centerX, centerY);
