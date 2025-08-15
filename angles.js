@@ -1,9 +1,17 @@
+import { playSound } from './src/utils.js';
+
 const canvas = document.getElementById('angleCanvas');
 const ctx = canvas.getContext('2d');
 const optionsContainer = document.getElementById('angleOptions');
 const result = document.getElementById('angleResult');
 const startBtn = document.getElementById('startBtn');
 const step = parseInt(new URLSearchParams(window.location.search).get('step')) || 5;
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+let rotation = 0;
+let centerX = 0;
+let centerY = 0;
+const length = 200;
 
 let remainingAngles = [];
 let currentAngle = null;
@@ -37,6 +45,7 @@ function createOptions() {
 }
 
 function startGame() {
+  audioCtx.resume();
   remainingAngles = [];
   for (let a = step; a <= 180; a += step) remainingAngles.push(a);
   currentAngle = null;
@@ -47,7 +56,7 @@ function startGame() {
     inp.disabled = false;
     inp.checked = false;
     const parent = inp.parentElement;
-    parent.classList.remove('correct', 'incorrect');
+    parent.classList.remove('correct', 'incorrect', 'close');
   });
   startBtn.disabled = true;
   playing = true;
@@ -56,10 +65,9 @@ function startGame() {
 
 function drawAngle(angle) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const centerX = canvas.width / 2;
-  const centerY = canvas.height / 2;
-  const length = 200;
-  const rotation = Math.random() * Math.PI * 2;
+  centerX = canvas.width / 2;
+  centerY = canvas.height / 2;
+  rotation = Math.random() * Math.PI * 2;
 
   const x1 = centerX + length * Math.cos(rotation);
   const y1 = centerY + length * Math.sin(rotation);
@@ -80,27 +88,54 @@ function drawAngle(angle) {
   ctx.stroke();
 }
 
+function showSelection(angle, grade) {
+  const x = centerX + length * Math.cos(rotation + angle * Math.PI / 180);
+  const y = centerY + length * Math.sin(rotation + angle * Math.PI / 180);
+  ctx.save();
+  ctx.strokeStyle = grade === 'green' ? 'green' : grade === 'yellow' ? 'yellow' : 'red';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(centerX, centerY);
+  ctx.lineTo(x, y);
+  ctx.stroke();
+  ctx.restore();
+}
+
 function onSelect(e) {
   if (!playing) return;
+  playing = false;
   const selected = parseInt(e.target.dataset.angle);
   e.target.disabled = true;
   const label = e.target.parentElement;
-  if (selected === currentAngle) {
+  const diff = Math.abs(selected - currentAngle);
+  let grade;
+  if (diff === 0) {
+    grade = 'green';
     label.classList.add('correct');
     correct++;
+  } else if (diff === step) {
+    grade = 'yellow';
+    label.classList.add('close');
   } else {
+    grade = 'red';
     label.classList.add('incorrect');
   }
   total++;
+  playSound(audioCtx, grade);
+  showSelection(selected, grade);
   remainingAngles = remainingAngles.filter(a => a !== selected);
-  if (remainingAngles.length === 0) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    result.textContent = `You got ${correct} out of ${total} correct.`;
-    playing = false;
-    startBtn.disabled = false;
-  } else {
-    nextAngle();
-  }
+  const done = remainingAngles.length === 0;
+  setTimeout(() => {
+    if (done) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      result.textContent = `You got ${correct} out of ${total} correct.`;
+      startBtn.disabled = false;
+      playing = false;
+    } else {
+      nextAngle();
+      playing = true;
+    }
+  }, 500);
 }
 
 function nextAngle() {

@@ -147,6 +147,15 @@ h2, h1 { margin: 10px 0; }
   font-size: 18px;
 }
 
+.angle-option.close .box::after {
+  content: '!';
+  color: gold;
+  position: absolute;
+  left: 3px;
+  top: -3px;
+  font-size: 18px;
+}
+
 .angle-option.incorrect .box::after {
   content: '\2717';
   color: red;
