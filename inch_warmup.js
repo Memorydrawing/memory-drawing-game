@@ -80,7 +80,7 @@ function flashCorrectLine(callback) {
   const correctX = currentArrow.x + Math.cos(currentArrow.angle) * PPI;
   const correctY = currentArrow.y + Math.sin(currentArrow.angle) * PPI;
   ctx.save();
-  ctx.strokeStyle = 'rgba(0, 128, 0, 0.7)';
+  ctx.strokeStyle = 'rgba(0, 0, 255, 0.7)';
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(currentArrow.x, currentArrow.y);
@@ -98,6 +98,7 @@ function pointerDown(e) {
   drawing = true;
   startPos = getCanvasPos(canvas, e);
   ctx.beginPath();
+  ctx.strokeStyle = 'black';
   ctx.moveTo(startPos.x, startPos.y);
 }
 
@@ -127,6 +128,13 @@ function pointerUp(e) {
   } else {
     stats.red++;
   }
+  ctx.save();
+  ctx.strokeStyle = grade;
+  ctx.beginPath();
+  ctx.moveTo(startPos.x, startPos.y);
+  ctx.lineTo(pos.x, pos.y);
+  ctx.stroke();
+  ctx.restore();
   playSound(audioCtx, grade);
   flashCorrectLine(() => {
     if (Date.now() < endTime) {
