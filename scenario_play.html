@@ -11,7 +11,17 @@
     <button id="backBtn">← Back</button>
     <h2 id="scenarioTitle">Scenario</h2>
     <button id="startBtn">Start Challenge</button>
-    <canvas id="gameCanvas" width="500" height="500"></canvas>
+    <div class="play-area">
+      <canvas id="gameCanvas" width="500" height="500"></canvas>
+      <div class="scoreboard">
+        <p>Avg Error: <span id="avgError">0.0</span> px</p>
+        <p>Green: <span id="greenCount">0</span></p>
+        <p>Yellow: <span id="yellowCount">0</span></p>
+        <p>Red: <span id="redCount">0</span></p>
+        <p>Score: <span id="scoreValue">0</span></p>
+        <p>High Score: <span id="highScoreValue">0</span></p>
+      </div>
+    </div>
     <p class="score" id="result"></p>
     <div style="display:none">
       <input type="number" id="timeInput" value="5">
