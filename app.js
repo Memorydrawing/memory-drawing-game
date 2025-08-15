@@ -69,9 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('newShapeBtn')?.addEventListener('click', newShape);
   document.getElementById('previousShapeBtn')?.addEventListener('click', previousShape);
   document.getElementById('retryShapeBtn')?.addEventListener('click', retryShape);
-  document.getElementById('menuBtn')?.addEventListener('click', () => {
-    window.location.href = 'index.html';
-  });
 });
 
 function getTimeMs() {

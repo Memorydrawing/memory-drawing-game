@@ -173,13 +173,6 @@ document.addEventListener('DOMContentLoaded', () => {
     showScreen('scenarioScreen');
   });
 
-  const backScenarioBtn = document.getElementById('scenarioBackBtn');
-  if (backScenarioBtn) {
-    backScenarioBtn.addEventListener('click', () => {
-      window.location.href = 'scenarios.html';
-    });
-  }
-
   const startBtn = document.getElementById('startBtn');
   if (startBtn) {
     const params = new URLSearchParams(window.location.search);

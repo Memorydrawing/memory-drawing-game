@@ -145,9 +145,6 @@ function nextAngle() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('backBtn')?.addEventListener('click', () => {
-    window.location.href = 'scenarios.html';
-  });
   createOptions();
   if (step !== 5) {
     const title = `Angle Challenge Drill (${step}\u00B0 increments)`;
