@@ -29,9 +29,13 @@ function drawTarget() {
 }
 
 
-function flashTarget(callback) {
+function showPoints(pos, grade, callback) {
   ctx.save();
-  ctx.fillStyle = 'rgba(0, 128, 0, 0.7)';
+  ctx.fillStyle = grade;
+  ctx.beginPath();
+  ctx.arc(pos.x, pos.y, 5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = 'blue';
   ctx.beginPath();
   ctx.arc(target.x, target.y, 5, 0, Math.PI * 2);
   ctx.fill();
@@ -60,7 +64,7 @@ function pointerDown(e) {
     stats.red++;
   }
   playSound(audioCtx, grade);
-  flashTarget(() => {
+  showPoints(pos, grade, () => {
     if (Date.now() < endTime) {
       drawTarget();
     } else {
