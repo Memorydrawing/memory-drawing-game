@@ -32,6 +32,23 @@ canvas {
   height: min(90vmin, 500px);
   touch-action: none;
 }
+
+.play-area {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.scoreboard {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: bold;
+}
+
+.scoreboard p {
+  margin: 2px 0;
+}
 .controls, .switches-group, .checkboxes-group {
   display: flex;
   flex-wrap: wrap;

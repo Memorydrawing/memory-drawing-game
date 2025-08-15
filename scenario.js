@@ -22,8 +22,9 @@ import {
 import { getScenario } from './scenarios.js';
 
 let scenarioTimer = null;
-let scoreSummary = { totalDist: 0, totalPoints: 0 };
+let scoreSummary = { totalDist: 0, totalPoints: 0, green: 0, yellow: 0, red: 0 };
 let scenarioConfig = null;
+let scenarioName = '';
 
 function toggleThreshold() {
   const wrapper = document.getElementById('thresholdWrapper');
@@ -47,9 +48,39 @@ function computeAverageError() {
 function onShapeRevealed() {
   if (!scenarioConfig) return;
   const avg = computeAverageError();
+  const counts = playerShape.reduce((acc, p) => {
+    const c = p.color;
+    if (!c) return acc;
+    if (c === 'green') acc.green++;
+    else if (c === 'orange' || c === 'yellow') acc.yellow++;
+    else acc.red++;
+    return acc;
+  }, { green: 0, yellow: 0, red: 0 });
   scoreSummary.totalDist += avg * playerShape.length;
   scoreSummary.totalPoints += playerShape.length;
+  scoreSummary.green += counts.green;
+  scoreSummary.yellow += counts.yellow;
+  scoreSummary.red += counts.red;
   const overall = scoreSummary.totalPoints ? scoreSummary.totalDist / scoreSummary.totalPoints : 0;
+  const score = Math.round(scoreSummary.green * 5 + scoreSummary.yellow * 2 - scoreSummary.red * 3 - overall);
+  const avgEl = document.getElementById('avgError');
+  const gEl = document.getElementById('greenCount');
+  const yEl = document.getElementById('yellowCount');
+  const rEl = document.getElementById('redCount');
+  const sEl = document.getElementById('scoreValue');
+  if (avgEl) avgEl.textContent = overall.toFixed(1);
+  if (gEl) gEl.textContent = scoreSummary.green;
+  if (yEl) yEl.textContent = scoreSummary.yellow;
+  if (rEl) rEl.textContent = scoreSummary.red;
+  if (sEl) sEl.textContent = score;
+  const highKey = `scenarioScore_${scenarioName}`;
+  let high = parseFloat(localStorage.getItem(highKey)) || 0;
+  if (score > high) {
+    high = score;
+    localStorage.setItem(highKey, high.toString());
+  }
+  const hEl = document.getElementById('highScoreValue');
+  if (hEl) hEl.textContent = high.toString();
   result.textContent = `Current avg: ${avg.toFixed(1)} px | Overall avg: ${overall.toFixed(1)} px`;
 
   if (scenarioConfig.afterAction === 'end') return;
@@ -176,10 +207,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const startBtn = document.getElementById('startBtn');
   if (startBtn) {
     const params = new URLSearchParams(window.location.search);
-    const name = params.get('name') || '';
+    scenarioName = params.get('name') || 'default';
     const titleEl = document.getElementById('scenarioTitle');
-    if (titleEl) titleEl.textContent = name || 'Scenario';
-    const scn = getScenario(name);
+    if (titleEl) titleEl.textContent = scenarioName || 'Scenario';
+    const scn = getScenario(scenarioName);
+    const highKey = `scenarioScore_${scenarioName}`;
+    const stored = parseFloat(localStorage.getItem(highKey));
+    const hEl = document.getElementById('highScoreValue');
+    if (hEl) hEl.textContent = isNaN(stored) ? '0' : stored.toString();
     if (!scn) {
       document.getElementById('result').textContent = 'Scenario not found.';
       startBtn.disabled = true;
@@ -218,12 +253,22 @@ function startScenario(repeat = false) {
   const sides = parseInt(document.getElementById('sidesSelect').value);
 
   if (!repeat) {
-    scoreSummary = { totalDist: 0, totalPoints: 0 };
+    scoreSummary = { totalDist: 0, totalPoints: 0, green: 0, yellow: 0, red: 0 };
     scenarioConfig = {
       afterAction: document.getElementById('afterSelect').value,
       thresholdPoints: parseInt(document.getElementById('thresholdPoints').value) || 1,
       thresholdGrade: document.getElementById('thresholdGrade').value
     };
+    const avgEl = document.getElementById('avgError');
+    const gEl = document.getElementById('greenCount');
+    const yEl = document.getElementById('yellowCount');
+    const rEl = document.getElementById('redCount');
+    const sEl = document.getElementById('scoreValue');
+    if (avgEl) avgEl.textContent = '0.0';
+    if (gEl) gEl.textContent = '0';
+    if (yEl) yEl.textContent = '0';
+    if (rEl) rEl.textContent = '0';
+    if (sEl) sEl.textContent = '0';
   }
 
   if (!repeat) {

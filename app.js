@@ -255,6 +255,8 @@ function evaluateFreehand() {
     let color = "red";
     if (d <= 5) color = "green";
     else if (d <= 10) color = "orange";
+    playerShape[i].color = color;
+    playerShape[i].dist = d;
     ctx.beginPath();
     ctx.moveTo(playerShape[i - 1].x, playerShape[i - 1].y);
     ctx.lineTo(p.x, p.y);
