@@ -130,7 +130,7 @@ function pointerUp(e) {
     stats.red++;
   }
   ctx.save();
-  ctx.strokeStyle = grade;
+  ctx.strokeStyle = grade === 'yellow' ? 'orange' : grade;
   ctx.beginPath();
   ctx.moveTo(path[0].x, path[0].y);
   for (let i = 1; i < path.length; i++) {

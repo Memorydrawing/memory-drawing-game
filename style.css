@@ -151,7 +151,7 @@ h2, h1 { margin: 10px 0; }
 
 .angle-option.close .box::after {
   content: '!';
-  color: gold;
+  color: orange;
   position: absolute;
   left: 3px;
   top: -3px;

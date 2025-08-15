@@ -31,7 +31,8 @@ function drawTarget() {
 
 function showPoints(pos, grade, callback) {
   ctx.save();
-  ctx.fillStyle = grade;
+  const color = grade === 'yellow' ? 'orange' : grade;
+  ctx.fillStyle = color;
   ctx.beginPath();
   ctx.arc(pos.x, pos.y, 5, 0, Math.PI * 2);
   ctx.fill();
