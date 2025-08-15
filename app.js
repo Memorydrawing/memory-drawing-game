@@ -121,12 +121,29 @@ function previousShape() {
 function retryShape() {
   clearTimeout(viewTimer);
   const time = getTimeMs();
+  const ghostShape = playerShape.map(p => ({ x: p.x, y: p.y }));
   playerShape = [];
   drawingEnabled = false;
   result.textContent = "";
   clearCanvas(ctx);
   drawGrid();
   drawShape(originalShape, "black");
+  if (ghostShape.length) {
+    if (drawModeToggle?.checked) {
+      ghostShape.forEach(pt => drawDot(pt, "#ccc"));
+    } else if (ghostShape.length === 1) {
+      drawDot(ghostShape[0], "#ccc");
+    } else if (ghostShape.length > 1) {
+      ctx.beginPath();
+      ctx.moveTo(ghostShape[0].x, ghostShape[0].y);
+      for (let i = 1; i < ghostShape.length; i++) {
+        ctx.lineTo(ghostShape[i].x, ghostShape[i].y);
+      }
+      ctx.strokeStyle = "#ccc";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+  }
   viewTimer = setTimeout(() => {
     clearCanvas(ctx);
     drawGrid();
