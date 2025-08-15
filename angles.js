@@ -113,6 +113,20 @@ function onSelect(e) {
     grade = 'green';
     label.classList.add('correct');
     correct++;
+    total++;
+    playSound(audioCtx, grade);
+    remainingAngles = remainingAngles.filter(a => a !== selected);
+    const done = remainingAngles.length === 0;
+    if (done) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      result.textContent = `You got ${correct} out of ${total} correct.`;
+      startBtn.disabled = false;
+      playing = false;
+    } else {
+      nextAngle();
+      playing = true;
+    }
+    return;
   } else if (diff === step) {
     grade = 'yellow';
     label.classList.add('close');
