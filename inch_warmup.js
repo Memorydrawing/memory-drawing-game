@@ -9,6 +9,7 @@ let endTime = 0;
 let gameTimer = null;
 let stats = null;
 let currentArrow = null;
+let path = [];
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -94,6 +95,7 @@ function pointerDown(e) {
   if (!playing) return;
   drawing = true;
   startPos = getCanvasPos(canvas, e);
+  path = [startPos];
   ctx.beginPath();
   ctx.strokeStyle = 'black';
   ctx.moveTo(startPos.x, startPos.y);
@@ -102,6 +104,7 @@ function pointerDown(e) {
 function pointerMove(e) {
   if (!drawing) return;
   const pos = getCanvasPos(canvas, e);
+  path.push(pos);
   ctx.lineTo(pos.x, pos.y);
   ctx.stroke();
 }
@@ -110,6 +113,7 @@ function pointerUp(e) {
   if (!drawing) return;
   drawing = false;
   const pos = getCanvasPos(canvas, e);
+  path.push(pos);
   const d = Math.hypot(pos.x - startPos.x, pos.y - startPos.y);
   const inches = d / PPI;
   const err = Math.abs(inches - 1);
@@ -128,8 +132,10 @@ function pointerUp(e) {
   ctx.save();
   ctx.strokeStyle = grade;
   ctx.beginPath();
-  ctx.moveTo(startPos.x, startPos.y);
-  ctx.lineTo(pos.x, pos.y);
+  ctx.moveTo(path[0].x, path[0].y);
+  for (let i = 1; i < path.length; i++) {
+    ctx.lineTo(path[i].x, path[i].y);
+  }
   ctx.stroke();
   ctx.restore();
   playSound(audioCtx, grade);
