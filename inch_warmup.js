@@ -43,9 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
   canvas.addEventListener('pointermove', pointerMove);
   canvas.addEventListener('pointerup', pointerUp);
   startBtn.addEventListener('click', startGame);
-  document.getElementById('backBtn')?.addEventListener('click', () => {
-    window.location.href = 'scenarios.html';
-  });
 });
 
 function drawArrow() {

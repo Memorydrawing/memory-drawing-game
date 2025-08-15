@@ -104,7 +104,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
   canvas.addEventListener('pointerdown', pointerDown);
   startBtn.addEventListener('click', startGame);
-  document.getElementById('backBtn')?.addEventListener('click', () => {
-    window.location.href = 'scenarios.html';
-  });
 });

@@ -52,8 +52,5 @@ export function playSelectedScenario() {
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('playBtn')?.addEventListener('click', playSelectedScenario);
-  document.getElementById('menuBtn')?.addEventListener('click', () => {
-    window.location.href = 'index.html';
-  });
   if (document.getElementById('scenarioList')) loadScenarioList();
 });
