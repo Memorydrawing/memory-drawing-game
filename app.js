@@ -1,4 +1,4 @@
-import { getCanvasPos, clearCanvas } from './src/utils.js';
+import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 import { generateShape, distancePointToSegment } from './geometry.js';
 
 export let canvas, ctx, drawModeToggle, drawModeLabel, gridSelect, result;
@@ -9,6 +9,8 @@ let isDrawing = false;
 export let drawingEnabled = false;
 export let lastShape = [];
 export let viewTimer = null;
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 export function setPlayerShape(shape) { playerShape = shape; }
 export function setOriginalShape(shape) { originalShape = shape; }
@@ -35,7 +37,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!drawingEnabled) return;
     const pos = getCanvasPos(canvas, e);
     if (drawModeToggle?.checked) {
-      playerShape.push(pos);
+      audioCtx.resume();
+      const { color, sound, dist } = gradePoint(pos);
+      playerShape.push({ ...pos, color, dist });
+      playSound(audioCtx, sound);
       drawDots();
       if (playerShape.length === originalShape.length) {
         setTimeout(revealShape, 300);
@@ -167,10 +172,22 @@ function drawDot(pt, color) {
   ctx.beginPath(); ctx.arc(pt.x, pt.y, 5, 0, 2 * Math.PI); ctx.fillStyle = color; ctx.fill();
 }
 
+function gradePoint(p) {
+  const dist = originalShape.reduce((min, q) => {
+    const d = Math.hypot(p.x - q.x, p.y - q.y);
+    return d < min ? d : min;
+  }, Infinity);
+  let color = 'red';
+  let sound = 'red';
+  if (dist <= 5) { color = 'green'; sound = 'green'; }
+  else if (dist <= 10) { color = 'orange'; sound = 'yellow'; }
+  return { color, sound, dist };
+}
+
 function drawDots() {
   clearCanvas(ctx); drawGrid();
   drawGivenPoints(originalShape);
-  playerShape.forEach(pt => drawDot(pt, "red"));
+  playerShape.forEach(pt => drawDot(pt, pt.color || "red"));
 }
 
 export function revealShape() {
@@ -189,16 +206,9 @@ export function revealShape() {
 function evaluatePointToPoint() {
   let totalDist = 0;
   playerShape.forEach((p, i) => {
-    const closest = originalShape.reduce((min, q) => {
-      const d = Math.hypot(p.x - q.x, p.y - q.y);
-      return d < min.d ? { d, q } : min;
-    }, { d: Infinity });
-    totalDist += closest.d;
-    let color = "red";
-    if (closest.d <= 5) color = "green";
-    else if (closest.d <= 10) color = "orange";
-    drawDot(p, color);
-    ctx.fillStyle = color;
+    totalDist += p.dist ?? 0;
+    drawDot(p, p.color || "red");
+    ctx.fillStyle = p.color || "red";
     ctx.font = "16px sans-serif";
     ctx.fillText(i + 1, p.x + 6, p.y - 6);
   });
