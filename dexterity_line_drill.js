@@ -1,6 +1,6 @@
 import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 
-let canvas, ctx, startBtn, result, timeDisplay;
+let canvas, ctx, startBtn, result;
 let playing = false;
 let targets = [];
 let score = 0;
@@ -9,7 +9,6 @@ let gameTimer = null;
 let drawing = false;
 let activeTarget = null;
 let progress = 0;
-let drawStart = null;
 let lastPos = null;
 
 const tolerance = 10;
@@ -46,8 +45,6 @@ function startGame() {
   playing = true;
   score = 0;
   result.textContent = '';
-  timeDisplay.textContent = '';
-  timeDisplay.style.color = 'black';
   startBtn.disabled = true;
   targets = [randomLine(), randomLine()];
   drawTargets();
@@ -79,13 +76,6 @@ function projectPointToSegment(p, seg) {
   return { dist, t };
 }
 
-function updateTimer() {
-  if (!drawing || drawStart === null) return;
-  const elapsed = (performance.now() - drawStart) / 1000;
-  timeDisplay.textContent = `${elapsed.toFixed(2)}s`;
-  requestAnimationFrame(updateTimer);
-}
-
 function pointerDown(e) {
   if (!playing) return;
   const pos = getCanvasPos(canvas, e);
@@ -95,12 +85,8 @@ function pointerDown(e) {
       drawing = true;
       activeTarget = i;
       progress = t;
-      drawStart = performance.now();
-      timeDisplay.style.color = 'black';
-      timeDisplay.textContent = '0.00s';
       drawTargets();
       lastPos = pos;
-      requestAnimationFrame(updateTimer);
       canvas.setPointerCapture(e.pointerId);
       return;
     }
@@ -131,20 +117,15 @@ function pointerUp(e) {
   if (!playing || !drawing) return;
   drawing = false;
   canvas.releasePointerCapture(e.pointerId);
-  const elapsed = (performance.now() - drawStart) / 1000;
-  timeDisplay.textContent = `${elapsed.toFixed(2)}s`;
   if (progress >= 0.9) {
     score++;
     playSound(audioCtx, 'green');
-    timeDisplay.style.color = 'green';
     targets[activeTarget] = randomLine();
     drawTargets();
   } else {
     playSound(audioCtx, 'red');
-    timeDisplay.style.color = 'red';
   }
   activeTarget = null;
-  drawStart = null;
   lastPos = null;
 }
 
@@ -154,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
   ctx = canvas.getContext('2d');
   startBtn = document.getElementById('startBtn');
   result = document.getElementById('result');
-  timeDisplay = document.getElementById('timeDisplay');
 
   canvas.addEventListener('pointerdown', pointerDown);
   canvas.addEventListener('pointermove', pointerMove);
