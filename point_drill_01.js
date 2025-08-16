@@ -10,6 +10,7 @@ let gameTimer = null;
 let stats = null;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const RESULT_DISPLAY_TIME = 100;
 
 function drawTarget() {
   const margin = 20;
@@ -44,7 +45,7 @@ function showPoints(pos, grade, callback) {
   setTimeout(() => {
     clearCanvas(ctx);
     callback();
-  }, 300);
+  }, RESULT_DISPLAY_TIME);
 }
 
 function pointerDown(e) {
