@@ -1,6 +1,7 @@
 {
-  "name": "memory-drawing-game",
+  "name": "shape-trainer",
   "version": "1.0.0",
+  "author": "Sawyer Wall",
   "type": "module",
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
