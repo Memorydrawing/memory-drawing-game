@@ -28,15 +28,33 @@ function getScenarioNames() {
   return [...Object.keys(builtInScenarios), ...Object.keys(getSavedScenarios())];
 }
 
+let selectedScenario = null;
+
 function loadScenarioList() {
   const list = document.getElementById('scenarioList');
   if (!list) return;
   list.innerHTML = '';
   getScenarioNames().forEach(name => {
-    const opt = document.createElement('option');
-    opt.value = name;
-    opt.textContent = name;
-    list.appendChild(opt);
+    const item = document.createElement('div');
+    item.className = 'exercise-item';
+    const img = document.createElement('img');
+    img.className = 'exercise-gif';
+    img.alt = '';
+    const info = document.createElement('div');
+    info.className = 'exercise-info';
+    const title = document.createElement('h3');
+    title.textContent = name;
+    info.appendChild(title);
+    item.appendChild(img);
+    item.appendChild(info);
+    item.addEventListener('click', () => {
+      selectedScenario = name;
+      list.querySelectorAll('.exercise-item').forEach(el => el.classList.remove('selected'));
+      item.classList.add('selected');
+      const playBtn = document.getElementById('playBtn');
+      if (playBtn) playBtn.disabled = false;
+    });
+    list.appendChild(item);
   });
 }
 
@@ -45,9 +63,8 @@ export function getScenarioUrl(name) {
 }
 
 export function playSelectedScenario() {
-  const name = document.getElementById('scenarioList')?.value;
-  if (!name) return;
-  window.location.assign(getScenarioUrl(name));
+  if (!selectedScenario) return;
+  window.location.assign(getScenarioUrl(selectedScenario));
 }
 
 document.addEventListener('DOMContentLoaded', () => {
