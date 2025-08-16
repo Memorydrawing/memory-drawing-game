@@ -21,15 +21,21 @@
       </label>
     </div>
 
-    <div class="controls">
-      <button id="penTool">Pen</button>
-      <button id="eraserTool">Eraser</button>
-      <button id="vertexTool">Vertex</button>
-    </div>
-
     <div class="play-area" id="playArea">
-      <canvas id="displayCanvas" width="500" height="500"></canvas>
-      <canvas id="drawCanvas" width="500" height="500"></canvas>
+      <div class="view-wrapper">
+        <canvas id="displayCanvas" width="500" height="500"></canvas>
+        <button id="compareBtn">Compare</button>
+      </div>
+      <div class="canvas-wrapper">
+        <canvas id="drawCanvas" width="500" height="500"></canvas>
+        <div class="tool-icons">
+          <button id="penTool" title="Pen">✏️</button>
+          <button id="eraserTool" title="Eraser">🩹</button>
+          <button id="vertexTool" title="Vertex">🔘</button>
+          <button id="undoBtn" title="Undo">↶</button>
+          <button id="redoBtn" title="Redo">↷</button>
+        </div>
+      </div>
     </div>
   </div>
 
