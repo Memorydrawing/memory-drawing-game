@@ -61,7 +61,33 @@ document.addEventListener('DOMContentLoaded', () => {
     render();
   }
 
+  function finalizeVertices() {
+    if (vertices.length < 2) return;
+    drawCtx.save();
+    drawCtx.globalCompositeOperation = 'source-over';
+    drawCtx.strokeStyle = '#000';
+    drawCtx.lineWidth = 2;
+    drawCtx.lineCap = 'round';
+    drawCtx.lineJoin = 'round';
+    drawCtx.beginPath();
+    drawCtx.moveTo(vertices[0].x, vertices[0].y);
+    for (let i = 1; i < vertices.length; i++) {
+      drawCtx.lineTo(vertices[i].x, vertices[i].y);
+    }
+    drawCtx.stroke();
+    drawCtx.restore();
+    penLayer = drawCtx.getImageData(0, 0, width, height);
+    vertices.length = 0;
+    stateChanged = true;
+    render();
+    saveState();
+    stateChanged = false;
+  }
+
   function selectTool(tool) {
+    if (currentTool === 'vertex' && tool !== 'vertex') {
+      finalizeVertices();
+    }
     currentTool = tool;
     [penBtn, eraserBtn, vertexBtn].forEach(btn => btn?.classList.remove('active'));
     if (tool === 'pen') {
@@ -76,6 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (tool === 'vertex') {
       vertexBtn?.classList.add('active');
       drawCtx.globalCompositeOperation = 'source-over';
+      drawCtx.lineWidth = 2;
     }
     render();
   }
@@ -124,6 +151,9 @@ document.addEventListener('DOMContentLoaded', () => {
       drawCtx.globalCompositeOperation = 'source-over';
       drawCtx.strokeStyle = '#000';
       drawCtx.fillStyle = '#000';
+      drawCtx.lineWidth = 2;
+      drawCtx.lineCap = 'round';
+      drawCtx.lineJoin = 'round';
       drawCtx.beginPath();
       drawCtx.moveTo(vertices[0].x, vertices[0].y);
       for (let i = 1; i < vertices.length; i++) {
