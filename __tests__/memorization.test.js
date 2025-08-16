@@ -1,5 +1,5 @@
 /** @jest-environment jsdom */
-import { scenarioUrls } from '../scenarios.js';
+import { scenarioUrls, scenarioDescriptions } from '../scenarios.js';
 
 describe('memorization page', () => {
   test('lists built-in scenarios when DOM already loaded', async () => {
@@ -18,8 +18,17 @@ describe('memorization page', () => {
     Object.defineProperty(document, 'readyState', { value: 'complete', configurable: true });
     await import('../memorization.js');
 
-    const items = Array.from(document.querySelectorAll('.exercise-item[data-link] h3'))
-      .map(el => el.textContent);
-    expect(items).toEqual(['Shape Trainer', ...Object.keys(scenarioUrls)]);
+    const items = Array.from(document.querySelectorAll('.exercise-item[data-link]'))
+      .map(item => ({
+        title: item.querySelector('h3')?.textContent,
+        desc: item.querySelector('p')?.textContent
+      }));
+    expect(items).toEqual([
+      { title: 'Shape Trainer', desc: 'Train with custom shapes and settings.' },
+      ...Object.keys(scenarioUrls).map(name => ({
+        title: name,
+        desc: scenarioDescriptions[name]
+      }))
+    ]);
   });
 });

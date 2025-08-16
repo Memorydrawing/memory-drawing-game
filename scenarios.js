@@ -7,6 +7,15 @@ export const scenarioUrls = {
   "Point Drill 0.1 sec Look": 'point_drill_01.html'
 };
 
+export const scenarioDescriptions = {
+  "Angle Challenge (5\u00B0 increments)": 'Guess randomly oriented angles in 5\u00B0 steps.',
+  "Angle Challenge (10\u00B0 increments)": 'Guess randomly oriented angles in 10\u00B0 steps.',
+  "Inch Drill": 'Draw a 1-inch line from a given starting arrow.',
+  "Point Drill 0.5 sec Look": 'Memorize a point after a 0.5 second preview and tap its location.',
+  "Point Drill 0.25 sec Look": 'Memorize a point after a 0.25 second preview and tap its location.',
+  "Point Drill 0.1 sec Look": 'Memorize a point after a 0.1 second preview and tap its location.'
+};
+
 const builtInScenarios = Object.fromEntries(
   Object.keys(scenarioUrls).map(name => [name, { special: true }])
 );

@@ -1,4 +1,4 @@
-import { scenarioUrls, getScenarioUrl } from './scenarios.js';
+import { scenarioUrls, getScenarioUrl, scenarioDescriptions } from './scenarios.js';
 
 function init() {
   const list = document.getElementById('exerciseList');
@@ -16,6 +16,9 @@ function init() {
     const title = document.createElement('h3');
     title.textContent = name;
     info.appendChild(title);
+    const desc = document.createElement('p');
+    desc.textContent = scenarioDescriptions[name] || 'User-created scenario.';
+    info.appendChild(desc);
     item.appendChild(img);
     item.appendChild(info);
     list.appendChild(item);
