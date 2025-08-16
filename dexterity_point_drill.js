@@ -54,13 +54,16 @@ function pointerDown(e) {
     const d = Math.hypot(pos.x - t.x, pos.y - t.y);
     if (d <= 5) {
       score++;
-      playSound(audioCtx, 'green');
+      // Play the grading tone asynchronously so that additional
+      // pointer events can be processed while the sound is playing.
+      setTimeout(() => playSound(audioCtx, 'green'), 0);
       targets[i] = randomTarget();
       drawTargets();
       return;
     }
   }
-  playSound(audioCtx, 'red');
+  // Likewise, play the miss tone without blocking pointer input.
+  setTimeout(() => playSound(audioCtx, 'red'), 0);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
