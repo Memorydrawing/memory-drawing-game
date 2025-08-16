@@ -1,6 +1,6 @@
 import { scenarioUrls, getScenarioUrl } from './scenarios.js';
 
-document.addEventListener('DOMContentLoaded', () => {
+function init() {
   const list = document.getElementById('exerciseList');
   const saved = JSON.parse(localStorage.getItem('scenarios') || '{}');
   const scenarios = [...Object.keys(scenarioUrls), ...Object.keys(saved)];
@@ -26,4 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
       window.location.href = item.dataset.link;
     });
   });
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
