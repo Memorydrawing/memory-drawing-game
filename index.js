@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('dexterityBtn')?.addEventListener('click', () => {
     window.location.href = 'dexterity.html';
   });
+  document.getElementById('observationBtn')?.addEventListener('click', () => {
+    window.location.href = 'observation.html';
+  });
   document.getElementById('aboutBtn')?.addEventListener('click', () => {
     window.location.href = 'about.html';
   });
