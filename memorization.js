@@ -1,9 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('practiceBtn')?.addEventListener('click', () => {
-    window.location.href = 'practice.html';
-  });
-  document.getElementById('scenariosBtn')?.addEventListener('click', () => {
-    window.location.href = 'scenarios.html';
+  document.querySelectorAll('.exercise-item[data-link]').forEach(item => {
+    item.addEventListener('click', () => {
+      window.location.href = item.dataset.link;
+    });
   });
 });
-

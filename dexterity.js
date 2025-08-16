@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('pointDrillBtn')?.addEventListener('click', () => {
-    window.location.href = 'dexterity_point_drill.html';
+  document.querySelectorAll('.exercise-item[data-link]').forEach(item => {
+    item.addEventListener('click', () => {
+      window.location.href = item.dataset.link;
+    });
   });
 });

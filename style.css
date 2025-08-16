@@ -196,3 +196,56 @@ h2, h1 { margin: 10px 0; }
   top: -3px;
   font-size: 18px;
 }
+/* Exercise list styles */
+.exercise-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 500px;
+  max-height: 60vh;
+  overflow-y: auto;
+  gap: 10px;
+}
+
+.exercise-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.exercise-item:hover {
+  background-color: #f9f9f9;
+}
+
+.exercise-item.selected {
+  border-color: #2196F3;
+  background-color: #e3f2fd;
+}
+
+.exercise-item img.exercise-gif {
+  width: 60px;
+  height: 60px;
+  margin-right: 10px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.exercise-item .exercise-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.exercise-item h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.exercise-item p {
+  margin: 4px 0 0;
+  font-size: 14px;
+}
