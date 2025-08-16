@@ -1,7 +1,8 @@
-# Memory Shape Drawing Game
+# Shape Trainer
 
+by Sawyer Wall
 
-This project is a small browser game where you try to memorize and recreate randomly generated shapes. It was created by Sawyer Wall.
+Shape Trainer is a small browser game where you try to memorize and recreate randomly generated shapes.
 
 ## Running the Game
 
