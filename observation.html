@@ -7,11 +7,33 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="menu-screen">
-    <h1>Observation</h1>
-    <p>Observation mode coming soon.</p>
+  <div class="practice-screen">
     <button id="backBtn">← Back</button>
+    <h2>Observation</h2>
+
+    <div class="switches-group">
+      <label class="switch-label-container">
+        <div class="switch">
+          <input type="checkbox" id="leftHandToggle" />
+          <span class="slider"></span>
+        </div>
+        <span class="switch-text">Left-handed Mode</span>
+      </label>
+    </div>
+
+    <div class="controls">
+      <button id="penTool">Pen</button>
+      <button id="eraserTool">Eraser</button>
+      <button id="vertexTool">Vertex</button>
+    </div>
+
+    <div class="play-area" id="playArea">
+      <canvas id="displayCanvas" width="500" height="500"></canvas>
+      <canvas id="drawCanvas" width="500" height="500"></canvas>
+    </div>
   </div>
+
   <script src="back.js"></script>
+  <script type="module" src="observation.js"></script>
 </body>
 </html>
