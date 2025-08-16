@@ -6,7 +6,7 @@ This project is a small browser game where you try to memorize and recreate rand
 ## Running the Game
 
 1. Open `index.html` in any modern web browser. No build step or server is required—just open the file directly.
-2. The menu provides buttons for **Memorization**, **Dexterity**, and **About**. Memorization contains both Practice and Scenario modes.
+2. The menu provides buttons for **Memorization**, **Dexterity**, and **About**. The Memorization menu includes the **Shape Trainer** and a list of scenario challenges.
 
 ## Basic Controls
 
