@@ -5,7 +5,8 @@ describe('memorization page', () => {
   test('lists built-in scenarios when DOM already loaded', async () => {
     document.body.innerHTML = `
       <div id="exerciseList" class="exercise-list">
-        <div class="exercise-item" data-link="shape_trainer.html">
+        <div class="exercise-item" data-link="shape_trainer.html" data-difficulty="Beginner">
+          <span class="difficulty-label difficulty-beginner">Beginner</span>
           <img class="exercise-gif" alt="" />
           <div class="exercise-info">
             <h3>Shape Trainer</h3>
