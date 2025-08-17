@@ -16,6 +16,7 @@ let totalSegments = 0;
 
 const tolerance = 4;
 const maxOffSegmentRatio = 0.1;
+const LINE_WIDTH = (8 / 3);
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -36,7 +37,7 @@ function drawTargets() {
   clearCanvas(ctx);
   ctx.strokeStyle = 'black';
   ctx.fillStyle = 'black';
-  ctx.lineWidth = 2;
+  ctx.lineWidth = LINE_WIDTH;
   targets.forEach(t => {
     ctx.beginPath();
     ctx.moveTo(t.x1, t.y1);
@@ -143,7 +144,7 @@ function pointerMove(e) {
   ctx.beginPath();
   ctx.moveTo(lastPos.x, lastPos.y);
   ctx.lineTo(pos.x, pos.y);
-  ctx.lineWidth = 2;
+  ctx.lineWidth = LINE_WIDTH;
   if (dist <= tolerance && activeTarget !== null) {
     ctx.strokeStyle = 'green';
     minT = Math.min(minT, normT);
