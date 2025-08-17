@@ -6,6 +6,7 @@ let targets = [];
 let score = 0;
 let gameTimer = null;
 let targetRadius = 5;
+let gradingTolerance = 5;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -53,7 +54,7 @@ function pointerDown(e) {
   for (let i = 0; i < targets.length; i++) {
     const t = targets[i];
     const d = Math.hypot(pos.x - t.x, pos.y - t.y);
-    if (d <= targetRadius) {
+    if (d <= gradingTolerance) {
       score++;
       // Play the grading tone asynchronously so that additional
       // pointer events can be processed while the sound is playing.
@@ -74,6 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
   startBtn = document.getElementById('startBtn');
   result = document.getElementById('result');
   targetRadius = Number(canvas.dataset.radius) || targetRadius;
+  gradingTolerance = Number(canvas.dataset.tolerance) || targetRadius;
 
   canvas.addEventListener('pointerdown', pointerDown);
   startBtn.addEventListener('click', startGame);
