@@ -11,9 +11,11 @@ let activeTarget = null;
 let progress = 0;
 let lastPos = null;
 let reversed = false;
-let offLine = false;
+let offLineSegments = 0;
+let totalSegments = 0;
 
 const tolerance = 4;
+const maxOffSegmentRatio = 0.1;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -90,7 +92,8 @@ function pointerDown(e) {
       activeTarget = i;
       reversed = endDist < startDist;
       progress = 0;
-      offLine = false;
+      offLineSegments = 0;
+      totalSegments = 0;
       drawTargets();
       lastPos = pos;
       canvas.setPointerCapture(e.pointerId);
@@ -110,12 +113,13 @@ function pointerMove(e) {
   ctx.moveTo(lastPos.x, lastPos.y);
   ctx.lineTo(pos.x, pos.y);
   ctx.lineWidth = 2;
+  totalSegments++;
   if (dist <= tolerance) {
     ctx.strokeStyle = 'green';
     progress = Math.max(progress, normT);
   } else {
     ctx.strokeStyle = 'red';
-    offLine = true;
+    offLineSegments++;
   }
   ctx.stroke();
   lastPos = pos;
@@ -125,7 +129,8 @@ function pointerUp(e) {
   if (!playing || !drawing) return;
   drawing = false;
   canvas.releasePointerCapture(e.pointerId);
-  if (progress >= 0.9 && !offLine) {
+  const offRatio = totalSegments > 0 ? offLineSegments / totalSegments : 1;
+  if (progress >= 0.9 && offRatio <= maxOffSegmentRatio) {
     score++;
     playSound(audioCtx, 'green');
     targets[activeTarget] = randomLine();
