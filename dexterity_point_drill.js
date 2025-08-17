@@ -5,6 +5,7 @@ let playing = false;
 let targets = [];
 let score = 0;
 let gameTimer = null;
+let targetRadius = 5;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -21,7 +22,7 @@ function drawTargets() {
   ctx.fillStyle = 'black';
   targets.forEach(t => {
     ctx.beginPath();
-    ctx.arc(t.x, t.y, 5, 0, Math.PI * 2);
+    ctx.arc(t.x, t.y, targetRadius, 0, Math.PI * 2);
     ctx.fill();
   });
 }
@@ -52,7 +53,7 @@ function pointerDown(e) {
   for (let i = 0; i < targets.length; i++) {
     const t = targets[i];
     const d = Math.hypot(pos.x - t.x, pos.y - t.y);
-    if (d <= 5) {
+    if (d <= targetRadius) {
       score++;
       // Play the grading tone asynchronously so that additional
       // pointer events can be processed while the sound is playing.
@@ -72,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
   ctx = canvas.getContext('2d');
   startBtn = document.getElementById('startBtn');
   result = document.getElementById('result');
+  targetRadius = Number(canvas.dataset.radius) || targetRadius;
 
   canvas.addEventListener('pointerdown', pointerDown);
   startBtn.addEventListener('click', startGame);
