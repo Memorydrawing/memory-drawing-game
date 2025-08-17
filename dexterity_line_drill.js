@@ -35,12 +35,28 @@ function randomLine() {
 function drawTargets() {
   clearCanvas(ctx);
   ctx.strokeStyle = 'black';
+  ctx.fillStyle = 'black';
   ctx.lineWidth = 2;
   targets.forEach(t => {
     ctx.beginPath();
     ctx.moveTo(t.x1, t.y1);
     ctx.lineTo(t.x2, t.y2);
     ctx.stroke();
+
+    const headLen = 10;
+    const angle = Math.atan2(t.y2 - t.y1, t.x2 - t.x1);
+    ctx.beginPath();
+    ctx.moveTo(t.x2, t.y2);
+    ctx.lineTo(
+      t.x2 - headLen * Math.cos(angle - Math.PI / 6),
+      t.y2 - headLen * Math.sin(angle - Math.PI / 6)
+    );
+    ctx.lineTo(
+      t.x2 - headLen * Math.cos(angle + Math.PI / 6),
+      t.y2 - headLen * Math.sin(angle + Math.PI / 6)
+    );
+    ctx.closePath();
+    ctx.fill();
   });
 }
 
