@@ -10,8 +10,9 @@ let drawing = false;
 let activeTarget = null;
 let progress = 0;
 let lastPos = null;
+let reversed = false;
 
-const tolerance = 10;
+const tolerance = 5;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -80,11 +81,14 @@ function pointerDown(e) {
   if (!playing) return;
   const pos = getCanvasPos(canvas, e);
   for (let i = 0; i < targets.length; i++) {
-    const { dist, t } = projectPointToSegment(pos, targets[i]);
-    if (dist <= tolerance && t <= 0.1) {
+    const t = targets[i];
+    const startDist = Math.hypot(pos.x - t.x1, pos.y - t.y1);
+    const endDist = Math.hypot(pos.x - t.x2, pos.y - t.y2);
+    if (startDist <= tolerance || endDist <= tolerance) {
       drawing = true;
       activeTarget = i;
-      progress = t;
+      reversed = endDist < startDist;
+      progress = 0;
       drawTargets();
       lastPos = pos;
       canvas.setPointerCapture(e.pointerId);
@@ -98,6 +102,7 @@ function pointerMove(e) {
   if (!playing || !drawing) return;
   const pos = getCanvasPos(canvas, e);
   const { dist, t } = projectPointToSegment(pos, targets[activeTarget]);
+  const normT = reversed ? 1 - t : t;
 
   ctx.beginPath();
   ctx.moveTo(lastPos.x, lastPos.y);
@@ -105,7 +110,7 @@ function pointerMove(e) {
   ctx.lineWidth = 2;
   if (dist <= tolerance) {
     ctx.strokeStyle = 'green';
-    progress = Math.max(progress, t);
+    progress = Math.max(progress, normT);
   } else {
     ctx.strokeStyle = 'red';
   }
@@ -127,6 +132,7 @@ function pointerUp(e) {
   }
   activeTarget = null;
   lastPos = null;
+  reversed = false;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
