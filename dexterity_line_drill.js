@@ -112,20 +112,33 @@ function pointerMove(e) {
   let normT = 0;
   if (activeTarget !== null) {
     ({ dist, t: normT } = projectPointToSegment(pos, targets[activeTarget]));
+  } else {
+    for (let i = 0; i < targets.length; i++) {
+      const proj = projectPointToSegment(pos, targets[i]);
+      if (proj.dist <= tolerance) {
+        activeTarget = i;
+        dist = proj.dist;
+        normT = proj.t;
+        break;
+      }
+    }
   }
 
   ctx.beginPath();
   ctx.moveTo(lastPos.x, lastPos.y);
   ctx.lineTo(pos.x, pos.y);
   ctx.lineWidth = 2;
-  totalSegments++;
-  if (dist <= tolerance) {
+  if (dist <= tolerance && activeTarget !== null) {
     ctx.strokeStyle = 'green';
     minT = Math.min(minT, normT);
     maxT = Math.max(maxT, normT);
+    totalSegments++;
   } else {
     ctx.strokeStyle = 'red';
-    offLineSegments++;
+    if (activeTarget !== null) {
+      offLineSegments++;
+      totalSegments++;
+    }
   }
   ctx.stroke();
   lastPos = pos;
