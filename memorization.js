@@ -1,4 +1,4 @@
-import { scenarioUrls, getScenarioUrl, scenarioDescriptions } from './scenarios.js';
+import { scenarioUrls, getScenarioUrl, scenarioDescriptions, scenarioDifficulty } from './scenarios.js';
 
 function init() {
   const list = document.getElementById('exerciseList');
@@ -8,6 +8,14 @@ function init() {
     const item = document.createElement('div');
     item.className = 'exercise-item';
     item.dataset.link = getScenarioUrl(name);
+    const diff = scenarioDifficulty[name];
+    if (diff) {
+      item.dataset.difficulty = diff;
+      const badge = document.createElement('span');
+      badge.className = `difficulty-label difficulty-${diff.toLowerCase()}`;
+      badge.textContent = diff;
+      item.appendChild(badge);
+    }
     const img = document.createElement('img');
     img.className = 'exercise-gif';
     img.alt = '';

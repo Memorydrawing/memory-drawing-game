@@ -16,6 +16,15 @@ export const scenarioDescriptions = {
   "Point Drill 0.1 sec Look": 'Memorize a point after a 0.1 second preview and tap its location.'
 };
 
+export const scenarioDifficulty = {
+  "Angle Challenge (5\u00B0 increments)": 'Adept',
+  "Angle Challenge (10\u00B0 increments)": 'Beginner',
+  "Inch Drill": 'Beginner',
+  "Point Drill 0.5 sec Look": 'Beginner',
+  "Point Drill 0.25 sec Look": 'Adept',
+  "Point Drill 0.1 sec Look": 'Expert'
+};
+
 const builtInScenarios = Object.fromEntries(
   Object.keys(scenarioUrls).map(name => [name, { special: true }])
 );
@@ -46,6 +55,14 @@ function loadScenarioList() {
   getScenarioNames().forEach(name => {
     const item = document.createElement('div');
     item.className = 'exercise-item';
+    const diff = scenarioDifficulty[name];
+    if (diff) {
+      item.dataset.difficulty = diff;
+      const badge = document.createElement('span');
+      badge.className = `difficulty-label difficulty-${diff.toLowerCase()}`;
+      badge.textContent = diff;
+      item.appendChild(badge);
+    }
     const img = document.createElement('img');
     img.className = 'exercise-gif';
     img.alt = '';
