@@ -50,6 +50,8 @@ canvas {
   display: flex;
   align-items: flex-start;
   gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .play-area.reverse {
@@ -273,6 +275,7 @@ h2, h1 { margin: 10px 0; }
   display: flex;
   align-items: center;
   width: 100%;
+  box-sizing: border-box;
   background: white;
   border: 1px solid #ccc;
   border-radius: 6px;
