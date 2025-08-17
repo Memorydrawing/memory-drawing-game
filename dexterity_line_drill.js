@@ -83,31 +83,39 @@ function projectPointToSegment(p, seg) {
 function pointerDown(e) {
   if (!playing) return;
   const pos = getCanvasPos(canvas, e);
+  drawing = true;
+  activeTarget = null;
+  reversed = false;
+  progress = 0;
+  offLineSegments = 0;
+  totalSegments = 0;
+  lastPos = pos;
+
   for (let i = 0; i < targets.length; i++) {
     const t = targets[i];
     const startDist = Math.hypot(pos.x - t.x1, pos.y - t.y1);
     const endDist = Math.hypot(pos.x - t.x2, pos.y - t.y2);
     if (startDist <= tolerance || endDist <= tolerance) {
-      drawing = true;
       activeTarget = i;
       reversed = endDist < startDist;
-      progress = 0;
-      offLineSegments = 0;
-      totalSegments = 0;
-      drawTargets();
-      lastPos = pos;
-      canvas.setPointerCapture(e.pointerId);
-      return;
+      break;
     }
   }
-  playSound(audioCtx, 'red');
+
+  drawTargets();
+  canvas.setPointerCapture(e.pointerId);
 }
 
 function pointerMove(e) {
   if (!playing || !drawing) return;
   const pos = getCanvasPos(canvas, e);
-  const { dist, t } = projectPointToSegment(pos, targets[activeTarget]);
-  const normT = reversed ? 1 - t : t;
+
+  let dist = Infinity;
+  let normT = 0;
+  if (activeTarget !== null) {
+    ({ dist, t: normT } = projectPointToSegment(pos, targets[activeTarget]));
+    normT = reversed ? 1 - normT : normT;
+  }
 
   ctx.beginPath();
   ctx.moveTo(lastPos.x, lastPos.y);
@@ -130,7 +138,7 @@ function pointerUp(e) {
   drawing = false;
   canvas.releasePointerCapture(e.pointerId);
   const offRatio = totalSegments > 0 ? offLineSegments / totalSegments : 1;
-  if (progress >= 0.9 && offRatio <= maxOffSegmentRatio) {
+  if (activeTarget !== null && progress >= 0.9 && offRatio <= maxOffSegmentRatio) {
     score++;
     playSound(audioCtx, 'green');
     targets[activeTarget] = randomLine();
