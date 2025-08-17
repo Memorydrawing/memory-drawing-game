@@ -8,9 +8,9 @@ let gameTimer = null;
 
 let drawing = false;
 let activeTarget = null;
-let progress = 0;
+let minT = 1;
+let maxT = 0;
 let lastPos = null;
-let reversed = false;
 let offLineSegments = 0;
 let totalSegments = 0;
 
@@ -85,19 +85,17 @@ function pointerDown(e) {
   const pos = getCanvasPos(canvas, e);
   drawing = true;
   activeTarget = null;
-  reversed = false;
-  progress = 0;
+  minT = 1;
+  maxT = 0;
   offLineSegments = 0;
   totalSegments = 0;
   lastPos = pos;
 
   for (let i = 0; i < targets.length; i++) {
     const t = targets[i];
-    const startDist = Math.hypot(pos.x - t.x1, pos.y - t.y1);
-    const endDist = Math.hypot(pos.x - t.x2, pos.y - t.y2);
-    if (startDist <= tolerance || endDist <= tolerance) {
+    const { dist } = projectPointToSegment(pos, t);
+    if (dist <= tolerance) {
       activeTarget = i;
-      reversed = endDist < startDist;
       break;
     }
   }
@@ -114,7 +112,6 @@ function pointerMove(e) {
   let normT = 0;
   if (activeTarget !== null) {
     ({ dist, t: normT } = projectPointToSegment(pos, targets[activeTarget]));
-    normT = reversed ? 1 - normT : normT;
   }
 
   ctx.beginPath();
@@ -124,7 +121,8 @@ function pointerMove(e) {
   totalSegments++;
   if (dist <= tolerance) {
     ctx.strokeStyle = 'green';
-    progress = Math.max(progress, normT);
+    minT = Math.min(minT, normT);
+    maxT = Math.max(maxT, normT);
   } else {
     ctx.strokeStyle = 'red';
     offLineSegments++;
@@ -138,7 +136,8 @@ function pointerUp(e) {
   drawing = false;
   canvas.releasePointerCapture(e.pointerId);
   const offRatio = totalSegments > 0 ? offLineSegments / totalSegments : 1;
-  if (activeTarget !== null && progress >= 0.9 && offRatio <= maxOffSegmentRatio) {
+  const coverage = maxT - minT;
+  if (activeTarget !== null && coverage >= 0.9 && offRatio <= maxOffSegmentRatio) {
     score++;
     playSound(audioCtx, 'green');
     targets[activeTarget] = randomLine();
@@ -148,7 +147,6 @@ function pointerUp(e) {
   }
   activeTarget = null;
   lastPos = null;
-  reversed = false;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
