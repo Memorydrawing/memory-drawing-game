@@ -7,6 +7,7 @@ let score = 0;
 let gameTimer = null;
 let targetRadius = 5;
 let gradingTolerance = 5;
+let scoreKey = 'dexterity_point_drill';
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -44,7 +45,12 @@ function endGame() {
   playing = false;
   clearTimeout(gameTimer);
   clearCanvas(ctx);
-  result.textContent = `Score: ${score}`;
+  let high = parseInt(localStorage.getItem(scoreKey)) || 0;
+  if (score > high) {
+    high = score;
+    localStorage.setItem(scoreKey, high.toString());
+  }
+  result.textContent = `Score: ${score} (Best: ${high})`;
   startBtn.disabled = false;
 }
 
@@ -76,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
   result = document.getElementById('result');
   targetRadius = Number(canvas.dataset.radius) || targetRadius;
   gradingTolerance = Number(canvas.dataset.tolerance) || targetRadius;
+  scoreKey = canvas.dataset.scoreKey || scoreKey;
 
   canvas.addEventListener('pointerdown', pointerDown);
   startBtn.addEventListener('click', startGame);
