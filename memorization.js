@@ -27,10 +27,28 @@ function init() {
     const desc = document.createElement('p');
     desc.textContent = scenarioDescriptions[name] || 'User-created scenario.';
     info.appendChild(desc);
+    const high = localStorage.getItem(`scenarioScore_${name}`) || 0;
+    const hs = document.createElement('p');
+    hs.className = 'high-score';
+    hs.textContent = `High Score: ${high}`;
+    info.appendChild(hs);
     item.appendChild(img);
     item.appendChild(info);
     list.appendChild(item);
   });
+
+  const trainer = document.querySelector('.exercise-item[data-link="shape_trainer.html"]');
+  if (trainer) {
+    const info = trainer.querySelector('.exercise-info');
+    const p2p = localStorage.getItem('p2pBest');
+    const free = localStorage.getItem('freehandBest');
+    const hs = document.createElement('p');
+    hs.className = 'high-score';
+    const p2pText = p2p ? `${parseFloat(p2p).toFixed(1)} px` : 'N/A';
+    const freeText = free ? `${parseFloat(free).toFixed(1)} px` : 'N/A';
+    hs.textContent = `Best - P2P: ${p2pText}, Freehand: ${freeText}`;
+    info.appendChild(hs);
+  }
 
   document.querySelectorAll('.exercise-item[data-link]').forEach(item => {
     item.addEventListener('click', () => {

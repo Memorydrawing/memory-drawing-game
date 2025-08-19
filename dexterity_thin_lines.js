@@ -5,6 +5,7 @@ let playing = false;
 let targets = [];
 let score = 0;
 let gameTimer = null;
+let scoreKey = 'dexterity_thin_lines';
 
 let drawing = false;
 let activeTarget = null;
@@ -77,7 +78,12 @@ function endGame() {
   playing = false;
   clearTimeout(gameTimer);
   clearCanvas(ctx);
-  result.textContent = `Score: ${score}`;
+  let high = parseInt(localStorage.getItem(scoreKey)) || 0;
+  if (score > high) {
+    high = score;
+    localStorage.setItem(scoreKey, high.toString());
+  }
+  result.textContent = `Score: ${score} (Best: ${high})`;
   startBtn.disabled = false;
 }
 
@@ -185,6 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
   ctx = canvas.getContext('2d');
   startBtn = document.getElementById('startBtn');
   result = document.getElementById('result');
+  scoreKey = canvas.dataset.scoreKey || scoreKey;
 
   canvas.addEventListener('pointerdown', pointerDown);
   canvas.addEventListener('pointermove', pointerMove);
