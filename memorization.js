@@ -5,36 +5,60 @@ function init() {
   const saved = JSON.parse(localStorage.getItem('scenarios') || '{}');
   const scenarios = [...Object.keys(scenarioUrls), ...Object.keys(saved)];
   scenarios.forEach(name => {
-    const item = document.createElement('div');
-    item.className = 'exercise-item';
-    item.dataset.link = getScenarioUrl(name);
     const diff = scenarioDifficulty[name];
-    if (diff) {
-      item.dataset.difficulty = diff;
-      const badge = document.createElement('span');
-      badge.className = `difficulty-label difficulty-${diff.toLowerCase()}`;
-      badge.textContent = diff;
-      item.appendChild(badge);
-    }
-    const img = document.createElement('img');
-    img.className = 'exercise-gif';
-    img.alt = '';
-    const info = document.createElement('div');
-    info.className = 'exercise-info';
-    const title = document.createElement('h3');
-    title.textContent = name;
-    info.appendChild(title);
-    const desc = document.createElement('p');
-    desc.textContent = scenarioDescriptions[name] || 'User-created scenario.';
-    info.appendChild(desc);
     const high = localStorage.getItem(`scenarioScore_${name}`) || 0;
-    const hs = document.createElement('p');
-    hs.className = 'high-score';
-    hs.textContent = `High Score: ${high}`;
-    info.appendChild(hs);
-    item.appendChild(img);
-    item.appendChild(info);
-    list.appendChild(item);
+    const existing = Array.from(list.querySelectorAll('.exercise-item'))
+      .find(item => item.querySelector('h3')?.textContent === name);
+    if (existing) {
+      existing.dataset.link = getScenarioUrl(name);
+      if (diff) {
+        existing.dataset.difficulty = diff;
+        let badge = existing.querySelector('.difficulty-label');
+        if (!badge) {
+          badge = document.createElement('span');
+          existing.insertBefore(badge, existing.firstChild);
+        }
+        badge.className = `difficulty-label difficulty-${diff.toLowerCase()}`;
+        badge.textContent = diff;
+      }
+      const info = existing.querySelector('.exercise-info');
+      let hs = existing.querySelector('.high-score');
+      if (!hs) {
+        hs = document.createElement('p');
+        hs.className = 'high-score';
+        info.appendChild(hs);
+      }
+      hs.textContent = `High Score: ${high}`;
+    } else {
+      const item = document.createElement('div');
+      item.className = 'exercise-item';
+      item.dataset.link = getScenarioUrl(name);
+      if (diff) {
+        item.dataset.difficulty = diff;
+        const badge = document.createElement('span');
+        badge.className = `difficulty-label difficulty-${diff.toLowerCase()}`;
+        badge.textContent = diff;
+        item.appendChild(badge);
+      }
+      const img = document.createElement('img');
+      img.className = 'exercise-gif';
+      img.alt = '';
+      const info = document.createElement('div');
+      info.className = 'exercise-info';
+      const title = document.createElement('h3');
+      title.textContent = name;
+      info.appendChild(title);
+      const desc = document.createElement('p');
+      desc.textContent = scenarioDescriptions[name] || 'User-created scenario.';
+      info.appendChild(desc);
+      const hs = document.createElement('p');
+      hs.className = 'high-score';
+      hs.textContent = `High Score: ${high}`;
+      info.appendChild(hs);
+      item.appendChild(img);
+      item.appendChild(info);
+      list.appendChild(item);
+    }
   });
 
   const trainer = document.querySelector('.exercise-item[data-link="shape_trainer.html"]');
