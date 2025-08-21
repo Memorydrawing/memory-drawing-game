@@ -5,7 +5,8 @@ export const scenarioUrls = {
   "Point Drill 0.5 sec Look": 'point_drill_05.html',
   "Point Drill 0.25 sec Look": 'point_drill_025.html',
   "Point Drill 0.1 sec Look": 'point_drill_01.html',
-  "Triangles": 'triangles.html'
+  "Triangles": 'triangles.html',
+  "Quadrilaterals": 'quadrilaterals.html'
 };
 
 export const scenarioDescriptions = {
@@ -15,7 +16,8 @@ export const scenarioDescriptions = {
   "Point Drill 0.5 sec Look": 'Memorize a point after a 0.5 second preview and tap its location.',
   "Point Drill 0.25 sec Look": 'Memorize a point after a 0.25 second preview and tap its location.',
   "Point Drill 0.1 sec Look": 'Memorize a point after a 0.1 second preview and tap its location.',
-  "Triangles": 'Memorize triangle vertices.'
+  "Triangles": 'Memorize triangle vertices.',
+  "Quadrilaterals": 'Memorize quadrilateral vertices.'
 };
 
 export const scenarioDifficulty = {
@@ -25,7 +27,8 @@ export const scenarioDifficulty = {
   "Point Drill 0.5 sec Look": 'Beginner',
   "Point Drill 0.25 sec Look": 'Adept',
   "Point Drill 0.1 sec Look": 'Expert',
-  "Triangles": 'Beginner'
+  "Triangles": 'Beginner',
+  "Quadrilaterals": 'Adept'
 };
 
 const builtInScenarios = Object.fromEntries(
