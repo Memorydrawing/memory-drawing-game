@@ -17,7 +17,7 @@ export const scenarioDescriptions = {
 };
 
 export const scenarioDifficulty = {
-  "Angle Challenge (5\u00B0 increments)": 'Adept',
+  "Angle Challenge (5\u00B0 increments)": 'Expert',
   "Angle Challenge (10\u00B0 increments)": 'Beginner',
   "Inch Drill": 'Beginner',
   "Point Drill 0.5 sec Look": 'Beginner',
