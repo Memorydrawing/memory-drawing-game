@@ -30,5 +30,5 @@ There are no external dependencies aside from a modern web browser that supports
 
 ## License
 
-This repository is licensed under the [MIT License](LICENSE).
+
 
