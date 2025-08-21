@@ -10,7 +10,7 @@ let gameTimer = null;
 let stats = null;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-const RESULT_DISPLAY_TIME = 100;
+const RESULT_DISPLAY_TIME = 300;
 
 function drawTarget() {
   const margin = 20;
