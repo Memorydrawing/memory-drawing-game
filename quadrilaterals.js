@@ -10,7 +10,7 @@ let guesses = [];
 let guessesGreyed = false;
 let attemptCount = 0;
 
-const SHOW_COLOR_TIME = 2000;
+const SHOW_COLOR_TIME = 500;
 const NEW_QUADRILATERAL_DELAY = 3000;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -31,21 +31,14 @@ function drawGuesses() {
 function drawQuadrilateral(show = true) {
   clearCanvas(ctx);
   if (show) {
-    ctx.strokeStyle = 'black';
-    ctx.lineWidth = 2;
+    ctx.fillStyle = 'black';
     ctx.beginPath();
     ctx.moveTo(vertices[0].x, vertices[0].y);
     for (let i = 1; i < vertices.length; i++) {
       ctx.lineTo(vertices[i].x, vertices[i].y);
     }
     ctx.closePath();
-    ctx.stroke();
-    vertices.forEach(v => {
-      ctx.fillStyle = 'black';
-      ctx.beginPath();
-      ctx.arc(v.x, v.y, 5, 0, Math.PI * 2);
-      ctx.fill();
-    });
+    ctx.fill();
   }
   drawGuesses();
 }
@@ -73,22 +66,26 @@ function nearestVertex(pos) {
 function finishCycle() {
   state = 'waiting';
   const success = guesses.every(g => g.grade === 'green');
+  attemptCount++;
   drawQuadrilateral(true);
-  setTimeout(() => {
-    guessesGreyed = true;
-    drawQuadrilateral(true);
-    attemptCount++;
-    if (success) {
-      result.textContent = `Completed in ${attemptCount} ${attemptCount === 1 ? 'try' : 'tries'}!`;
-      setTimeout(() => {
-        result.textContent = '';
-        attemptCount = 0;
-        startQuadrilateral();
-      }, NEW_QUADRILATERAL_DELAY);
-    } else {
+  if (success) {
+    result.textContent = `Completed in ${attemptCount} ${attemptCount === 1 ? 'try' : 'tries'}!`;
+    setTimeout(() => {
+      guessesGreyed = true;
+      drawQuadrilateral(true);
+    }, SHOW_COLOR_TIME);
+    setTimeout(() => {
+      result.textContent = '';
+      attemptCount = 0;
+      startQuadrilateral();
+    }, NEW_QUADRILATERAL_DELAY);
+  } else {
+    setTimeout(() => {
+      guessesGreyed = true;
+      drawQuadrilateral(true);
       state = 'preview';
-    }
-  }, SHOW_COLOR_TIME);
+    }, SHOW_COLOR_TIME);
+  }
 }
 
 function pointerDown(e) {
