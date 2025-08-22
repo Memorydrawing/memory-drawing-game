@@ -7,9 +7,15 @@ let state = 'idle';
 let segments = [];
 let polyline = [];
 let playerShape = [];
+let previousAttempt = [];
+let segmentGrades = [];
 let isDrawing = false;
+let attemptGreyed = false;
+let attemptCount = 0;
+let correctSamples = 0;
+let totalSamples = 0;
 
-const PREVIEW_TIME = 2000;
+const SHOW_COLOR_TIME = 500;
 const NEW_SHAPE_DELAY = 3000;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -72,29 +78,27 @@ function generateComplexShape() {
       const dx = end.x - start.x;
       const dy = end.y - start.y;
       const len = Math.hypot(dx, dy) || 1;
-      const nx = -dy / len;
-      const ny = dx / len;
+      const nx = dy / len;
+      const ny = -dx / len;
       const mid = { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 };
-      const offset = (Math.random() * 0.5 + 0.2) * len;
-      const dir = Math.random() < 0.5 ? 1 : -1;
-      const cp = { x: mid.x + nx * offset * dir, y: mid.y + ny * offset * dir };
+      const offset = (Math.random() * 0.2 + 0.1) * len;
+      const cp = { x: mid.x + nx * offset, y: mid.y + ny * offset };
       segments.push({ type, start, end, cp });
       sampleQuadratic(start, cp, end);
     } else {
       const dx = end.x - start.x;
       const dy = end.y - start.y;
       const len = Math.hypot(dx, dy) || 1;
-      const nx = -dy / len;
-      const ny = dx / len;
-      const offset = (Math.random() * 0.5 + 0.2) * len;
-      const dir = Math.random() < 0.5 ? 1 : -1;
+      const nx = dy / len;
+      const ny = -dx / len;
+      const offset = (Math.random() * 0.2 + 0.1) * len;
       const cp1 = {
-        x: start.x + dx / 3 + nx * offset * dir,
-        y: start.y + dy / 3 + ny * offset * dir
+        x: start.x + dx / 3 + nx * offset,
+        y: start.y + dy / 3 + ny * offset
       };
       const cp2 = {
-        x: start.x + (2 * dx) / 3 - nx * offset * dir,
-        y: start.y + (2 * dy) / 3 - ny * offset * dir
+        x: start.x + (2 * dx) / 3 + nx * offset,
+        y: start.y + (2 * dy) / 3 + ny * offset
       };
       segments.push({ type, start, end, cp1, cp2 });
       sampleCubic(start, cp1, cp2, end);
@@ -117,19 +121,32 @@ function drawComplexShape(show = true) {
       }
     });
     ctx.closePath();
-    ctx.strokeStyle = 'black';
-    ctx.lineWidth = 2;
-    ctx.stroke();
+    ctx.fillStyle = 'black';
+    ctx.fill();
   }
-  if (isDrawing && playerShape.length > 1) {
+
+  if (attemptGreyed && previousAttempt.length > 1) {
     ctx.beginPath();
-    ctx.moveTo(playerShape[0].x, playerShape[0].y);
-    for (let i = 1; i < playerShape.length; i++) {
-      ctx.lineTo(playerShape[i].x, playerShape[i].y);
+    ctx.moveTo(previousAttempt[0].x, previousAttempt[0].y);
+    for (let i = 1; i < previousAttempt.length; i++) {
+      ctx.lineTo(previousAttempt[i].x, previousAttempt[i].y);
     }
-    ctx.strokeStyle = 'red';
+    ctx.strokeStyle = 'grey';
     ctx.lineWidth = 1.5;
     ctx.stroke();
+  }
+
+  if (playerShape.length > 1) {
+    for (let i = 1; i < playerShape.length; i++) {
+      const grade = segmentGrades[i - 1];
+      const color = grade === 'yellow' ? 'orange' : grade;
+      ctx.beginPath();
+      ctx.moveTo(playerShape[i - 1].x, playerShape[i - 1].y);
+      ctx.lineTo(playerShape[i].x, playerShape[i].y);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
   }
 }
 
@@ -145,37 +162,20 @@ function distanceToPath(p) {
 }
 
 function evaluateDrawing() {
-  if (playerShape.length < 2) return;
-  let total = 0;
-  for (let i = 1; i < playerShape.length; i++) {
-    const p = playerShape[i];
-    const d = distanceToPath(p);
-    total += d;
-    let color = 'red';
-    if (d <= 5) color = 'green';
-    else if (d <= 10) color = 'orange';
-    ctx.beginPath();
-    ctx.moveTo(playerShape[i - 1].x, playerShape[i - 1].y);
-    ctx.lineTo(p.x, p.y);
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-  }
-  const avg = total / (playerShape.length - 1);
-  result.textContent = `Average error: ${avg.toFixed(1)} px`;
-  playSound(audioCtx, gradeDistance(avg));
+  if (playerShape.length < 2) return 0;
+  drawComplexShape(true);
+  return correctSamples / Math.max(totalSamples, 1);
 }
 
 function startShape() {
   generateComplexShape();
   playerShape = [];
+  previousAttempt = [];
+  segmentGrades = [];
+  attemptGreyed = false;
   isDrawing = false;
   state = 'preview';
   drawComplexShape(true);
-  setTimeout(() => {
-    clearCanvas(ctx);
-    state = 'draw';
-  }, PREVIEW_TIME);
 }
 
 function startGame() {
@@ -183,30 +183,76 @@ function startGame() {
   playing = true;
   startBtn.disabled = true;
   result.textContent = '';
+  attemptCount = 0;
   startShape();
 }
 
 function pointerDown(e) {
-  if (!playing || state !== 'draw') return;
+  if (!playing || state !== 'preview') return;
   const pos = getCanvasPos(canvas, e);
   isDrawing = true;
+  state = 'draw';
   playerShape = [pos];
-  drawComplexShape(false);
+  segmentGrades = [];
+  correctSamples = 0;
+  totalSamples = 0;
+  attemptGreyed = false;
+  previousAttempt = [];
+  clearCanvas(ctx);
 }
 
 function pointerMove(e) {
   if (!isDrawing || state !== 'draw') return;
   const pos = getCanvasPos(canvas, e);
+  const prev = playerShape[playerShape.length - 1];
   playerShape.push(pos);
-  drawComplexShape(false);
+  const d = distanceToPath(pos);
+  const grade = gradeDistance(d);
+  segmentGrades.push(grade);
+  ctx.beginPath();
+  ctx.moveTo(prev.x, prev.y);
+  ctx.lineTo(pos.x, pos.y);
+  ctx.strokeStyle = grade === 'yellow' ? 'orange' : grade;
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  totalSamples++;
+  if (d <= 5) correctSamples++;
 }
 
 function pointerUp() {
   if (!isDrawing || state !== 'draw') return;
   isDrawing = false;
-  drawComplexShape(true);
-  evaluateDrawing();
-  setTimeout(startShape, NEW_SHAPE_DELAY);
+  state = 'waiting';
+  const accuracy = evaluateDrawing();
+  const grade = accuracy >= 0.9 ? 'green' : accuracy >= 0.8 ? 'yellow' : 'red';
+  playSound(audioCtx, grade);
+  attemptCount++;
+
+  if (accuracy >= 0.9) {
+    result.textContent = `Completed in ${attemptCount} ${attemptCount === 1 ? 'try' : 'tries'}!`;
+    setTimeout(() => {
+      attemptGreyed = true;
+      previousAttempt = [...playerShape];
+      playerShape = [];
+      segmentGrades = [];
+      drawComplexShape(true);
+    }, SHOW_COLOR_TIME);
+    setTimeout(() => {
+      result.textContent = '';
+      attemptCount = 0;
+      startShape();
+    }, NEW_SHAPE_DELAY);
+  } else {
+    result.textContent = `Accuracy: ${(accuracy * 100).toFixed(1)}%`;
+    setTimeout(() => {
+      attemptGreyed = true;
+      previousAttempt = [...playerShape];
+      playerShape = [];
+      segmentGrades = [];
+      drawComplexShape(true);
+      state = 'preview';
+    }, SHOW_COLOR_TIME);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
