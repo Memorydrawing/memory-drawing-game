@@ -6,7 +6,10 @@ describe('memorization page', () => {
     document.body.innerHTML = `
       <div id="exerciseList" class="exercise-list">
         <div class="exercise-item" data-link="shape_trainer.html" data-difficulty="Beginner">
-          <span class="difficulty-label difficulty-beginner">Beginner</span>
+          <div class="tag-container">
+            <span class="category-label">Memorization</span>
+            <span class="difficulty-label difficulty-beginner">Beginner</span>
+          </div>
           <img class="exercise-gif" alt="" />
           <div class="exercise-info">
             <h3>Shape Trainer</h3>

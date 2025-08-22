@@ -62,13 +62,20 @@ function loadScenarioList() {
     const item = document.createElement('div');
     item.className = 'exercise-item';
     const diff = scenarioDifficulty[name];
+    const tags = document.createElement('div');
+    tags.className = 'tag-container';
+    const cat = document.createElement('span');
+    cat.className = 'category-label';
+    cat.textContent = 'Memorization';
+    tags.appendChild(cat);
     if (diff) {
       item.dataset.difficulty = diff;
       const badge = document.createElement('span');
       badge.className = `difficulty-label difficulty-${diff.toLowerCase()}`;
       badge.textContent = diff;
-      item.appendChild(badge);
+      tags.appendChild(badge);
     }
+    item.appendChild(tags);
     const img = document.createElement('img');
     img.className = 'exercise-gif';
     img.alt = '';

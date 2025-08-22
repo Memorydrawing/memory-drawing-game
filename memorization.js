@@ -11,12 +11,25 @@ function init() {
       .find(item => item.querySelector('h3')?.textContent === name);
     if (existing) {
       existing.dataset.link = getScenarioUrl(name);
+      let container = existing.querySelector('.tag-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.className = 'tag-container';
+        existing.insertBefore(container, existing.firstChild);
+      }
+      let cat = container.querySelector('.category-label');
+      if (!cat) {
+        cat = document.createElement('span');
+        cat.className = 'category-label';
+        cat.textContent = 'Memorization';
+        container.appendChild(cat);
+      }
       if (diff) {
         existing.dataset.difficulty = diff;
-        let badge = existing.querySelector('.difficulty-label');
+        let badge = container.querySelector('.difficulty-label');
         if (!badge) {
           badge = document.createElement('span');
-          existing.insertBefore(badge, existing.firstChild);
+          container.appendChild(badge);
         }
         badge.className = `difficulty-label difficulty-${diff.toLowerCase()}`;
         badge.textContent = diff;
@@ -33,13 +46,20 @@ function init() {
       const item = document.createElement('div');
       item.className = 'exercise-item';
       item.dataset.link = getScenarioUrl(name);
+      const container = document.createElement('div');
+      container.className = 'tag-container';
+      const cat = document.createElement('span');
+      cat.className = 'category-label';
+      cat.textContent = 'Memorization';
+      container.appendChild(cat);
       if (diff) {
         item.dataset.difficulty = diff;
         const badge = document.createElement('span');
         badge.className = `difficulty-label difficulty-${diff.toLowerCase()}`;
         badge.textContent = diff;
-        item.appendChild(badge);
+        container.appendChild(badge);
       }
+      item.appendChild(container);
       const img = document.createElement('img');
       img.className = 'exercise-gif';
       img.alt = '';
