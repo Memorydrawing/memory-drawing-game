@@ -15,8 +15,9 @@ let lastPos = null;
 let offLineSegments = 0;
 let totalSegments = 0;
 
-const tolerance = 6;
-const maxOffSegmentRatio = 0.15;
+// Match grading parameters with dexterity_thin_lines.js
+const tolerance = 4;
+const maxOffSegmentRatio = 0.1;
 const LINE_WIDTH = 2;
 const SAMPLE_POINTS = 50;
 
