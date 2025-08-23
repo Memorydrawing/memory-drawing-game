@@ -15,6 +15,16 @@ describe('generateShape', () => {
     });
   });
 
+  test('avoids excessively skinny shapes', () => {
+    const points = generateShape(4, width, height, 'medium');
+    const xs = points.map(p => p.x);
+    const ys = points.map(p => p.y);
+    const boxWidth = Math.max(...xs) - Math.min(...xs);
+    const boxHeight = Math.max(...ys) - Math.min(...ys);
+    expect(boxWidth).toBeGreaterThanOrEqual(60);
+    expect(boxHeight).toBeGreaterThanOrEqual(60);
+  });
+
   test('handles single point generation', () => {
     const points = generateShape(1, width, height);
     expect(points).toHaveLength(1);
