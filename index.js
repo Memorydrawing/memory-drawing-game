@@ -8,9 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('memorizationBtn')?.addEventListener('click', () => {
     window.location.href = 'memorization.html';
   });
-  document.getElementById('dexterityBtn')?.addEventListener('click', () => {
-    window.location.href = 'dexterity.html';
-  });
   document.getElementById('observationBtn')?.addEventListener('click', () => {
     window.location.href = 'observation.html';
   });
