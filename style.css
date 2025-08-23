@@ -368,16 +368,19 @@ h2, h1 { margin: 10px 0; }
   margin-top: 10px;
 }
 .strikes input[type="checkbox"] {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   appearance: none;
-  border: 1px solid #000;
+  border: 1px solid #333;
+  background-color: transparent;
   position: relative;
+  box-sizing: border-box;
 }
 .strikes input[type="checkbox"]:checked::after {
-  content: '✖';
+  content: '\2717';
   position: absolute;
-  top: -2px;
-  left: 3px;
+  top: -3px;
+  left: 2px;
   color: red;
+  font-size: 18px;
 }
