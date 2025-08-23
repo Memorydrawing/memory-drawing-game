@@ -31,6 +31,18 @@ export const scenarioDifficulty = {
   "Quadrilaterals": 'Adept'
 };
 
+export const scenarioSubject = {
+  "Angles (5\u00B0 increments)": 'Angles',
+  "Angles (10\u00B0 increments)": 'Angles',
+  "Inch Drill": 'Lines',
+  "Point Drill 0.5 sec Look": 'Points',
+  "Point Drill 0.25 sec Look": 'Points',
+  "Point Drill 0.1 sec Look": 'Points',
+  "Triangles": 'Shapes',
+  "Quadrilaterals": 'Shapes',
+  "Complex Shapes": 'Shapes'
+};
+
 const builtInScenarios = Object.fromEntries(
   Object.keys(scenarioUrls).map(name => [name, { special: true }])
 );
@@ -62,12 +74,19 @@ function loadScenarioList() {
     const item = document.createElement('div');
     item.className = 'exercise-item';
     const diff = scenarioDifficulty[name];
+    const subject = scenarioSubject[name];
     const tags = document.createElement('div');
     tags.className = 'tag-container';
     const cat = document.createElement('span');
     cat.className = 'category-label category-memorization';
     cat.textContent = 'Memorization';
     tags.appendChild(cat);
+    if (subject) {
+      const subj = document.createElement('span');
+      subj.className = 'subject-label';
+      subj.textContent = subject;
+      tags.appendChild(subj);
+    }
     if (diff) {
       item.dataset.difficulty = diff;
       const badge = document.createElement('span');

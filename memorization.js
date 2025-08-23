@@ -1,4 +1,4 @@
-import { scenarioUrls, getScenarioUrl, scenarioDescriptions, scenarioDifficulty } from './scenarios.js';
+import { scenarioUrls, getScenarioUrl, scenarioDescriptions, scenarioDifficulty, scenarioSubject } from './scenarios.js';
 
 function init() {
   const list = document.getElementById('exerciseList');
@@ -6,6 +6,7 @@ function init() {
   const scenarios = [...Object.keys(scenarioUrls), ...Object.keys(saved)];
   scenarios.forEach(name => {
     const diff = scenarioDifficulty[name];
+    const subject = scenarioSubject[name];
     const high = localStorage.getItem(`scenarioScore_${name}`) || 0;
     const existing = Array.from(list.querySelectorAll('.exercise-item'))
       .find(item => item.querySelector('h3')?.textContent === name);
@@ -26,6 +27,20 @@ function init() {
         } else {
           cat.classList.add('category-memorization');
         }
+      if (subject) {
+        let subj = container.querySelector('.subject-label');
+        if (!subj) {
+          subj = document.createElement('span');
+          subj.className = 'subject-label';
+        }
+        subj.textContent = subject;
+        const diffBadge = container.querySelector('.difficulty-label');
+        if (diffBadge) {
+          container.insertBefore(subj, diffBadge);
+        } else {
+          container.appendChild(subj);
+        }
+      }
       if (diff) {
         existing.dataset.difficulty = diff;
         let badge = container.querySelector('.difficulty-label');
@@ -54,6 +69,12 @@ function init() {
         cat.className = 'category-label category-memorization';
         cat.textContent = 'Memorization';
       container.appendChild(cat);
+      if (subject) {
+        const subj = document.createElement('span');
+        subj.className = 'subject-label';
+        subj.textContent = subject;
+        container.appendChild(subj);
+      }
       if (diff) {
         item.dataset.difficulty = diff;
         const badge = document.createElement('span');
