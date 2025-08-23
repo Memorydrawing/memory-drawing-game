@@ -1,3 +1,5 @@
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.exercise-item[data-link]').forEach(item => {
 function init() {
   // Add high scores for dexterity drills
   document.querySelectorAll('.exercise-item[data-score-key]').forEach(item => {
@@ -10,6 +12,11 @@ function init() {
       p.textContent = `High Score: ${val}`;
       info.appendChild(p);
     }
+    item.addEventListener('click', () => {
+      window.location.href = item.dataset.link;
+    });
+  });
+});
   });
 
   // Search filter
