@@ -1,7 +1,7 @@
 import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 import { generateShape, distancePointToSegment } from './geometry.js';
 
-let canvas, ctx, startBtn, result;
+let canvas, ctx, startBtn, result, strikeElems;
 let playing = false;
 let state = 'idle';
 let segments = [];
@@ -14,6 +14,8 @@ let attemptGreyed = false;
 let attemptCount = 0;
 let correctSamples = 0;
 let totalSamples = 0;
+let strikes = 0;
+let shapesCompleted = 0;
 
 const SHOW_COLOR_TIME = 500;
 const NEW_SHAPE_DELAY = 3000;
@@ -221,6 +223,18 @@ function evaluateDrawing() {
   return pathAccuracy * coverage;
 }
 
+function updateStrikes() {
+  strikeElems.forEach((el, idx) => {
+    el.checked = idx < strikes;
+  });
+}
+
+function endGame() {
+  playing = false;
+  startBtn.disabled = false;
+  result.textContent = `Struck out! You completed ${shapesCompleted} ${shapesCompleted === 1 ? 'shape' : 'shapes'}.`;
+}
+
 function startShape() {
   generateComplexShape();
   playerShape = [];
@@ -238,6 +252,9 @@ function startGame() {
   startBtn.disabled = true;
   result.textContent = '';
   attemptCount = 0;
+  strikes = 0;
+  shapesCompleted = 0;
+  updateStrikes();
   startShape();
 }
 
@@ -279,10 +296,21 @@ function pointerUp() {
   state = 'waiting';
   const accuracy = evaluateDrawing();
   const grade = accuracy >= 0.9 ? 'green' : accuracy >= 0.8 ? 'yellow' : 'red';
+  const hadRed = segmentGrades.includes('red');
   playSound(audioCtx, grade);
   attemptCount++;
 
+  if (hadRed) {
+    strikes++;
+    updateStrikes();
+    if (strikes >= 3) {
+      endGame();
+      return;
+    }
+  }
+
   if (accuracy >= 0.9) {
+    shapesCompleted++;
     result.textContent = `Completed in ${attemptCount} ${attemptCount === 1 ? 'try' : 'tries'}!`;
     setTimeout(() => {
       attemptGreyed = true;
@@ -294,6 +322,8 @@ function pointerUp() {
     setTimeout(() => {
       result.textContent = '';
       attemptCount = 0;
+      strikes = 0;
+      updateStrikes();
       startShape();
     }, NEW_SHAPE_DELAY);
   } else {
@@ -315,6 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
   ctx = canvas.getContext('2d');
   startBtn = document.getElementById('startBtn');
   result = document.getElementById('result');
+  strikeElems = Array.from(document.querySelectorAll('#strikes .strike'));
   canvas.addEventListener('pointerdown', pointerDown);
   canvas.addEventListener('pointermove', pointerMove);
   canvas.addEventListener('pointerup', pointerUp);

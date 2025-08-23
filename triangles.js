@@ -10,6 +10,7 @@ let guessesGreyed = false;
 let attemptCount = 0;
 let strikes = 0;
 let shapesCompleted = 0;
+let attemptHasRed = false;
 
 const SHOW_COLOR_TIME = 500;
 const NEW_TRIANGLE_DELAY = 3000;
@@ -108,6 +109,14 @@ function finishCycle() {
       startTriangle();
     }, NEW_TRIANGLE_DELAY);
   } else {
+    if (attemptHasRed) {
+      strikes++;
+      updateStrikes();
+      if (strikes >= 3) {
+        endGame();
+        return;
+      }
+    }
     setTimeout(() => {
       guessesGreyed = true;
       drawTriangle(true);
@@ -123,36 +132,26 @@ function pointerDown(e) {
     guesses = [];
     guessesGreyed = false;
     remaining = [0, 1, 2];
+    attemptHasRed = false;
     const { idx, dist } = nearestVertex(pos);
     const grade = gradeDistance(dist);
     guesses.push({ x: pos.x, y: pos.y, grade });
-    if (grade === 'red') {
-      strikes++;
-      updateStrikes();
-    }
+    if (grade === 'red') attemptHasRed = true;
     playSound(audioCtx, grade);
     remaining.splice(remaining.indexOf(idx), 1);
     state = 'guess';
     clearCanvas(ctx);
     drawGuesses();
-    if (strikes >= 3) {
-      endGame();
-    }
   } else if (state === 'guess') {
     const { idx, dist } = nearestVertex(pos);
     const grade = gradeDistance(dist);
     guesses.push({ x: pos.x, y: pos.y, grade });
-    if (grade === 'red') {
-      strikes++;
-      updateStrikes();
-    }
+    if (grade === 'red') attemptHasRed = true;
     playSound(audioCtx, grade);
     remaining.splice(remaining.indexOf(idx), 1);
     clearCanvas(ctx);
     drawGuesses();
-    if (strikes >= 3) {
-      endGame();
-    } else if (remaining.length === 0) {
+    if (remaining.length === 0) {
       finishCycle();
     }
   }
