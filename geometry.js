@@ -22,7 +22,7 @@ export function generateShape(sides, width, height, size = 'medium') {
 
   for (let i = 0; i < sides; i++) {
     const angle = angleStep * i + angleOffset;
-    const r = radius * (0.9 + Math.random() * 0.2);
+    const r = radius * (0.4 + Math.random() * 0.8);
     points.push({
       x: cx + r * Math.cos(angle),
       y: cy + r * Math.sin(angle)
