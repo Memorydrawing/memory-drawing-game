@@ -353,3 +353,23 @@ h2, h1 { margin: 10px 0; }
 .difficulty-expert {
   background-color: #F44336;
 }
+.strikes {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+.strikes input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  appearance: none;
+  border: 1px solid #000;
+  position: relative;
+}
+.strikes input[type="checkbox"]:checked::after {
+  content: '✖';
+  position: absolute;
+  top: -2px;
+  left: 3px;
+  color: red;
+}

@@ -1,7 +1,7 @@
 import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 import { generateShape } from './geometry.js';
 
-let canvas, ctx, startBtn, result;
+let canvas, ctx, startBtn, result, strikeElems;
 let playing = false;
 let state = 'idle';
 let vertices = [];
@@ -9,6 +9,8 @@ let remaining = [];
 let guesses = [];
 let guessesGreyed = false;
 let attemptCount = 0;
+let strikes = 0;
+let shapesCompleted = 0;
 
 const SHOW_COLOR_TIME = 500;
 const NEW_QUADRILATERAL_DELAY = 3000;
@@ -63,12 +65,25 @@ function nearestVertex(pos) {
   return { idx: minIdx, dist: minDist };
 }
 
+function updateStrikes() {
+  strikeElems.forEach((el, idx) => {
+    el.checked = idx < strikes;
+  });
+}
+
+function endGame() {
+  playing = false;
+  startBtn.disabled = false;
+  result.textContent = `Struck out! You completed ${shapesCompleted} ${shapesCompleted === 1 ? 'shape' : 'shapes'}.`;
+}
+
 function finishCycle() {
   state = 'waiting';
   const success = guesses.every(g => g.grade === 'green');
   attemptCount++;
   drawQuadrilateral(true);
   if (success) {
+    shapesCompleted++;
     result.textContent = `Completed in ${attemptCount} ${attemptCount === 1 ? 'try' : 'tries'}!`;
     setTimeout(() => {
       guessesGreyed = true;
@@ -77,6 +92,8 @@ function finishCycle() {
     setTimeout(() => {
       result.textContent = '';
       attemptCount = 0;
+      strikes = 0;
+      updateStrikes();
       startQuadrilateral();
     }, NEW_QUADRILATERAL_DELAY);
   } else {
@@ -98,6 +115,14 @@ function pointerDown(e) {
     const { idx, dist } = nearestVertex(pos);
     const grade = gradeDistance(dist);
     guesses.push({ x: pos.x, y: pos.y, grade });
+    if (grade === 'red') {
+      strikes++;
+      updateStrikes();
+      if (strikes >= 3) {
+        endGame();
+        return;
+      }
+    }
     playSound(audioCtx, grade);
     remaining.splice(remaining.indexOf(idx), 1);
     state = 'guess';
@@ -107,6 +132,14 @@ function pointerDown(e) {
     const { idx, dist } = nearestVertex(pos);
     const grade = gradeDistance(dist);
     guesses.push({ x: pos.x, y: pos.y, grade });
+    if (grade === 'red') {
+      strikes++;
+      updateStrikes();
+      if (strikes >= 3) {
+        endGame();
+        return;
+      }
+    }
     playSound(audioCtx, grade);
     remaining.splice(remaining.indexOf(idx), 1);
     clearCanvas(ctx);
@@ -132,6 +165,9 @@ function startGame() {
   startBtn.disabled = true;
   result.textContent = '';
   attemptCount = 0;
+  strikes = 0;
+  shapesCompleted = 0;
+  updateStrikes();
   startQuadrilateral();
 }
 
@@ -141,6 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
   ctx = canvas.getContext('2d');
   startBtn = document.getElementById('startBtn');
   result = document.getElementById('result');
+  strikeElems = Array.from(document.querySelectorAll('#strikes .strike'));
   canvas.addEventListener('pointerdown', pointerDown);
   startBtn.addEventListener('click', startGame);
 });
