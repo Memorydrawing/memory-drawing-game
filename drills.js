@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+function init() {
   // Add high scores for dexterity drills
   document.querySelectorAll('.exercise-item[data-score-key]').forEach(item => {
     const info = item.querySelector('.exercise-info');
@@ -27,7 +27,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // Navigate on click
   document.querySelectorAll('.exercise-item[data-link]').forEach(item => {
     item.addEventListener('click', () => {
-      window.location.href = item.dataset.link;
+      window.location.assign(item.dataset.link);
     });
   });
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
