@@ -102,7 +102,8 @@ function curveIntersects(points) {
 
 function generateComplexShape() {
   const sides = 2 + Math.floor(Math.random() * 2); // up to 3 sides
-  const sizes = ['small', 'medium', 'big'];
+  // Bias toward larger shapes by weighting 'medium' and 'big' sizes
+  const sizes = ['small', 'medium', 'medium', 'big', 'big'];
   const size = sizes[Math.floor(Math.random() * sizes.length)];
   const verts = generateShape(sides, canvas.width, canvas.height, size);
   segments = [];
@@ -215,7 +216,9 @@ function distanceToPath(p) {
 function evaluateDrawing() {
   if (playerShape.length < 2) return 0;
   drawComplexShape(true);
-  return correctSamples / Math.max(totalSamples, 1);
+  const coverage = Math.min(totalSamples / polyline.length, 1);
+  const pathAccuracy = correctSamples / Math.max(totalSamples, 1);
+  return pathAccuracy * coverage;
 }
 
 function startShape() {
