@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dexterity Drills - Memory Shape Drawing Game</title>
+  <title>Drills - Memory Shape Drawing Game</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="menu-screen">
     <button id="backBtn">← Back</button>
-    <h2>Dexterity Drills</h2>
+    <h2>Drills</h2>
     <div id="exerciseList" class="exercise-list">
       <div class="exercise-item" data-link="dexterity_point_drill_large.html" data-difficulty="Beginner" data-score-key="dexterity_point_drill_large">
         <div class="tag-container">
@@ -66,9 +66,20 @@
           <p>Practice tracing thin lines of different lengths and directions.</p>
         </div>
       </div>
+      <div class="exercise-item" data-link="dexterity_contours.html" data-difficulty="Expert" data-score-key="dexterity_contours">
+        <div class="tag-container">
+          <span class="category-label">dexterity</span>
+          <span class="difficulty-label difficulty-expert">Expert</span>
+        </div>
+        <img class="exercise-gif" alt="" />
+        <div class="exercise-info">
+          <h3>Contours</h3>
+          <p>Trace C and S shaped curves for advanced control.</p>
+        </div>
+      </div>
     </div>
   </div>
   <script src="back.js"></script>
-  <script type="module" src="dexterity.js"></script>
+  <script type="module" src="drills.js"></script>
 </body>
 </html>
