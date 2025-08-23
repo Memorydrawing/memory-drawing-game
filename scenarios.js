@@ -1,6 +1,6 @@
 export const scenarioUrls = {
-  "Angle Challenge (5\u00B0 increments)": 'angles.html',
-  "Angle Challenge (10\u00B0 increments)": 'angles.html?step=10',
+  "Angles (5\u00B0 increments)": 'angles.html',
+  "Angles (10\u00B0 increments)": 'angles.html?step=10',
   "Inch Drill": 'inch_warmup.html',
   "Point Drill 0.5 sec Look": 'point_drill_05.html',
   "Point Drill 0.25 sec Look": 'point_drill_025.html',
@@ -10,8 +10,8 @@ export const scenarioUrls = {
 };
 
 export const scenarioDescriptions = {
-  "Angle Challenge (5\u00B0 increments)": 'Guess randomly oriented angles in 5\u00B0 steps.',
-  "Angle Challenge (10\u00B0 increments)": 'Guess randomly oriented angles in 10\u00B0 steps.',
+  "Angles (5\u00B0 increments)": 'Guess randomly oriented angles in 5\u00B0 steps.',
+  "Angles (10\u00B0 increments)": 'Guess randomly oriented angles in 10\u00B0 steps.',
   "Inch Drill": 'Draw a 1-inch line from a given starting arrow.',
   "Point Drill 0.5 sec Look": 'Memorize a point after a 0.5 second preview and tap its location.',
   "Point Drill 0.25 sec Look": 'Memorize a point after a 0.25 second preview and tap its location.',
@@ -21,8 +21,8 @@ export const scenarioDescriptions = {
 };
 
 export const scenarioDifficulty = {
-  "Angle Challenge (5\u00B0 increments)": 'Expert',
-  "Angle Challenge (10\u00B0 increments)": 'Beginner',
+  "Angles (5\u00B0 increments)": 'Expert',
+  "Angles (10\u00B0 increments)": 'Beginner',
   "Inch Drill": 'Beginner',
   "Point Drill 0.5 sec Look": 'Beginner',
   "Point Drill 0.25 sec Look": 'Adept',

@@ -160,10 +160,8 @@ function nextAngle() {
 
 document.addEventListener('DOMContentLoaded', () => {
   createOptions();
-  if (step !== 5) {
-    const title = `Angle Challenge Drill (${step}\u00B0 increments)`;
-    document.querySelector('h2').textContent = title;
-    document.title = title;
-  }
+  const title = `Angles (${step}\u00B0 increments)`;
+  document.querySelector('h2').textContent = title;
+  document.title = title;
   startBtn.addEventListener('click', startGame);
 });
