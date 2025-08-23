@@ -65,7 +65,7 @@ function loadScenarioList() {
     const tags = document.createElement('div');
     tags.className = 'tag-container';
     const cat = document.createElement('span');
-    cat.className = 'category-label';
+    cat.className = 'category-label category-memorization';
     cat.textContent = 'Memorization';
     tags.appendChild(cat);
     if (diff) {

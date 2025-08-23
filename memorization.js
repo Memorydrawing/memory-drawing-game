@@ -17,13 +17,15 @@ function init() {
         container.className = 'tag-container';
         existing.insertBefore(container, existing.firstChild);
       }
-      let cat = container.querySelector('.category-label');
-      if (!cat) {
-        cat = document.createElement('span');
-        cat.className = 'category-label';
-        cat.textContent = 'Memorization';
-        container.appendChild(cat);
-      }
+        let cat = container.querySelector('.category-label');
+        if (!cat) {
+          cat = document.createElement('span');
+          cat.className = 'category-label category-memorization';
+          cat.textContent = 'Memorization';
+          container.appendChild(cat);
+        } else {
+          cat.classList.add('category-memorization');
+        }
       if (diff) {
         existing.dataset.difficulty = diff;
         let badge = container.querySelector('.difficulty-label');
@@ -48,9 +50,9 @@ function init() {
       item.dataset.link = getScenarioUrl(name);
       const container = document.createElement('div');
       container.className = 'tag-container';
-      const cat = document.createElement('span');
-      cat.className = 'category-label';
-      cat.textContent = 'Memorization';
+        const cat = document.createElement('span');
+        cat.className = 'category-label category-memorization';
+        cat.textContent = 'Memorization';
       container.appendChild(cat);
       if (diff) {
         item.dataset.difficulty = diff;
