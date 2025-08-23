@@ -12,22 +12,31 @@ export function generateShape(sides, width, height, size = 'medium') {
     big: 180
   };
   const radius = sizeMap[size] || 120;
+  const minDim = 60;
 
   const cx = width / 2;
   const cy = height / 2;
-  const angleOffset = Math.random() * Math.PI * 2;
-
-  const points = [];
   const angleStep = (2 * Math.PI) / sides;
+  let points = [];
+  let boxWidth = 0;
+  let boxHeight = 0;
 
-  for (let i = 0; i < sides; i++) {
-    const angle = angleStep * i + angleOffset;
-    const r = radius * (0.4 + Math.random() * 0.8);
-    points.push({
-      x: cx + r * Math.cos(angle),
-      y: cy + r * Math.sin(angle)
-    });
-  }
+  do {
+    const angleOffset = Math.random() * Math.PI * 2;
+    points = [];
+    for (let i = 0; i < sides; i++) {
+      const angle = angleStep * i + angleOffset;
+      const r = radius * (0.4 + Math.random() * 0.8);
+      points.push({
+        x: cx + r * Math.cos(angle),
+        y: cy + r * Math.sin(angle)
+      });
+    }
+    const xs = points.map(p => p.x);
+    const ys = points.map(p => p.y);
+    boxWidth = Math.max(...xs) - Math.min(...xs);
+    boxHeight = Math.max(...ys) - Math.min(...ys);
+  } while (boxWidth < minDim || boxHeight < minDim);
 
   return points;
 }

@@ -18,18 +18,23 @@ const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function generateTriangle() {
   const margin = 40;
-  let pts, area;
+  const minDim = 60;
+  let pts, area, width, height;
   do {
     pts = Array.from({ length: 3 }, () => ({
       x: Math.random() * (canvas.width - 2 * margin) + margin,
       y: Math.random() * (canvas.height - 2 * margin) + margin
     }));
+    const xs = pts.map(p => p.x);
+    const ys = pts.map(p => p.y);
+    width = Math.max(...xs) - Math.min(...xs);
+    height = Math.max(...ys) - Math.min(...ys);
     area = Math.abs(
       pts[0].x * (pts[1].y - pts[2].y) +
       pts[1].x * (pts[2].y - pts[0].y) +
       pts[2].x * (pts[0].y - pts[1].y)
     ) / 2;
-  } while (area < 100); // ensure not too small
+  } while (area < 100 || width < minDim || height < minDim);
   vertices = pts;
 }
 
