@@ -129,16 +129,15 @@ function pointerDown(e) {
     if (grade === 'red') {
       strikes++;
       updateStrikes();
-      if (strikes >= 3) {
-        endGame();
-        return;
-      }
     }
     playSound(audioCtx, grade);
     remaining.splice(remaining.indexOf(idx), 1);
     state = 'guess';
     clearCanvas(ctx);
     drawGuesses();
+    if (strikes >= 3) {
+      endGame();
+    }
   } else if (state === 'guess') {
     const { idx, dist } = nearestVertex(pos);
     const grade = gradeDistance(dist);
@@ -146,16 +145,14 @@ function pointerDown(e) {
     if (grade === 'red') {
       strikes++;
       updateStrikes();
-      if (strikes >= 3) {
-        endGame();
-        return;
-      }
     }
     playSound(audioCtx, grade);
     remaining.splice(remaining.indexOf(idx), 1);
     clearCanvas(ctx);
     drawGuesses();
-    if (remaining.length === 0) {
+    if (strikes >= 3) {
+      endGame();
+    } else if (remaining.length === 0) {
       finishCycle();
     }
   }
