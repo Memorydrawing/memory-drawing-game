@@ -7,7 +7,7 @@ describe('memorization page', () => {
       <div id="exerciseList" class="exercise-list">
         <div class="exercise-item" data-link="shape_trainer.html" data-difficulty="Beginner">
           <div class="tag-container">
-            <span class="category-label">Memorization</span>
+            <span class="category-label category-memorization">Memorization</span>
             <span class="difficulty-label difficulty-beginner">Beginner</span>
           </div>
           <img class="exercise-gif" alt="" />

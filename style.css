@@ -342,6 +342,14 @@ h2, h1 { margin: 10px 0; }
   background-color: #9e9e9e;
 }
 
+.category-memorization {
+  background-color: #82B3B3;
+}
+
+.category-dexterity {
+  background-color: #B382B3;
+}
+
 .difficulty-beginner {
   background-color: #4CAF50;
 }
