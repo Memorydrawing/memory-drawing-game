@@ -61,9 +61,50 @@ function sampleCubic(p0, p1, p2, p3) {
   }
 }
 
+function sampleCubicPoints(p0, p1, p2, p3) {
+  const pts = [p0];
+  for (let t = 0.05; t <= 1; t += 0.05) {
+    const x =
+      (1 - t) * (1 - t) * (1 - t) * p0.x +
+      3 * (1 - t) * (1 - t) * t * p1.x +
+      3 * (1 - t) * t * t * p2.x +
+      t * t * t * p3.x;
+    const y =
+      (1 - t) * (1 - t) * (1 - t) * p0.y +
+      3 * (1 - t) * (1 - t) * t * p1.y +
+      3 * (1 - t) * t * t * p2.y +
+      t * t * t * p3.y;
+    pts.push({ x, y });
+  }
+  return pts;
+}
+
+function segmentsIntersect(a, b, c, d) {
+  const det = (p, q, r) => (q.x - p.x) * (r.y - p.y) - (q.y - p.y) * (r.x - p.x);
+  return (
+    det(a, b, c) * det(a, b, d) < 0 &&
+    det(c, d, a) * det(c, d, b) < 0
+  );
+}
+
+function curveIntersects(points) {
+  for (let i = 1; i < points.length; i++) {
+    const a = points[i - 1];
+    const b = points[i];
+    for (let j = 0; j < polyline.length - 1; j++) {
+      const c = polyline[j];
+      const d = polyline[j + 1];
+      if (segmentsIntersect(a, b, c, d)) return true;
+    }
+  }
+  return false;
+}
+
 function generateComplexShape() {
-  const sides = 3 + Math.floor(Math.random() * 2); // 3 or 4
-  const verts = generateShape(sides, canvas.width, canvas.height);
+  const sides = 2 + Math.floor(Math.random() * 2); // up to 3 sides
+  const sizes = ['small', 'medium', 'big'];
+  const size = sizes[Math.floor(Math.random() * sizes.length)];
+  const verts = generateShape(sides, canvas.width, canvas.height, size);
   segments = [];
   polyline = [];
 
@@ -82,7 +123,8 @@ function generateComplexShape() {
       const ny = -dx / len;
       const mid = { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 };
       const offset = (Math.random() * 0.2 + 0.1) * len;
-      const cp = { x: mid.x + nx * offset, y: mid.y + ny * offset };
+      const dir = Math.random() < 0.5 ? 1 : -1;
+      const cp = { x: mid.x + nx * offset * dir, y: mid.y + ny * offset * dir };
       segments.push({ type, start, end, cp });
       sampleQuadratic(start, cp, end);
     } else {
@@ -91,17 +133,26 @@ function generateComplexShape() {
       const len = Math.hypot(dx, dy) || 1;
       const nx = dy / len;
       const ny = -dx / len;
-      const offset = (Math.random() * 0.2 + 0.1) * len;
-      const cp1 = {
-        x: start.x + dx / 3 + nx * offset,
-        y: start.y + dy / 3 + ny * offset
-      };
-      const cp2 = {
-        x: start.x + (2 * dx) / 3 + nx * offset,
-        y: start.y + (2 * dy) / 3 + ny * offset
-      };
+      let cp1, cp2, pts;
+      let attempts = 0;
+      do {
+        const dir = Math.random() < 0.5 ? 1 : -1;
+        const offset1 = (Math.random() * 0.25 + 0.1) * len;
+        const offset2 = (Math.random() * 0.25 + 0.1) * len;
+        cp1 = {
+          x: start.x + dx / 3 + nx * offset1 * dir,
+          y: start.y + dy / 3 + ny * offset1 * dir
+        };
+        cp2 = {
+          x: start.x + (2 * dx) / 3 - nx * offset2 * dir,
+          y: start.y + (2 * dy) / 3 - ny * offset2 * dir
+        };
+        pts = sampleCubicPoints(start, cp1, cp2, end);
+        attempts++;
+      } while (curveIntersects(pts) && attempts < 10);
       segments.push({ type, start, end, cp1, cp2 });
-      sampleCubic(start, cp1, cp2, end);
+      if (polyline.length === 0) polyline.push(start);
+      pts.slice(1).forEach(p => polyline.push(p));
     }
   }
 }
