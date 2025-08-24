@@ -22,8 +22,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!doc) return;
 
       const updateSize = () => {
-        frame.style.height = doc.documentElement.scrollHeight + 'px';
-        frame.style.width = doc.documentElement.scrollWidth + 'px';
+        const docEl = doc.documentElement;
+        const body = doc.body || {};
+        const height = Math.max(500, docEl.scrollHeight, body.scrollHeight || 0);
+        const width = Math.max(500, docEl.scrollWidth, body.scrollWidth || 0);
+        frame.style.height = height + 'px';
+        frame.style.width = width + 'px';
       };
 
       updateSize();
