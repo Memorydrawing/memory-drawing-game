@@ -12,9 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   const name = params.get('name');
   const frame = document.getElementById('drillFrame');
-  const nextBtn = document.getElementById('nextBtn');
 
   let observer;
+  const NEXT_DELAY = 1500; // delay to show score before next drill
 
   const resizeFrame = () => {
     try {
@@ -36,7 +36,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  frame.addEventListener('load', resizeFrame);
+  frame.addEventListener('load', () => {
+    resizeFrame();
+
+    try {
+      const doc = frame.contentDocument || frame.contentWindow.document;
+      if (!doc) return;
+
+      // Hide inner back button to avoid duplicate navigation controls
+      const innerBack = doc.getElementById('backBtn');
+      if (innerBack) innerBack.style.display = 'none';
+
+      // Observe result element to auto-advance after score is shown
+      const resultEl = doc.getElementById('result');
+      if (resultEl) {
+        let advanced = false;
+        const resultObserver = new MutationObserver(() => {
+          if (!advanced && resultEl.textContent.trim() !== '') {
+            advanced = true;
+            setTimeout(() => {
+              index++;
+              loadCurrent();
+            }, NEXT_DELAY);
+          }
+        });
+        resultObserver.observe(resultEl, { childList: true, subtree: true });
+      }
+    } catch {
+      // Ignore cross-origin access errors
+    }
+  });
 
   const scenarios = loadScenarios();
   const steps = scenarios[name] || [];
@@ -57,14 +86,8 @@ document.addEventListener('DOMContentLoaded', () => {
       frame.src = sequence[index];
     } else {
       frame.style.display = 'none';
-      nextBtn.disabled = true;
     }
   }
-
-  nextBtn.addEventListener('click', () => {
-    index++;
-    loadCurrent();
-  });
 
   loadCurrent();
 });
