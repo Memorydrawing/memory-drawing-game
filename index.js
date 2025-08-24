@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const freeEl = document.getElementById('freehandBest');
   if (p2pEl) p2pEl.textContent = p2pBest ? `${parseFloat(p2pBest).toFixed(1)} px` : 'N/A';
   if (freeEl) freeEl.textContent = freehandBest ? `${parseFloat(freehandBest).toFixed(1)} px` : 'N/A';
-  document.getElementById('memorizationBtn')?.addEventListener('click', () => {
+document.getElementById('memorizationBtn')?.addEventListener('click', () => {
     window.location.href = 'memorization.html';
   });
   document.getElementById('drillsBtn')?.addEventListener('click', () => {
@@ -13,8 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('observationBtn')?.addEventListener('click', () => {
     window.location.href = 'observation.html';
-  document.getElementById('drillsBtn')?.addEventListener('click', () => {
-    window.location.href = 'drills.html';
+  });
+  document.getElementById('scenariosBtn')?.addEventListener('click', () => {
+    window.location.href = 'scenarios.html';
   });
   document.getElementById('aboutBtn')?.addEventListener('click', () => {
     window.location.href = 'about.html';

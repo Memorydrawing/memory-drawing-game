@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scenarios - Memory Shape Drawing Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="listScreen" class="menu-screen">
+    <button id="backBtn">← Back</button>
+    <h2>Scenarios</h2>
+    <button id="newScenarioBtn">New Scenario</button>
+    <div id="scenarioList" class="exercise-list"></div>
+  </div>
+  <div id="builderScreen" class="menu-screen" style="display:none;">
+    <button id="builderBackBtn">← Back</button>
+    <h2>Create Scenario</h2>
+    <input id="scenarioTitle" type="text" placeholder="Scenario Title" />
+    <div id="sequenceContainer"></div>
+    <button id="addDrillBtn">Add Drill</button>
+    <button id="saveScenarioBtn">Save Scenario</button>
+  </div>
+  <script src="back.js"></script>
+  <script type="module" src="scenarios_page.js"></script>
+</body>
+</html>
