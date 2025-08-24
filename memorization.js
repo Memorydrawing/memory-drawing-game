@@ -1,12 +1,13 @@
-import { scenarioUrls, getScenarioUrl, scenarioDescriptions, scenarioDifficulty, scenarioSubject } from './scenarios.js';
+import { scenarioData, getScenarioUrl } from './scenarios.js';
 
 function init() {
   const list = document.getElementById('exerciseList');
   const saved = JSON.parse(localStorage.getItem('scenarios') || '{}');
-  const scenarios = [...Object.keys(scenarioUrls), ...Object.keys(saved)];
-  scenarios.forEach(name => {
-    const diff = scenarioDifficulty[name];
-    const subject = scenarioSubject[name];
+  const scenarioNames = [...Object.keys(scenarioData), ...Object.keys(saved)];
+  scenarioNames.forEach(name => {
+    const data = scenarioData[name] || {};
+    const diff = data.difficulty;
+    const subject = data.subject;
     const high = localStorage.getItem(`scenarioScore_${name}`) || 0;
     const existing = Array.from(list.querySelectorAll('.exercise-item'))
       .find(item => item.querySelector('h3')?.textContent === name);
@@ -92,7 +93,7 @@ function init() {
       title.textContent = name;
       info.appendChild(title);
       const desc = document.createElement('p');
-      desc.textContent = scenarioDescriptions[name] || 'User-created scenario.';
+      desc.textContent = data.description || 'User-created scenario.';
       info.appendChild(desc);
       const hs = document.createElement('p');
       hs.className = 'high-score';

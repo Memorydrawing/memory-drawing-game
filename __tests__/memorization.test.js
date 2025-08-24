@@ -1,5 +1,5 @@
 /** @jest-environment jsdom */
-import { scenarioUrls, scenarioDescriptions } from '../scenarios.js';
+import { scenarioData } from '../scenarios.js';
 
 describe('memorization page', () => {
   test('lists built-in scenarios when DOM already loaded', async () => {
@@ -16,9 +16,9 @@ describe('memorization page', () => {
         desc: item.querySelector('p')?.textContent
       }));
     expect(items).toEqual(
-      Object.keys(scenarioUrls).map(name => ({
+      Object.entries(scenarioData).map(([name, data]) => ({
         title: name,
-        desc: scenarioDescriptions[name]
+        desc: data.description
       }))
     );
   });
