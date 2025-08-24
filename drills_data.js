@@ -1,0 +1,17 @@
+export const drills = [
+  { name: 'Triangles', url: 'triangles.html', description: 'Memorize triangle vertices.', category: 'Memorization', subject: 'Shapes', difficulty: 'Beginner' },
+  { name: 'Quadrilaterals', url: 'quadrilaterals.html', description: 'Memorize quadrilateral vertices.', category: 'Memorization', subject: 'Shapes', difficulty: 'Adept' },
+  { name: 'Complex Shapes', url: 'complex_shapes.html', description: 'Memorize mixed curved and straight shapes.', category: 'Memorization', subject: 'Shapes', difficulty: 'Expert' },
+  { name: 'Angles (5° increments)', url: 'angles.html', description: 'Guess randomly oriented angles in 5° steps.', category: 'Memorization', subject: 'Angles', difficulty: 'Expert' },
+  { name: 'Angles (10° increments)', url: 'angles.html?step=10', description: 'Guess randomly oriented angles in 10° steps.', category: 'Memorization', subject: 'Angles', difficulty: 'Beginner' },
+  { name: 'Point Drill 0.5 sec Look', url: 'point_drill_05.html', description: 'Memorize a point after a 0.5 second preview and tap its location.', category: 'Memorization', subject: 'Points', difficulty: 'Beginner' },
+  { name: 'Point Drill 0.25 sec Look', url: 'point_drill_025.html', description: 'Memorize a point after a 0.25 second preview and tap its location.', category: 'Memorization', subject: 'Points', difficulty: 'Adept' },
+  { name: 'Point Drill 0.1 sec Look', url: 'point_drill_01.html', description: 'Memorize a point after a 0.1 second preview and tap its location.', category: 'Memorization', subject: 'Points', difficulty: 'Expert' },
+  { name: 'Large Points', url: 'dexterity_point_drill_large.html', description: 'Point drill with larger targets for easier accuracy.', category: 'Dexterity', subject: 'Points', difficulty: 'Beginner' },
+  { name: 'Medium Points', url: 'dexterity_point_drill.html', description: 'Improve pointer accuracy with rapid taps.', category: 'Dexterity', subject: 'Points', difficulty: 'Adept' },
+  { name: 'Small Points', url: 'dexterity_point_drill_small.html', description: 'Point drill with smaller targets for higher precision.', category: 'Dexterity', subject: 'Points', difficulty: 'Expert' },
+  { name: 'Thick Lines', url: 'dexterity_thick_lines.html', description: 'Trace thicker lines for an easier challenge.', category: 'Dexterity', subject: 'Lines', difficulty: 'Beginner' },
+  { name: 'Thin Lines', url: 'dexterity_thin_lines.html', description: 'Practice tracing thin lines of different lengths and directions.', category: 'Dexterity', subject: 'Lines', difficulty: 'Adept' },
+  { name: 'Thick Contours', url: 'dexterity_thick_contours.html', description: 'Trace thick C and S curves for smoother control.', category: 'Dexterity', subject: 'Lines', difficulty: 'Adept' },
+  { name: 'Contours', url: 'dexterity_contours.html', description: 'Trace C and S shaped curves for advanced control.', category: 'Dexterity', subject: 'Lines', difficulty: 'Expert' }
+];
