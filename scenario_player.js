@@ -11,7 +11,6 @@ function loadScenarios() {
 document.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   const name = params.get('name');
-  const titleEl = document.getElementById('scenarioTitle');
   const frame = document.getElementById('drillFrame');
   const nextBtn = document.getElementById('nextBtn');
 
@@ -21,11 +20,16 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const doc = frame.contentDocument || frame.contentWindow.document;
       if (!doc) return;
-      frame.style.height = doc.documentElement.scrollHeight + 'px';
-      if (observer) observer.disconnect();
-      observer = new ResizeObserver(() => {
+
+      const updateSize = () => {
         frame.style.height = doc.documentElement.scrollHeight + 'px';
-      });
+        frame.style.width = doc.documentElement.scrollWidth + 'px';
+      };
+
+      updateSize();
+
+      if (observer) observer.disconnect();
+      observer = new ResizeObserver(updateSize);
       observer.observe(doc.documentElement);
     } catch {
       // Ignore cross-origin access errors
@@ -33,8 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   frame.addEventListener('load', resizeFrame);
-
-  if (titleEl) titleEl.textContent = name || 'Scenario';
 
   const scenarios = loadScenarios();
   const steps = scenarios[name] || [];
@@ -56,7 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       frame.style.display = 'none';
       nextBtn.disabled = true;
-      if (titleEl) titleEl.textContent = `${name} - Complete!`;
     }
   }
 
