@@ -15,6 +15,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const frame = document.getElementById('drillFrame');
   const nextBtn = document.getElementById('nextBtn');
 
+  let observer;
+
+  const resizeFrame = () => {
+    try {
+      const doc = frame.contentDocument || frame.contentWindow.document;
+      if (!doc) return;
+      frame.style.height = doc.documentElement.scrollHeight + 'px';
+      if (observer) observer.disconnect();
+      observer = new ResizeObserver(() => {
+        frame.style.height = doc.documentElement.scrollHeight + 'px';
+      });
+      observer.observe(doc.documentElement);
+    } catch {
+      // Ignore cross-origin access errors
+    }
+  };
+
+  frame.addEventListener('load', resizeFrame);
+
   if (titleEl) titleEl.textContent = name || 'Scenario';
 
   const scenarios = loadScenarios();
