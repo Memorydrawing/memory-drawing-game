@@ -89,7 +89,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (index < sequence.length) {
       frame.src = sequence[index];
     } else {
-      frame.style.display = 'none';
+      // When the scenario sequence is complete, return to the scenario screen
+      // so the user can choose another scenario or create a new one.
+      window.location.href = 'scenarios.html';
     }
   }
 
