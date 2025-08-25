@@ -13,6 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (p2pEl) p2pEl.textContent = p2pBest ? `${parseFloat(p2pBest).toFixed(1)} px` : 'N/A';
   if (freeEl) freeEl.textContent = freehandBest ? `${parseFloat(freehandBest).toFixed(1)} px` : 'N/A';
 
+  document.getElementById('tutorialBtn')?.addEventListener('click', () => {
+    window.location.href = 'tutorial.html';
+  });
   document.getElementById('drillsBtn')?.addEventListener('click', () => {
     window.location.href = 'drills.html';
   });

@@ -7,7 +7,7 @@ Shape Trainer is a small browser game where you try to memorize and recreate ran
 ## Running the Game
 
 1. Open `index.html` in any modern web browser. No build step or server is required—just open the file directly.
-2. The menu provides buttons for **Drills**, **Observation**, and **About**. The Drills menu combines memorization and dexterity exercises and includes a search bar.
+2. The menu provides buttons for **Tutorial**, **Drills**, **Scenarios**, and **About**. The Drills menu combines memorization and dexterity exercises and includes a search bar.
 
 ## Basic Controls
 
