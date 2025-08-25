@@ -115,6 +115,8 @@ document.addEventListener('DOMContentLoaded', () => {
   feedbackCanvas.style.left = '0';
   feedbackCanvas.style.top = '0';
   feedbackCanvas.style.pointerEvents = 'none';
+  feedbackCanvas.style.background = 'transparent';
+  feedbackCanvas.style.border = 'none';
   wrapper.appendChild(feedbackCanvas);
 
   ctx = canvas.getContext('2d');
