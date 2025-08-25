@@ -1,6 +1,6 @@
 import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 
-let canvas, ctx, startBtn, result;
+let canvas, ctx, feedbackCanvas, feedbackCtx, startBtn, result;
 
 let playing = false;
 let awaitingClick = false;
@@ -30,21 +30,20 @@ function drawTarget() {
 }
 
 
-function showPoints(pos, grade, callback) {
-  ctx.save();
+function showPoints(pos, prevTarget, grade) {
+  feedbackCtx.save();
   const color = grade === 'yellow' ? 'orange' : grade;
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.arc(pos.x, pos.y, 5, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = 'blue';
-  ctx.beginPath();
-  ctx.arc(target.x, target.y, 5, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
+  feedbackCtx.fillStyle = color;
+  feedbackCtx.beginPath();
+  feedbackCtx.arc(pos.x, pos.y, 5, 0, Math.PI * 2);
+  feedbackCtx.fill();
+  feedbackCtx.fillStyle = 'blue';
+  feedbackCtx.beginPath();
+  feedbackCtx.arc(prevTarget.x, prevTarget.y, 5, 0, Math.PI * 2);
+  feedbackCtx.fill();
+  feedbackCtx.restore();
   setTimeout(() => {
-    clearCanvas(ctx);
-    callback();
+    clearCanvas(feedbackCtx);
   }, RESULT_DISPLAY_TIME);
 }
 
@@ -65,14 +64,15 @@ function pointerDown(e) {
   } else {
     stats.red++;
   }
+  const prevTarget = target;
   playSound(audioCtx, grade);
-  showPoints(pos, grade, () => {
-    if (Date.now() < endTime) {
-      drawTarget();
-    } else {
-      endGame();
-    }
-  });
+  if (Date.now() < endTime) {
+    drawTarget();
+  }
+  showPoints(pos, prevTarget, grade);
+  if (Date.now() >= endTime) {
+    setTimeout(endGame, RESULT_DISPLAY_TIME);
+  }
 }
 
 function startGame() {
@@ -100,7 +100,26 @@ function endGame() {
 document.addEventListener('DOMContentLoaded', () => {
   canvas = document.getElementById('gameCanvas');
   if (!canvas) return;
+
+  // wrap the existing canvas so we can overlay feedback
+  const wrapper = document.createElement('div');
+  wrapper.style.position = 'relative';
+  canvas.parentNode.insertBefore(wrapper, canvas);
+  wrapper.appendChild(canvas);
+
+  feedbackCanvas = document.createElement('canvas');
+  feedbackCanvas.width = canvas.width;
+  feedbackCanvas.height = canvas.height;
+  feedbackCanvas.style.width = getComputedStyle(canvas).width;
+  feedbackCanvas.style.height = getComputedStyle(canvas).height;
+  feedbackCanvas.style.position = 'absolute';
+  feedbackCanvas.style.left = '0';
+  feedbackCanvas.style.top = '0';
+  feedbackCanvas.style.pointerEvents = 'none';
+  wrapper.appendChild(feedbackCanvas);
+
   ctx = canvas.getContext('2d');
+  feedbackCtx = feedbackCanvas.getContext('2d');
   startBtn = document.getElementById('startBtn');
   result = document.getElementById('result');
 
