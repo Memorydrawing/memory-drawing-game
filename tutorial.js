@@ -1,6 +1,6 @@
 import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 
-let canvas, ctx, message, nextBtn;
+let canvas, ctx, message, tapInstruction, nextBtn;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 const center = { x: 0, y: 0 };
 const DOT_RADIUS = 10;
@@ -34,12 +34,13 @@ function handleInitialTap(e) {
   stage = 1;
   setTimeout(() => {
     message.textContent = grade === 'green' ? 'Accurate' : grade === 'yellow' ? 'Semi-accurate' : 'Inaccurate';
-    setTimeout(showFinalStage, 1000);
+    setTimeout(showFinalStage, 2000);
   }, 500);
 }
 
 function showFinalStage() {
-  message.textContent = 'Many of the drills are based on your ability to accurately see and tap points such as this one. They are colored based on accuracy, and accompanied by sound feed back. Tap the dots to hear their corresponding sound.';
+  message.textContent = 'Many of the drills are based on your ability to accurately see and tap points such as this one. They are colored based on accuracy, and accompanied by sound feed back.';
+  tapInstruction.style.display = 'block';
   drawFinalDots();
   nextBtn.style.display = 'block';
   stage = 2;
@@ -87,6 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!canvas) return;
   ctx = canvas.getContext('2d');
   message = document.getElementById('message');
+  tapInstruction = document.getElementById('tapInstruction');
   nextBtn = document.getElementById('nextBtn');
   center.x = canvas.width / 2;
   center.y = canvas.height / 2;
