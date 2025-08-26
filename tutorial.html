@@ -6,22 +6,10 @@
   <title>Tutorial - Shape Trainer</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <div class="practice-screen">
-    <button id="backBtn">← Back</button>
-    <h2>Canvas Tutorial</h2>
-    <p id="instructions">Click "Point-to-Point" to begin.</p>
-    <canvas id="tutorialCanvas" width="500" height="500"></canvas>
-    <div class="button-row">
-      <button id="p2pBtn">Point-to-Point</button>
-      <button id="freehandBtn">Freehand</button>
-    </div>
-    <div id="info">
-      <h3>Drills and Scenarios</h3>
-      <p>Drills isolate individual skills like aiming and drawing smooth lines. Scenarios combine multiple drills into a single challenge so you can apply those skills together.</p>
-    </div>
-  </div>
-  <script src="back.js"></script>
+<body class="tutorial-body">
+  <div id="message">Tap the point.</div>
+  <canvas id="tutorialCanvas" width="500" height="500"></canvas>
+  <button id="nextBtn" style="display:none;">Next</button>
   <script type="module" src="tutorial.js"></script>
 </body>
 </html>
