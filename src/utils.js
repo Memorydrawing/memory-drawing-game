@@ -1,9 +1,13 @@
 export function getCanvasPos(canvas, e) {
-  // Use the event's offset coordinates when available. These are already
-  // relative to the canvas' content box, which avoids issues with borders
-  // or page scrolling that can cause inaccurate position calculations on
-  // some devices.
-  if (typeof e.offsetX === 'number' && typeof e.offsetY === 'number') {
+  // On some devices (notably iOS Safari), pointer events report unreliable
+  // `offsetX/Y` values for touch input, which causes taps to be mislocated.
+  // Use `offsetX/Y` only for mouse pointers and fall back to calculating the
+  // position from `clientX/Y` for touch or pen input.
+  if (
+    typeof e.offsetX === 'number' &&
+    typeof e.offsetY === 'number' &&
+    (!('pointerType' in e) || e.pointerType === 'mouse')
+  ) {
     const scaleX = canvas.width / canvas.clientWidth;
     const scaleY = canvas.height / canvas.clientHeight;
     return {
