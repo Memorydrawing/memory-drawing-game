@@ -3,7 +3,7 @@ import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 let canvas, ctx, message, nextBtn;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 const center = { x: 0, y: 0 };
-const DOT_RADIUS = 5;
+const DOT_RADIUS = 10;
 let stage = 0; // 0: waiting for tap, 1: showing grade text, 2: final dots
 let finalDots = [];
 
