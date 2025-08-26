@@ -1,10 +1,12 @@
 import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 
-let canvas, ctx, result, nextBtn;
+let canvas, ctx, nextBtn;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 const center = { x: 0, y: 0 };
 const DOT_RADIUS = 10;
 let dots = [];
+let message = '';
+let messageColor = '';
 
 function drawDots() {
   clearCanvas(ctx);
@@ -21,6 +23,12 @@ function drawDots() {
     ctx.arc(d.x, d.y, DOT_RADIUS, 0, Math.PI * 2);
     ctx.fill();
   });
+  if (message) {
+    ctx.font = '24px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = messageColor;
+    ctx.fillText(message, center.x, y + 40);
+  }
 }
 
 function handleTap(e) {
@@ -29,11 +37,13 @@ function handleTap(e) {
     if (Math.hypot(pos.x - d.x, pos.y - d.y) <= DOT_RADIUS) {
       audioCtx.resume();
       playSound(audioCtx, d.grade);
-      result.textContent = d.grade === 'green'
+      message = d.grade === 'green'
         ? 'Accurate'
         : d.grade === 'yellow'
         ? 'Semi-accurate'
         : 'Inaccurate';
+      messageColor = d.grade === 'yellow' ? 'orange' : d.grade;
+      drawDots();
       break;
     }
   }
@@ -43,7 +53,6 @@ document.addEventListener('DOMContentLoaded', () => {
   canvas = document.getElementById('tutorialCanvas');
   if (!canvas) return;
   ctx = canvas.getContext('2d');
-  result = document.getElementById('result');
   nextBtn = document.getElementById('nextBtn');
   center.x = canvas.width / 2;
   center.y = canvas.height / 2;
