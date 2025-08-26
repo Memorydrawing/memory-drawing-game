@@ -1,82 +1,84 @@
-import { getCanvasPos, clearCanvas } from './src/utils.js';
+import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 
-let canvas, ctx, instructions;
-let mode = 'idle';
-let points = [];
-let p2pStep = 0;
-let drawing = false;
-let lastPos = null;
+let canvas, ctx, message, nextBtn;
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const center = { x: 0, y: 0 };
+const DOT_RADIUS = 5;
+let stage = 0; // 0: waiting for tap, 1: showing grade text, 2: final dots
+let finalDots = [];
 
-function randomPoint() {
-  const margin = 20;
-  return {
-    x: Math.random() * (canvas.width - 2 * margin) + margin,
-    y: Math.random() * (canvas.height - 2 * margin) + margin
-  };
-}
-
-function drawPoints() {
+function drawCenterDot() {
   clearCanvas(ctx);
   ctx.fillStyle = 'black';
-  points.forEach(p => {
+  ctx.beginPath();
+  ctx.arc(center.x, center.y, DOT_RADIUS, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function handleInitialTap(e) {
+  const pos = getCanvasPos(canvas, e);
+  const d = Math.hypot(pos.x - center.x, pos.y - center.y);
+  let grade = 'red';
+  if (d <= 5) {
+    grade = 'green';
+  } else if (d <= 10) {
+    grade = 'yellow';
+  }
+  clearCanvas(ctx);
+  ctx.fillStyle = grade === 'yellow' ? 'orange' : grade;
+  ctx.beginPath();
+  ctx.arc(pos.x, pos.y, DOT_RADIUS, 0, Math.PI * 2);
+  ctx.fill();
+  audioCtx.resume();
+  playSound(audioCtx, grade);
+  stage = 1;
+  setTimeout(() => {
+    message.textContent = grade === 'green' ? 'Accurate' : grade === 'yellow' ? 'Semi-accurate' : 'Inaccurate';
+    setTimeout(showFinalStage, 1000);
+  }, 500);
+}
+
+function showFinalStage() {
+  message.textContent = 'Many of the drills are based on your ability to accurately see and tap points such as this one. They are colored based on accuracy, and accompanied by sound feed back. Tap the dots to hear their corresponding sound.';
+  drawFinalDots();
+  nextBtn.style.display = 'block';
+  stage = 2;
+}
+
+function drawFinalDots() {
+  clearCanvas(ctx);
+  const offset = 40;
+  const y = center.y;
+  finalDots = [
+    { x: center.x - offset, y, grade: 'green' },
+    { x: center.x, y, grade: 'yellow' },
+    { x: center.x + offset, y, grade: 'red' }
+  ];
+  finalDots.forEach(d => {
+    ctx.fillStyle = d.grade === 'yellow' ? 'orange' : d.grade;
     ctx.beginPath();
-    ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+    ctx.arc(d.x, d.y, DOT_RADIUS, 0, Math.PI * 2);
     ctx.fill();
   });
 }
 
-function startP2P() {
-  mode = 'p2p';
-  p2pStep = 0;
-  points = [randomPoint(), randomPoint()];
-  drawPoints();
-  instructions.textContent = 'Click the first point, then the second.';
-}
-
-function startFreehand() {
-  mode = 'freehand';
-  drawing = false;
-  clearCanvas(ctx);
-  instructions.textContent = 'Hold and drag on the canvas to draw.';
-}
-
-function handlePointerDown(e) {
+function handleFinalTap(e) {
   const pos = getCanvasPos(canvas, e);
-  if (mode === 'p2p') {
-    const target = points[p2pStep];
-    const d = Math.hypot(pos.x - target.x, pos.y - target.y);
-    if (d < 10) {
-      if (p2pStep === 0) {
-        p2pStep = 1;
-      } else {
-        ctx.beginPath();
-        ctx.moveTo(points[0].x, points[0].y);
-        ctx.lineTo(points[1].x, points[1].y);
-        ctx.stroke();
-        instructions.textContent = 'Great! Now try freehand drawing.';
-        mode = 'idle';
-      }
+  for (const d of finalDots) {
+    if (Math.hypot(pos.x - d.x, pos.y - d.y) <= DOT_RADIUS) {
+      audioCtx.resume();
+      playSound(audioCtx, d.grade);
+      break;
     }
-  } else if (mode === 'freehand') {
-    drawing = true;
-    lastPos = pos;
   }
 }
 
-function handlePointerMove(e) {
-  if (mode === 'freehand' && drawing) {
-    const pos = getCanvasPos(canvas, e);
-    ctx.beginPath();
-    ctx.moveTo(lastPos.x, lastPos.y);
-    ctx.lineTo(pos.x, pos.y);
-    ctx.stroke();
-    lastPos = pos;
-  }
-}
-
-function handlePointerUp() {
-  if (mode === 'freehand') {
-    drawing = false;
+function handleCanvasPointerDown(e) {
+  if (stage === 0) {
+    message.textContent = '';
+    handleInitialTap(e);
+  } else if (stage === 2) {
+    handleFinalTap(e);
   }
 }
 
@@ -84,11 +86,13 @@ document.addEventListener('DOMContentLoaded', () => {
   canvas = document.getElementById('tutorialCanvas');
   if (!canvas) return;
   ctx = canvas.getContext('2d');
-  instructions = document.getElementById('instructions');
-  document.getElementById('p2pBtn')?.addEventListener('click', startP2P);
-  document.getElementById('freehandBtn')?.addEventListener('click', startFreehand);
-  canvas.addEventListener('pointerdown', handlePointerDown);
-  canvas.addEventListener('pointermove', handlePointerMove);
-  canvas.addEventListener('pointerup', handlePointerUp);
-  canvas.addEventListener('pointerleave', handlePointerUp);
+  message = document.getElementById('message');
+  nextBtn = document.getElementById('nextBtn');
+  center.x = canvas.width / 2;
+  center.y = canvas.height / 2;
+  drawCenterDot();
+  canvas.addEventListener('pointerdown', handleCanvasPointerDown);
+  nextBtn?.addEventListener('click', () => {
+    window.location.href = 'drills.html';
+  });
 });

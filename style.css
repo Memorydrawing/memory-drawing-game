@@ -389,3 +389,28 @@ h2, h1 { margin: 10px 0; }
   color: red;
   font-size: 18px;
 }
+/* Tutorial page layout */
+.tutorial-body {
+  background: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.tutorial-body #message {
+  margin-top: 20px;
+  text-align: center;
+  padding: 0 10px;
+}
+
+.tutorial-body #tutorialCanvas {
+  flex-grow: 1;
+  border: none;
+  border-radius: 0;
+  background: white;
+}
+
+.tutorial-body #nextBtn {
+  margin: 20px;
+}
