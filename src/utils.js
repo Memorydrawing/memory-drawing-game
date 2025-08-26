@@ -1,4 +1,18 @@
 export function getCanvasPos(canvas, e) {
+  // Use the event's offset coordinates when available. These are already
+  // relative to the canvas' content box, which avoids issues with borders
+  // or page scrolling that can cause inaccurate position calculations on
+  // some devices.
+  if (typeof e.offsetX === 'number' && typeof e.offsetY === 'number') {
+    const scaleX = canvas.width / canvas.clientWidth;
+    const scaleY = canvas.height / canvas.clientHeight;
+    return {
+      x: e.offsetX * scaleX,
+      y: e.offsetY * scaleY
+    };
+  }
+
+  // Fallback: derive the position from the client coordinates.
   const rect = canvas.getBoundingClientRect();
   const scaleX = canvas.width / rect.width;
   const scaleY = canvas.height / rect.height;
