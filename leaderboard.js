@@ -24,24 +24,53 @@
     const storeKey = 'leaderboard_' + key;
     const data = JSON.parse(localStorage.getItem(storeKey)) || {};
     const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
+
     const overlay = document.createElement('div');
     overlay.className = 'leaderboard-overlay';
+
     const inner = document.createElement('div');
     inner.className = 'leaderboard';
+
+    const canvas = document.querySelector('canvas');
+    if (canvas) {
+      inner.style.width = canvas.offsetWidth * 0.9 + 'px';
+      inner.style.height = canvas.offsetHeight * 0.9 + 'px';
+    }
+
     const title = document.createElement('h2');
     title.textContent = 'Leaderboard';
     inner.appendChild(title);
-    entries.forEach(([n, s]) => {
+
+    const list = document.createElement('div');
+    list.className = 'leaderboard-list';
+
+    entries.forEach(([n, s], i) => {
       const p = document.createElement('p');
-      p.textContent = `${n}: ${s}`;
-      inner.appendChild(p);
+      p.className = 'leaderboard-entry';
+      p.textContent = `${i + 1}. ${n} - ${s}`;
+      list.appendChild(p);
     });
-    const close = document.createElement('p');
-    close.textContent = 'Click to close';
-    close.className = 'leaderboard-close';
-    inner.appendChild(close);
+
+    inner.appendChild(list);
+
+    const buttons = document.createElement('div');
+    buttons.className = 'leaderboard-buttons';
+
+    const retry = document.createElement('button');
+    retry.textContent = 'Retry';
+    retry.addEventListener('click', () => location.reload());
+
+    const back = document.createElement('button');
+    back.textContent = 'Back to drills';
+    back.addEventListener('click', () => {
+      window.location.href = 'drills.html';
+    });
+
+    buttons.appendChild(retry);
+    buttons.appendChild(back);
+    inner.appendChild(buttons);
+
     overlay.appendChild(inner);
-    overlay.addEventListener('click', () => overlay.remove());
     document.body.appendChild(overlay);
   }
 
