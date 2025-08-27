@@ -356,15 +356,15 @@ h2, h1 { margin: 10px 0; }
 }
 
 .difficulty-beginner {
-  background-color: #4CAF50;
+  background-color: #757575;
 }
 
 .difficulty-adept {
-  background-color: #FF9800;
+  background-color: #616161;
 }
 
 .difficulty-expert {
-  background-color: #F44336;
+  background-color: #424242;
 }
 .strikes {
   display: flex;
