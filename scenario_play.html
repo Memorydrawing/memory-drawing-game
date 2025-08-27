@@ -12,7 +12,7 @@
     <h2 id="scenarioTitle">Scenario</h2>
     <button id="startBtn">Start Challenge</button>
     <div class="play-area">
-      <canvas id="gameCanvas" width="500" height="500"></canvas>
+      <canvas id="gameCanvas" width="500" height="500" data-score-key="scenario_play"></canvas>
       <div class="scoreboard">
         <p>Avg Error: <span id="avgError">0.0</span> px</p>
         <p>Green: <span id="greenCount">0</span></p>
@@ -72,5 +72,6 @@
   <script src="back.js"></script>
   <script type="module" src="app.js"></script>
   <script type="module" src="scenario.js"></script>
+  <script src="leaderboard.js"></script>
 </body>
 </html>
