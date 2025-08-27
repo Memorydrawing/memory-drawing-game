@@ -429,3 +429,29 @@ h2, h1 { margin: 10px 0; }
   align-self: flex-start;
   margin: 10px;
 }
+.leaderboard-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.leaderboard {
+  background: #222;
+  padding: 20px;
+  border-radius: 8px;
+  color: #fff;
+  text-align: center;
+}
+
+.leaderboard-close {
+  margin-top: 10px;
+  font-size: 0.9em;
+  opacity: 0.7;
+}
