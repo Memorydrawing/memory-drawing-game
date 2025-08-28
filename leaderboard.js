@@ -27,7 +27,7 @@
     return scores.length ? Math.max(...scores) : 0;
   }
 
-  function showLeaderboard(key, playerScore) {
+  function showLeaderboard(key, playerScore, formula) {
     const storeKey = 'leaderboard_' + key;
     const data = JSON.parse(localStorage.getItem(storeKey)) || {};
     const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
@@ -50,6 +50,13 @@
     const title = document.createElement('h2');
     title.textContent = 'Leaderboard';
     overlay.appendChild(title);
+
+    if (formula) {
+      const formulaEl = document.createElement('p');
+      formulaEl.className = 'leaderboard-formula';
+      formulaEl.textContent = `Score = ${formula}`;
+      overlay.appendChild(formulaEl);
+    }
 
     if (typeof playerScore === 'number') {
       const scoreEl = document.createElement('p');
@@ -98,9 +105,9 @@
     document.body.appendChild(overlay);
   }
 
-  function handleScore(key, score) {
+  function handleScore(key, score, formula) {
     updateLeaderboard(key, score);
-    showLeaderboard(key, score);
+    showLeaderboard(key, score, formula);
   }
 
   window.leaderboard = { handleScore, updateLeaderboard, showLeaderboard, getHighScore };
@@ -110,11 +117,12 @@
     if (!resultEl) return;
     const canvas = document.querySelector('canvas[data-score-key]');
     const key = canvas ? canvas.dataset.scoreKey : 'default';
+    const formula = canvas ? canvas.dataset.scoreFormula : '';
     const observer = new MutationObserver(() => {
       const m = resultEl.textContent.match(/Score:\s*(\d+)/);
       if (m) {
         const score = parseInt(m[1], 10);
-        handleScore(key, score);
+        handleScore(key, score, formula);
         observer.disconnect();
       }
     });
