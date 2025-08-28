@@ -1,14 +1,16 @@
 import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
 import { startCountdown } from './src/countdown.js';
+import { calculateScore } from './src/scoring.js';
 
 let canvas, ctx, startBtn, result, timerDisplay;
 let playing = false;
 let targets = [];
-let score = 0;
 let gameTimer = null;
 let scoreKey = 'dexterity_thin_lines';
 let stopTimer = null;
+let stats = { green: 0, yellow: 0, red: 0 };
+let startTime = 0;
 
 let drawing = false;
 let activeTarget = null;
@@ -69,7 +71,8 @@ function startGame() {
   hideStartButton(startBtn);
   audioCtx.resume();
   playing = true;
-  score = 0;
+  stats = { green: 0, yellow: 0, red: 0 };
+  startTime = Date.now();
   result.textContent = '';
   startBtn.disabled = true;
   targets = [randomLine(), randomLine()];
@@ -84,12 +87,18 @@ function endGame() {
   clearTimeout(gameTimer);
   if (stopTimer) stopTimer();
   clearCanvas(ctx);
-  let high = parseInt(localStorage.getItem(scoreKey)) || 0;
-  if (score > high) {
-    high = score;
-    localStorage.setItem(scoreKey, high.toString());
+  const elapsed = Date.now() - startTime;
+  const { score: finalScore, accuracyPct, speed } = calculateScore(
+    { green: stats.green, yellow: 0, red: stats.red },
+    elapsed
+  );
+  if (window.leaderboard) {
+    window.leaderboard.updateLeaderboard(scoreKey, finalScore);
+    const high = window.leaderboard.getHighScore(scoreKey);
+    result.textContent = `Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
+  } else {
+    result.textContent = `Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
   }
-  result.textContent = `Score: ${score} (Best: ${high})`;
 }
 
 function projectPointToSegment(p, seg) {
@@ -179,11 +188,12 @@ function pointerUp(e) {
   const offRatio = totalSegments > 0 ? offLineSegments / totalSegments : 1;
   const coverage = maxT - minT;
   if (activeTarget !== null && coverage >= 0.9 && offRatio <= maxOffSegmentRatio) {
-    score++;
+    stats.green++;
     playSound(audioCtx, 'green');
     targets[activeTarget] = randomLine();
     drawTargets();
   } else {
+    stats.red++;
     playSound(audioCtx, 'red');
   }
   activeTarget = null;

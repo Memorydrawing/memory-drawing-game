@@ -1,6 +1,7 @@
 import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 import { generateShape } from './geometry.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
+import { calculateScore } from './src/scoring.js';
 
 let canvas, ctx, startBtn, result, strikeElems;
 let playing = false;
@@ -15,6 +16,8 @@ let shapesCompleted = 0;
 let totalAttempts = 0;
 let scoreKey = 'quadrilaterals';
 let attemptHasRed = false;
+let stats = { green: 0, yellow: 0, red: 0 };
+let startTime = 0;
 
 const SHOW_COLOR_TIME = 500;
 const NEW_QUADRILATERAL_DELAY = 3000;
@@ -77,14 +80,15 @@ function updateStrikes() {
 
 function endGame() {
   playing = false;
-  const avg = shapesCompleted ? totalAttempts / shapesCompleted : 0;
-  const score = shapesCompleted ? Math.round((shapesCompleted * 100) / avg) : 0;
-  let high = parseInt(localStorage.getItem(scoreKey)) || 0;
-  if (score > high) {
-    high = score;
-    localStorage.setItem(scoreKey, high.toString());
+  const elapsed = Date.now() - startTime;
+  const { score: finalScore, accuracyPct, speed } = calculateScore(stats, elapsed);
+  if (window.leaderboard) {
+    window.leaderboard.updateLeaderboard(scoreKey, finalScore);
+    const high = window.leaderboard.getHighScore(scoreKey);
+    result.textContent = `Struck out! Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
+  } else {
+    result.textContent = `Struck out! Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
   }
-  result.textContent = `Struck out! Score: ${score} (Best: ${high})`;
 }
 
 function finishCycle() {
@@ -136,6 +140,9 @@ function pointerDown(e) {
     const grade = gradeDistance(dist);
     guesses.push({ x: pos.x, y: pos.y, grade });
     if (grade === 'red') attemptHasRed = true;
+    if (grade === 'green') stats.green++;
+    else if (grade === 'yellow') stats.yellow++;
+    else stats.red++;
     playSound(audioCtx, grade);
     remaining.splice(remaining.indexOf(idx), 1);
     state = 'guess';
@@ -146,6 +153,9 @@ function pointerDown(e) {
     const grade = gradeDistance(dist);
     guesses.push({ x: pos.x, y: pos.y, grade });
     if (grade === 'red') attemptHasRed = true;
+    if (grade === 'green') stats.green++;
+    else if (grade === 'yellow') stats.yellow++;
+    else stats.red++;
     playSound(audioCtx, grade);
     remaining.splice(remaining.indexOf(idx), 1);
     clearCanvas(ctx);
@@ -175,6 +185,8 @@ function startGame() {
   strikes = 0;
   shapesCompleted = 0;
   totalAttempts = 0;
+  stats = { green: 0, yellow: 0, red: 0 };
+  startTime = Date.now();
   scoreKey = canvas.dataset.scoreKey || scoreKey;
   updateStrikes();
   startQuadrilateral();
