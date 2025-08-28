@@ -1,6 +1,7 @@
 import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 import { hideStartButton } from './src/start-button.js';
 import { startCountdown } from './src/countdown.js';
+import { calculateScore } from './src/scoring.js';
 
 let canvas, ctx, feedbackCanvas, feedbackCtx, startBtn, result, timerDisplay;
 
@@ -13,6 +14,7 @@ let endTime = 0;
 let gameTimer = null;
 let stats = null;
 let stopTimer = null;
+let startTime = 0;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 const RESULT_DISPLAY_TIME = 300;
@@ -88,7 +90,8 @@ function startGame() {
   awaitingClick = false;
   result.textContent = '';
   startBtn.disabled = true;
-  endTime = Date.now() + 60000;
+  startTime = Date.now();
+  endTime = startTime + 60000;
   stopTimer = startCountdown(timerDisplay, 60000);
   gameTimer = setTimeout(endGame, 60000);
   drawTarget();
@@ -101,17 +104,14 @@ function endGame() {
   if (stopTimer) stopTimer();
   clearCanvas(ctx);
   const avg = stats.totalPoints ? stats.totalErr / stats.totalPoints : 0;
-  const accuracy = stats.totalPoints
-    ? (stats.green + stats.yellow * 0.5) / stats.totalPoints
-    : 0;
-  const score = Math.round(accuracy * 1000 + stats.totalPoints * 10);
-  const accuracyPct = (accuracy * 100).toFixed(1);
+  const elapsed = Date.now() - startTime;
+  const { score, accuracyPct, speed } = calculateScore(stats, elapsed);
   if (window.leaderboard) {
     window.leaderboard.updateLeaderboard(scoreKey, score);
     const high = window.leaderboard.getHighScore(scoreKey);
-    result.textContent = `Score: ${score} (Best: ${high}) | Accuracy: ${accuracyPct}% | Points: ${stats.totalPoints} | Avg error: ${avg.toFixed(1)} px | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
+    result.textContent = `Score: ${score} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Avg error: ${avg.toFixed(1)} px | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
   } else {
-    result.textContent = `Score: ${score} | Accuracy: ${accuracyPct}% | Points: ${stats.totalPoints} | Avg error: ${avg.toFixed(1)} px | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
+    result.textContent = `Score: ${score} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Avg error: ${avg.toFixed(1)} px | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
   }
 }
 

@@ -1,16 +1,18 @@
 import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
 import { startCountdown } from './src/countdown.js';
+import { calculateScore } from './src/scoring.js';
 
 let canvas, ctx, startBtn, result, timerDisplay;
 let playing = false;
 let targets = [];
-let score = 0;
 let gameTimer = null;
 let targetRadius = 5;
 let gradingTolerance = 5;
 let scoreKey = 'dexterity_point_drill';
 let stopTimer = null;
+let stats = null;
+let startTime = 0;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -36,11 +38,12 @@ function startGame() {
   hideStartButton(startBtn);
   audioCtx.resume();
   playing = true;
-  score = 0;
+  stats = { green: 0, yellow: 0, red: 0 };
   result.textContent = '';
   startBtn.disabled = true;
   targets = [randomTarget(), randomTarget()];
   drawTargets();
+  startTime = Date.now();
   stopTimer = startCountdown(timerDisplay, 60000);
   gameTimer = setTimeout(endGame, 60000);
 }
@@ -51,32 +54,40 @@ function endGame() {
   clearTimeout(gameTimer);
   if (stopTimer) stopTimer();
   clearCanvas(ctx);
-  let high = parseInt(localStorage.getItem(scoreKey)) || 0;
-  if (score > high) {
-    high = score;
-    localStorage.setItem(scoreKey, high.toString());
+  const elapsed = Date.now() - startTime;
+  const { score: finalScore, accuracyPct, speed } = calculateScore(
+    { green: stats.green, yellow: 0, red: stats.red },
+    elapsed
+  );
+  if (window.leaderboard) {
+    window.leaderboard.updateLeaderboard(scoreKey, finalScore);
+    const high = window.leaderboard.getHighScore(scoreKey);
+    result.textContent = `Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
+  } else {
+    result.textContent = `Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
   }
-  result.textContent = `Score: ${score} (Best: ${high})`;
 }
 
 function pointerDown(e) {
   if (!playing) return;
   const pos = getCanvasPos(canvas, e);
+  let hit = false;
   for (let i = 0; i < targets.length; i++) {
     const t = targets[i];
     const d = Math.hypot(pos.x - t.x, pos.y - t.y);
     if (d <= gradingTolerance) {
-      score++;
-      // Play the grading tone asynchronously so that additional
-      // pointer events can be processed while the sound is playing.
+      stats.green++;
+      hit = true;
       setTimeout(() => playSound(audioCtx, 'green'), 0);
       targets[i] = randomTarget();
       drawTargets();
-      return;
+      break;
     }
   }
-  // Likewise, play the miss tone without blocking pointer input.
-  setTimeout(() => playSound(audioCtx, 'red'), 0);
+  if (!hit) {
+    stats.red++;
+    setTimeout(() => playSound(audioCtx, 'red'), 0);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
