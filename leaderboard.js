@@ -1,9 +1,9 @@
 (function() {
   const DEFAULT_FORMULAS = {
-    point_drill_05: 'accuracy * 1000 + points * 10',
-    point_drill_025: 'accuracy * 1000 + points * 10',
-    point_drill_01: 'accuracy * 1000 + points * 10',
-    dexterity_point_drill: 'targets hit',
+    point_drill_05: 'accuracy * 1000 + speed * 100',
+    point_drill_025: 'accuracy * 1000 + speed * 100',
+    point_drill_01: 'accuracy * 1000 + speed * 100',
+    dexterity_point_drill: 'accuracy * 1000 + speed * 100',
     dexterity_thin_lines: 'targets hit',
     dexterity_thick_lines: 'targets hit',
     dexterity_contours: 'targets hit',

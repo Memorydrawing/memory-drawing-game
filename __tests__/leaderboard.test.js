@@ -18,7 +18,7 @@ describe('leaderboard formula display', () => {
     window.leaderboard.handleScore('point_drill_05', 80);
     const formula = document.querySelector('.leaderboard-formula');
     expect(formula).not.toBeNull();
-    expect(formula.textContent).toBe('Score = accuracy * 1000 + points * 10');
+    expect(formula.textContent).toBe('Score = accuracy * 1000 + speed * 100');
   });
 });
 
