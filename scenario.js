@@ -20,6 +20,7 @@ import {
   setViewTimer
 } from './app.js';
 import { getScenario } from './scenarios.js';
+import { overlayStartButton, hideStartButton } from './src/start-button.js';
 
 let scenarioTimer = null;
 let scoreSummary = { totalDist: 0, totalPoints: 0, green: 0, yellow: 0, red: 0 };
@@ -206,6 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const startBtn = document.getElementById('startBtn');
   if (startBtn) {
+    overlayStartButton(canvas, startBtn);
     const params = new URLSearchParams(window.location.search);
     scenarioName = params.get('name') || 'default';
     const titleEl = document.getElementById('scenarioTitle');
@@ -237,6 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
       toggleThreshold();
     }
     startBtn.addEventListener('click', () => {
+      hideStartButton(startBtn);
       result.textContent = '';
       startScenario();
     });
