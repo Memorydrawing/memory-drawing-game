@@ -3,6 +3,8 @@ import { hideStartButton } from './src/start-button.js';
 
 let canvas, ctx, feedbackCanvas, feedbackCtx, startBtn, result;
 
+let scoreKey = 'point_drill_01';
+
 let playing = false;
 let awaitingClick = false;
 let target = null;
@@ -95,7 +97,18 @@ function endGame() {
   clearTimeout(gameTimer);
   clearCanvas(ctx);
   const avg = stats.totalPoints ? stats.totalErr / stats.totalPoints : 0;
-  result.textContent = `Average error: ${avg.toFixed(1)} px | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
+  const accuracy = stats.totalPoints
+    ? (stats.green + stats.yellow * 0.5) / stats.totalPoints
+    : 0;
+  const score = Math.round(accuracy * 1000 + stats.totalPoints * 10);
+  const accuracyPct = (accuracy * 100).toFixed(1);
+  if (window.leaderboard) {
+    window.leaderboard.updateLeaderboard(scoreKey, score);
+    const high = window.leaderboard.getHighScore(scoreKey);
+    result.textContent = `Score: ${score} (Best: ${high}) | Accuracy: ${accuracyPct}% | Points: ${stats.totalPoints} | Avg error: ${avg.toFixed(1)} px | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
+  } else {
+    result.textContent = `Score: ${score} | Accuracy: ${accuracyPct}% | Points: ${stats.totalPoints} | Avg error: ${avg.toFixed(1)} px | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -124,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
   feedbackCtx = feedbackCanvas.getContext('2d');
   startBtn = document.getElementById('startBtn');
   result = document.getElementById('result');
+  scoreKey = canvas.dataset.scoreKey || scoreKey;
   wrapper.appendChild(startBtn);
   startBtn.style.position = 'absolute';
   startBtn.style.top = '50%';
