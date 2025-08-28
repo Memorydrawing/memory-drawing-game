@@ -1,4 +1,19 @@
 (function() {
+  const DEFAULT_FORMULAS = {
+    point_drill_05: 'accuracy * 1000 + points * 10',
+    point_drill_025: 'accuracy * 1000 + points * 10',
+    point_drill_01: 'accuracy * 1000 + points * 10',
+    dexterity_point_drill: 'targets hit',
+    dexterity_thin_lines: 'targets hit',
+    dexterity_thick_lines: 'targets hit',
+    dexterity_contours: 'targets hit',
+    dexterity_thick_contours: 'targets hit',
+    line_segments: 'segments traced',
+    triangles: 'correct answers',
+    quadrilaterals: 'correct answers',
+    complex_shapes: 'correct answers'
+  };
+
   function getPlayerName() {
     let name = localStorage.getItem('playerName');
     if (!name) {
@@ -106,8 +121,12 @@
   }
 
   function handleScore(key, score, formula) {
+    const f =
+      formula ||
+      DEFAULT_FORMULAS[key] ||
+      (key.startsWith('angles_') ? 'correct answers' : '');
     updateLeaderboard(key, score);
-    showLeaderboard(key, score, formula);
+    showLeaderboard(key, score, f);
   }
 
   window.leaderboard = { handleScore, updateLeaderboard, showLeaderboard, getHighScore };
@@ -117,7 +136,9 @@
     if (!resultEl) return;
     const canvas = document.querySelector('canvas[data-score-key]');
     const key = canvas ? canvas.dataset.scoreKey : 'default';
-    const formula = canvas ? canvas.dataset.scoreFormula : '';
+    const formula = canvas && canvas.dataset.scoreFormula
+      ? canvas.dataset.scoreFormula
+      : undefined;
     const observer = new MutationObserver(() => {
       const m = resultEl.textContent.match(/Score:\s*(\d+)/);
       if (m) {
