@@ -1,4 +1,5 @@
 import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
+import { overlayStartButton, hideStartButton } from './src/start-button.js';
 
 let canvas, ctx, startBtn, result;
 let playing = false;
@@ -63,6 +64,7 @@ function drawTargets() {
 }
 
 function startGame() {
+  hideStartButton(startBtn);
   audioCtx.resume();
   playing = true;
   score = 0;
@@ -84,7 +86,6 @@ function endGame() {
     localStorage.setItem(scoreKey, high.toString());
   }
   result.textContent = `Score: ${score} (Best: ${high})`;
-  startBtn.disabled = false;
 }
 
 function projectPointToSegment(p, seg) {
@@ -190,6 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!canvas) return;
   ctx = canvas.getContext('2d');
   startBtn = document.getElementById('startBtn');
+  overlayStartButton(canvas, startBtn);
   result = document.getElementById('result');
   scoreKey = canvas.dataset.scoreKey || scoreKey;
 

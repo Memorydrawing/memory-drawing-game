@@ -1,4 +1,5 @@
 import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
+import { hideStartButton } from './src/start-button.js';
 
 let canvas, ctx, feedbackCanvas, feedbackCtx, startBtn, result;
 
@@ -76,6 +77,7 @@ function pointerDown(e) {
 }
 
 function startGame() {
+  hideStartButton(startBtn);
   audioCtx.resume();
   stats = { totalErr: 0, totalPoints: 0, green: 0, yellow: 0, red: 0 };
   playing = true;
@@ -94,7 +96,6 @@ function endGame() {
   clearCanvas(ctx);
   const avg = stats.totalPoints ? stats.totalErr / stats.totalPoints : 0;
   result.textContent = `Average error: ${avg.toFixed(1)} px | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
-  startBtn.disabled = false;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -123,6 +124,11 @@ document.addEventListener('DOMContentLoaded', () => {
   feedbackCtx = feedbackCanvas.getContext('2d');
   startBtn = document.getElementById('startBtn');
   result = document.getElementById('result');
+  wrapper.appendChild(startBtn);
+  startBtn.style.position = 'absolute';
+  startBtn.style.top = '50%';
+  startBtn.style.left = '50%';
+  startBtn.style.transform = 'translate(-50%, -50%)';
 
   canvas.addEventListener('pointerdown', pointerDown);
   startBtn.addEventListener('click', startGame);
