@@ -1,18 +1,4 @@
 (function() {
-  const DEFAULT_FORMULAS = {
-    point_drill_05: 'accuracy * 1000 + speed * 100',
-    point_drill_025: 'accuracy * 1000 + speed * 100',
-    point_drill_01: 'accuracy * 1000 + speed * 100',
-    dexterity_point_drill: 'accuracy * 1000 + speed * 100',
-    dexterity_thin_lines: 'targets hit',
-    dexterity_thick_lines: 'targets hit',
-    dexterity_contours: 'targets hit',
-    dexterity_thick_contours: 'targets hit',
-    line_segments: 'segments traced',
-    triangles: 'correct answers',
-    quadrilaterals: 'correct answers',
-    complex_shapes: 'correct answers'
-  };
 
   function getPlayerName() {
     let name = localStorage.getItem('playerName');
@@ -42,7 +28,7 @@
     return scores.length ? Math.max(...scores) : 0;
   }
 
-  function showLeaderboard(key, playerScore, formula, accuracy, speed) {
+  function showLeaderboard(key, playerScore, accuracy, speed) {
     const storeKey = 'leaderboard_' + key;
     const data = JSON.parse(localStorage.getItem(storeKey)) || {};
     const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
@@ -86,16 +72,12 @@
       statsEl.className = 'leaderboard-stats';
       const parts = [];
       if (typeof accuracy === 'number') parts.push(`Accuracy: ${accuracy.toFixed(1)}%`);
-      if (typeof speed === 'number') parts.push(`Speed: ${speed.toFixed(2)}/s`);
+      if (typeof speed === 'number') {
+        const avgTime = speed > 0 ? 1 / speed : 0;
+        parts.push(`Avg time per target: ${avgTime.toFixed(2)}s`);
+      }
       statsEl.textContent = parts.join(' | ');
       overlay.appendChild(statsEl);
-    }
-
-    if (formula) {
-      const formulaEl = document.createElement('p');
-      formulaEl.className = 'leaderboard-formula';
-      formulaEl.textContent = `Score = ${formula}`;
-      overlay.appendChild(formulaEl);
     }
 
     const list = document.createElement('div');
@@ -130,13 +112,9 @@
     document.body.appendChild(overlay);
   }
 
-  function handleScore(key, score, formula, accuracy, speed) {
-    const f =
-      formula ||
-      DEFAULT_FORMULAS[key] ||
-      (key.startsWith('angles_') ? 'correct answers' : '');
+  function handleScore(key, score, accuracy, speed) {
     updateLeaderboard(key, score);
-    showLeaderboard(key, score, f, accuracy, speed);
+    showLeaderboard(key, score, accuracy, speed);
   }
 
   window.leaderboard = { handleScore, updateLeaderboard, showLeaderboard, getHighScore };
@@ -146,9 +124,6 @@
     if (!resultEl) return;
     const canvas = document.querySelector('canvas[data-score-key]');
     const key = canvas ? canvas.dataset.scoreKey : 'default';
-    const formula = canvas && canvas.dataset.scoreFormula
-      ? canvas.dataset.scoreFormula
-      : undefined;
     const observer = new MutationObserver(() => {
       const m = resultEl.textContent.match(/Score:\s*(\d+)/);
       if (m) {
@@ -157,7 +132,7 @@
         const spdMatch = resultEl.textContent.match(/Speed:\s*(\d+(?:\.\d+)?)/);
         const accuracy = accMatch ? parseFloat(accMatch[1]) : undefined;
         const speed = spdMatch ? parseFloat(spdMatch[1]) : undefined;
-        handleScore(key, score, formula, accuracy, speed);
+        handleScore(key, score, accuracy, speed);
         observer.disconnect();
       }
     });

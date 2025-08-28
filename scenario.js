@@ -96,8 +96,7 @@ function onShapeRevealed() {
     if (window.leaderboard) {
       window.leaderboard.showLeaderboard(
         leaderboardKey,
-        finalScore,
-        'accuracy * 1000 + speed * 100'
+        finalScore
       );
     }
     return;
