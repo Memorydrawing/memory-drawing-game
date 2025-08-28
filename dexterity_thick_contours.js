@@ -1,12 +1,14 @@
 import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
+import { startCountdown } from './src/countdown.js';
 
-let canvas, ctx, startBtn, result;
+let canvas, ctx, startBtn, result, timerDisplay;
 let playing = false;
 let targets = [];
 let score = 0;
 let gameTimer = null;
 let scoreKey = 'dexterity_thick_contours';
+let stopTimer = null;
 
 let drawing = false;
 let activeTarget = null;
@@ -107,6 +109,7 @@ function startGame() {
   startBtn.disabled = true;
   targets = [randomCurve(), randomCurve()];
   drawTargets();
+  stopTimer = startCountdown(timerDisplay, 60000);
   gameTimer = setTimeout(endGame, 60000);
 }
 
@@ -114,6 +117,7 @@ function endGame() {
   if (!playing) return;
   playing = false;
   clearTimeout(gameTimer);
+  if (stopTimer) stopTimer();
   clearCanvas(ctx);
   let high = parseInt(localStorage.getItem(scoreKey)) || 0;
   if (score > high) {
@@ -249,6 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
   startBtn = document.getElementById('startBtn');
   overlayStartButton(canvas, startBtn);
   result = document.getElementById('result');
+  timerDisplay = document.getElementById('timer');
   scoreKey = canvas.dataset.scoreKey || scoreKey;
 
   canvas.addEventListener('pointerdown', pointerDown);
