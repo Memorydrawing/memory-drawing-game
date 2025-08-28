@@ -42,7 +42,7 @@
     return scores.length ? Math.max(...scores) : 0;
   }
 
-  function showLeaderboard(key, playerScore, formula) {
+  function showLeaderboard(key, playerScore, formula, accuracy, speed) {
     const storeKey = 'leaderboard_' + key;
     const data = JSON.parse(localStorage.getItem(storeKey)) || {};
     const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
@@ -66,13 +66,6 @@
     title.textContent = 'Leaderboard';
     overlay.appendChild(title);
 
-    if (formula) {
-      const formulaEl = document.createElement('p');
-      formulaEl.className = 'leaderboard-formula';
-      formulaEl.textContent = `Score = ${formula}`;
-      overlay.appendChild(formulaEl);
-    }
-
     if (typeof playerScore === 'number') {
       const scoreEl = document.createElement('p');
       scoreEl.className = 'leaderboard-score';
@@ -86,6 +79,23 @@
         if (progress < 1) requestAnimationFrame(step);
       }
       requestAnimationFrame(step);
+    }
+
+    if (typeof accuracy === 'number' || typeof speed === 'number') {
+      const statsEl = document.createElement('p');
+      statsEl.className = 'leaderboard-stats';
+      const parts = [];
+      if (typeof accuracy === 'number') parts.push(`Accuracy: ${accuracy.toFixed(1)}%`);
+      if (typeof speed === 'number') parts.push(`Speed: ${speed.toFixed(2)}/s`);
+      statsEl.textContent = parts.join(' | ');
+      overlay.appendChild(statsEl);
+    }
+
+    if (formula) {
+      const formulaEl = document.createElement('p');
+      formulaEl.className = 'leaderboard-formula';
+      formulaEl.textContent = `Score = ${formula}`;
+      overlay.appendChild(formulaEl);
     }
 
     const list = document.createElement('div');
@@ -120,13 +130,13 @@
     document.body.appendChild(overlay);
   }
 
-  function handleScore(key, score, formula) {
+  function handleScore(key, score, formula, accuracy, speed) {
     const f =
       formula ||
       DEFAULT_FORMULAS[key] ||
       (key.startsWith('angles_') ? 'correct answers' : '');
     updateLeaderboard(key, score);
-    showLeaderboard(key, score, f);
+    showLeaderboard(key, score, f, accuracy, speed);
   }
 
   window.leaderboard = { handleScore, updateLeaderboard, showLeaderboard, getHighScore };
@@ -143,7 +153,11 @@
       const m = resultEl.textContent.match(/Score:\s*(\d+)/);
       if (m) {
         const score = parseInt(m[1], 10);
-        handleScore(key, score, formula);
+        const accMatch = resultEl.textContent.match(/Accuracy:\s*(\d+(?:\.\d+)?)%/);
+        const spdMatch = resultEl.textContent.match(/Speed:\s*(\d+(?:\.\d+)?)/);
+        const accuracy = accMatch ? parseFloat(accMatch[1]) : undefined;
+        const speed = spdMatch ? parseFloat(spdMatch[1]) : undefined;
+        handleScore(key, score, formula, accuracy, speed);
         observer.disconnect();
       }
     });
