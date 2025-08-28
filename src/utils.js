@@ -80,3 +80,22 @@ export function playSound(audioCtx, grade) {
   osc.stop(now + duration);
   currentSound = { osc, gain };
 }
+
+export function startCountdown(durationMs, display, onFinish) {
+  const start = Date.now();
+  display.textContent = (durationMs / 1000).toFixed(2);
+  const intervalId = setInterval(() => {
+    const elapsed = Date.now() - start;
+    const remaining = Math.max(0, durationMs - elapsed);
+    display.textContent = (remaining / 1000).toFixed(2);
+  }, 10);
+  const timeoutId = setTimeout(() => {
+    clearInterval(intervalId);
+    display.textContent = '0.00';
+    if (onFinish) onFinish();
+  }, durationMs);
+  return () => {
+    clearInterval(intervalId);
+    clearTimeout(timeoutId);
+  };
+}

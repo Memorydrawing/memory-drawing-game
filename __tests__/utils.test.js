@@ -1,7 +1,8 @@
 /**
  * @jest-environment jsdom
  */
-import { getCanvasPos } from '../src/utils.js';
+import { getCanvasPos, startCountdown } from '../src/utils.js';
+import { jest } from '@jest/globals';
 
 describe('getCanvasPos', () => {
   test('uses offset coordinates for mouse input', () => {
@@ -25,5 +26,20 @@ describe('getCanvasPos', () => {
     const e = { clientX: 60, clientY: 70, offsetX: 0, offsetY: 0, pointerType: 'touch' };
     const pos = getCanvasPos(canvas, e);
     expect(pos).toEqual({ x: 100, y: 100 });
+  });
+
+  test('startCountdown updates element and calls callback', () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(0);
+    const el = document.createElement('div');
+    const cb = jest.fn();
+    startCountdown(100, el, cb);
+    expect(el.textContent).toBe('0.10');
+    jest.advanceTimersByTime(50);
+    expect(parseFloat(el.textContent)).toBeCloseTo(0.05, 2);
+    jest.advanceTimersByTime(50);
+    expect(el.textContent).toBe('0.00');
+    expect(cb).toHaveBeenCalled();
+    jest.useRealTimers();
   });
 });

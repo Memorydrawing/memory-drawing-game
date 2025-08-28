@@ -1,12 +1,12 @@
-import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
+import { getCanvasPos, clearCanvas, playSound, startCountdown } from './src/utils.js';
 
-let canvas, ctx, feedbackCanvas, feedbackCtx, startBtn, result;
+let canvas, ctx, feedbackCanvas, feedbackCtx, startBtn, result, timerEl;
 
 let playing = false;
 let awaitingClick = false;
 let target = null;
 let endTime = 0;
-let gameTimer = null;
+let stopTimer = null;
 let stats = null;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -83,14 +83,17 @@ function startGame() {
   result.textContent = '';
   startBtn.disabled = true;
   endTime = Date.now() + 60000;
-  gameTimer = setTimeout(endGame, 60000);
+  stopTimer = startCountdown(60000, timerEl, endGame);
   drawTarget();
 }
 
 function endGame() {
   if (!playing) return;
   playing = false;
-  clearTimeout(gameTimer);
+  if (stopTimer) {
+    stopTimer();
+    stopTimer = null;
+  }
   clearCanvas(ctx);
   const avg = stats.totalPoints ? stats.totalErr / stats.totalPoints : 0;
   result.textContent = `Average error: ${avg.toFixed(1)} px | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
@@ -123,6 +126,11 @@ document.addEventListener('DOMContentLoaded', () => {
   feedbackCtx = feedbackCanvas.getContext('2d');
   startBtn = document.getElementById('startBtn');
   result = document.getElementById('result');
+
+  timerEl = document.createElement('div');
+  timerEl.className = 'timer';
+  timerEl.textContent = '60.00';
+  wrapper.parentNode.insertBefore(timerEl, wrapper);
 
   canvas.addEventListener('pointerdown', pointerDown);
   startBtn.addEventListener('click', startGame);

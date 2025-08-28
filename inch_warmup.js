@@ -1,12 +1,12 @@
-import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
+import { getCanvasPos, clearCanvas, playSound, startCountdown } from './src/utils.js';
 
-let canvas, ctx, startBtn, result, ppiInput;
+let canvas, ctx, startBtn, result, ppiInput, timerEl;
 
 let playing = false;
 let drawing = false;
 let startPos = null;
 let endTime = 0;
-let gameTimer = null;
+let stopTimer = null;
 let stats = null;
 let currentArrow = null;
 let path = [];
@@ -30,6 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
   startBtn = document.getElementById('startBtn');
   result = document.getElementById('result');
   ppiInput = document.getElementById('ppiInput');
+  timerEl = document.createElement('div');
+  timerEl.className = 'timer';
+  timerEl.textContent = '60.00';
+  canvas.parentNode.insertBefore(timerEl, canvas);
 
   ppiInput.value = (PPI * DPR).toFixed(1);
   ppiInput.addEventListener('input', () => {
@@ -159,14 +163,17 @@ function startGame() {
   result.textContent = '';
   startBtn.disabled = true;
   endTime = Date.now() + 60000;
-  gameTimer = setTimeout(endGame, 60000);
+  stopTimer = startCountdown(60000, timerEl, endGame);
   drawArrow();
 }
 
 function endGame() {
   if (!playing) return;
   playing = false;
-  clearTimeout(gameTimer);
+  if (stopTimer) {
+    stopTimer();
+    stopTimer = null;
+  }
   clearCanvas(ctx);
   const avg = stats.totalPoints ? stats.totalErr / stats.totalPoints : 0;
   result.textContent = `Average error: ${avg.toFixed(3)} in | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;

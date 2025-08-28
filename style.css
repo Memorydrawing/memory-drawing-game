@@ -134,6 +134,12 @@ canvas {
   font-weight: bold;
   min-height: 1.5em;
 }
+.timer {
+  text-align: center;
+  font-weight: bold;
+  font-family: monospace;
+  min-height: 1.5em;
+}
 .switch-label-container {
   display: flex;
   align-items: center;

@@ -1,10 +1,10 @@
-import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
+import { getCanvasPos, clearCanvas, playSound, startCountdown } from './src/utils.js';
 
-let canvas, ctx, startBtn, result;
+let canvas, ctx, startBtn, result, timerEl;
 let playing = false;
 let targets = [];
 let score = 0;
-let gameTimer = null;
+let stopTimer = null;
 let scoreKey = 'dexterity_thick_lines';
 
 let drawing = false;
@@ -70,13 +70,16 @@ function startGame() {
   startBtn.disabled = true;
   targets = [randomLine(), randomLine()];
   drawTargets();
-  gameTimer = setTimeout(endGame, 60000);
+  stopTimer = startCountdown(60000, timerEl, endGame);
 }
 
 function endGame() {
   if (!playing) return;
   playing = false;
-  clearTimeout(gameTimer);
+  if (stopTimer) {
+    stopTimer();
+    stopTimer = null;
+  }
   clearCanvas(ctx);
   let high = parseInt(localStorage.getItem(scoreKey)) || 0;
   if (score > high) {
@@ -191,6 +194,10 @@ document.addEventListener('DOMContentLoaded', () => {
   ctx = canvas.getContext('2d');
   startBtn = document.getElementById('startBtn');
   result = document.getElementById('result');
+  timerEl = document.createElement('div');
+  timerEl.className = 'timer';
+  timerEl.textContent = '60.00';
+  canvas.parentNode.insertBefore(timerEl, canvas);
   scoreKey = canvas.dataset.scoreKey || scoreKey;
 
   canvas.addEventListener('pointerdown', pointerDown);
