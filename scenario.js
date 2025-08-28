@@ -74,17 +74,20 @@ function onShapeRevealed() {
   if (yEl) yEl.textContent = scoreSummary.yellow;
   if (rEl) rEl.textContent = scoreSummary.red;
   if (sEl) sEl.textContent = score;
-  const highKey = `scenarioScore_${scenarioName}`;
-  let high = parseFloat(localStorage.getItem(highKey)) || 0;
-  if (score > high) {
-    high = score;
-    localStorage.setItem(highKey, high.toString());
+  const leaderboardKey = `scenario_${scenarioName}`;
+  let high = 0;
+  if (window.leaderboard) {
+    window.leaderboard.updateLeaderboard(leaderboardKey, score);
+    high = window.leaderboard.getHighScore(leaderboardKey);
+    const hEl = document.getElementById('highScoreValue');
+    if (hEl) hEl.textContent = high.toString();
   }
-  const hEl = document.getElementById('highScoreValue');
-  if (hEl) hEl.textContent = high.toString();
   result.textContent = `Current avg: ${avg.toFixed(1)} px | Overall avg: ${overall.toFixed(1)} px`;
 
-  if (scenarioConfig.afterAction === 'end') return;
+  if (scenarioConfig.afterAction === 'end') {
+    if (window.leaderboard) window.leaderboard.showLeaderboard(leaderboardKey);
+    return;
+  }
   if (scenarioConfig.afterAction === 'next') {
     setTimeout(() => startScenario(false), 1000);
   } else if (scenarioConfig.afterAction === 'repeat') {
@@ -213,10 +216,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const titleEl = document.getElementById('scenarioTitle');
     if (titleEl) titleEl.textContent = scenarioName || 'Scenario';
     const scn = getScenario(scenarioName);
-    const highKey = `scenarioScore_${scenarioName}`;
-    const stored = parseFloat(localStorage.getItem(highKey));
+    const leaderboardKey = `scenario_${scenarioName}`;
+    const stored = window.leaderboard ? window.leaderboard.getHighScore(leaderboardKey) : 0;
     const hEl = document.getElementById('highScoreValue');
-    if (hEl) hEl.textContent = isNaN(stored) ? '0' : stored.toString();
+    if (hEl) hEl.textContent = stored.toString();
     if (!scn) {
       document.getElementById('result').textContent = 'Scenario not found.';
       startBtn.disabled = true;
