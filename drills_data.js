@@ -1,4 +1,5 @@
 export const drills = [
+  { name: 'Line Segments', url: 'line_segments.html', description: 'Memorize line segment endpoints.', category: 'Memorization', subject: 'Lines', difficulty: 'Beginner' },
   { name: 'Triangles', url: 'triangles.html', description: 'Memorize triangle vertices.', category: 'Memorization', subject: 'Shapes', difficulty: 'Beginner' },
   { name: 'Quadrilaterals', url: 'quadrilaterals.html', description: 'Memorize quadrilateral vertices.', category: 'Memorization', subject: 'Shapes', difficulty: 'Adept' },
   { name: 'Complex Shapes', url: 'complex_shapes.html', description: 'Memorize mixed curved and straight shapes.', category: 'Memorization', subject: 'Shapes', difficulty: 'Expert' },
