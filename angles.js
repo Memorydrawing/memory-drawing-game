@@ -1,5 +1,6 @@
 import { playSound } from './src/utils.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
+import { calculateScore } from './src/scoring.js';
 
 const canvas = document.getElementById('angleCanvas');
 const ctx = canvas.getContext('2d');
@@ -10,6 +11,7 @@ const step = parseInt(new URLSearchParams(window.location.search).get('step')) |
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 let startTime = 0;
 let scoreKey = `angles_${step}`;
+let stats = { green: 0, yellow: 0, red: 0 };
 canvas.dataset.scoreKey = scoreKey;
 
 let rotation = 0;
@@ -56,6 +58,7 @@ function startGame() {
   currentAngle = null;
   correct = 0;
   total = 0;
+  stats = { green: 0, yellow: 0, red: 0 };
   result.textContent = '';
   optionsContainer.querySelectorAll('input').forEach(inp => {
     inp.disabled = false;
@@ -121,6 +124,7 @@ function onSelect(e) {
     label.classList.add('correct');
     correct++;
     total++;
+    stats.green++;
     playSound(audioCtx, grade);
     remainingAngles = remainingAngles.filter(a => a !== selected);
     const done = remainingAngles.length === 0;
@@ -136,9 +140,11 @@ function onSelect(e) {
   } else if (diff === step) {
     grade = 'yellow';
     label.classList.add('close');
+    stats.yellow++;
   } else {
     grade = 'red';
     label.classList.add('incorrect');
+    stats.red++;
   }
   total++;
   playSound(audioCtx, grade);
@@ -164,14 +170,15 @@ function nextAngle() {
 }
 
 function finishGame() {
-  const elapsed = (performance.now() - startTime) / 1000;
-  const score = elapsed > 0 ? Math.round((correct * correct * 100) / elapsed) : 0;
-  let high = parseInt(localStorage.getItem(scoreKey)) || 0;
-  if (score > high) {
-    high = score;
-    localStorage.setItem(scoreKey, high.toString());
+  const elapsed = performance.now() - startTime;
+  const { score: finalScore, accuracyPct, speed } = calculateScore(stats, elapsed);
+  if (window.leaderboard) {
+    window.leaderboard.updateLeaderboard(scoreKey, finalScore);
+    const high = window.leaderboard.getHighScore(scoreKey);
+    result.textContent = `You got ${correct} out of ${total} correct. Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s`;
+  } else {
+    result.textContent = `You got ${correct} out of ${total} correct. Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s`;
   }
-  result.textContent = `You got ${correct} out of ${total} correct. Score: ${score} (Best: ${high})`;
 }
 
 document.addEventListener('DOMContentLoaded', () => {

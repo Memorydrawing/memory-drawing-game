@@ -21,11 +21,14 @@ import {
 } from './app.js';
 import { getScenario } from './scenarios.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
+import { calculateScore } from './src/scoring.js';
 
 let scenarioTimer = null;
 let scoreSummary = { totalDist: 0, totalPoints: 0, green: 0, yellow: 0, red: 0 };
 let scenarioConfig = null;
 let scenarioName = '';
+let totalDuration = 0;
+let drawStartTime = 0;
 
 function toggleThreshold() {
   const wrapper = document.getElementById('thresholdWrapper');
@@ -62,8 +65,13 @@ function onShapeRevealed() {
   scoreSummary.green += counts.green;
   scoreSummary.yellow += counts.yellow;
   scoreSummary.red += counts.red;
+  const elapsed = Date.now() - drawStartTime;
+  totalDuration += elapsed;
   const overall = scoreSummary.totalPoints ? scoreSummary.totalDist / scoreSummary.totalPoints : 0;
-  const score = Math.round(scoreSummary.green * 5 + scoreSummary.yellow * 2 - scoreSummary.red * 3 - overall);
+  const { score: finalScore, accuracyPct, speed } = calculateScore(
+    { green: scoreSummary.green, yellow: scoreSummary.yellow, red: scoreSummary.red },
+    totalDuration
+  );
   const avgEl = document.getElementById('avgError');
   const gEl = document.getElementById('greenCount');
   const yEl = document.getElementById('yellowCount');
@@ -73,23 +81,23 @@ function onShapeRevealed() {
   if (gEl) gEl.textContent = scoreSummary.green;
   if (yEl) yEl.textContent = scoreSummary.yellow;
   if (rEl) rEl.textContent = scoreSummary.red;
-  if (sEl) sEl.textContent = score;
+  if (sEl) sEl.textContent = finalScore;
   const leaderboardKey = `scenario_${scenarioName}`;
   let high = 0;
   if (window.leaderboard) {
-    window.leaderboard.updateLeaderboard(leaderboardKey, score);
+    window.leaderboard.updateLeaderboard(leaderboardKey, finalScore);
     high = window.leaderboard.getHighScore(leaderboardKey);
     const hEl = document.getElementById('highScoreValue');
     if (hEl) hEl.textContent = high.toString();
   }
-  result.textContent = `Current avg: ${avg.toFixed(1)} px | Overall avg: ${overall.toFixed(1)} px`;
+  result.textContent = `Current avg: ${avg.toFixed(1)} px | Overall avg: ${overall.toFixed(1)} px | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s`;
 
   if (scenarioConfig.afterAction === 'end') {
     if (window.leaderboard) {
       window.leaderboard.showLeaderboard(
         leaderboardKey,
-        score,
-        'green * 5 + yellow * 2 - red * 3 - average error'
+        finalScore,
+        'accuracy * 1000 + speed * 100'
       );
     }
     return;
@@ -266,6 +274,7 @@ function startScenario(repeat = false) {
 
   if (!repeat) {
     scoreSummary = { totalDist: 0, totalPoints: 0, green: 0, yellow: 0, red: 0 };
+    totalDuration = 0;
     scenarioConfig = {
       afterAction: document.getElementById('afterSelect').value,
       thresholdPoints: parseInt(document.getElementById('thresholdPoints').value) || 1,
@@ -301,6 +310,7 @@ function startScenario(repeat = false) {
     drawGivenPoints(originalShape);
     setTimeout(() => {
       setDrawingEnabled(true);
+      drawStartTime = Date.now();
       scenarioTimer = setTimeout(() => {
         revealShape();
       }, challengeLength);

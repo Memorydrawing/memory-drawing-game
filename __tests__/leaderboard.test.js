@@ -36,4 +36,4 @@
     expect(formula).not.toBeNull();
     expect(formula.textContent).toBe('Score = accuracy * 1000 + speed * 100');
   });
-
+});
