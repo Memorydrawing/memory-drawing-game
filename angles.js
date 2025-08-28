@@ -8,6 +8,9 @@ const result = document.getElementById('angleResult');
 const startBtn = document.getElementById('startBtn');
 const step = parseInt(new URLSearchParams(window.location.search).get('step')) || 5;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let startTime = 0;
+let scoreKey = `angles_${step}`;
+canvas.dataset.scoreKey = scoreKey;
 
 let rotation = 0;
 let centerX = 0;
@@ -62,6 +65,8 @@ function startGame() {
   });
   startBtn.disabled = true;
   playing = true;
+  scoreKey = canvas.dataset.scoreKey || scoreKey;
+  startTime = performance.now();
   nextAngle();
 }
 
@@ -121,7 +126,7 @@ function onSelect(e) {
     const done = remainingAngles.length === 0;
     if (done) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      result.textContent = `You got ${correct} out of ${total} correct.`;
+      finishGame();
       playing = false;
     } else {
       nextAngle();
@@ -143,7 +148,7 @@ function onSelect(e) {
   setTimeout(() => {
     if (done) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      result.textContent = `You got ${correct} out of ${total} correct.`;
+      finishGame();
       playing = false;
     } else {
       nextAngle();
@@ -156,6 +161,17 @@ function nextAngle() {
   const idx = Math.floor(Math.random() * remainingAngles.length);
   currentAngle = remainingAngles[idx];
   drawAngle(currentAngle);
+}
+
+function finishGame() {
+  const elapsed = (performance.now() - startTime) / 1000;
+  const score = elapsed > 0 ? Math.round((correct * correct * 100) / elapsed) : 0;
+  let high = parseInt(localStorage.getItem(scoreKey)) || 0;
+  if (score > high) {
+    high = score;
+    localStorage.setItem(scoreKey, high.toString());
+  }
+  result.textContent = `You got ${correct} out of ${total} correct. Score: ${score} (Best: ${high})`;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
