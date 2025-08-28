@@ -23,9 +23,9 @@ function drawTarget() {
   ctx.beginPath();
   ctx.arc(target.x, target.y, 5, 0, Math.PI * 2);
   ctx.fill();
+  awaitingClick = true;
   setTimeout(() => {
     clearCanvas(ctx);
-    awaitingClick = true;
   }, 100);
 }
 
