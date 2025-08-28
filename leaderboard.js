@@ -20,6 +20,13 @@
     }
   }
 
+  function getHighScore(key) {
+    const storeKey = 'leaderboard_' + key;
+    const data = JSON.parse(localStorage.getItem(storeKey)) || {};
+    const scores = Object.values(data);
+    return scores.length ? Math.max(...scores) : 0;
+  }
+
   function showLeaderboard(key) {
     const storeKey = 'leaderboard_' + key;
     const data = JSON.parse(localStorage.getItem(storeKey)) || {};
@@ -81,7 +88,7 @@
     showLeaderboard(key);
   }
 
-  window.leaderboard = { handleScore };
+  window.leaderboard = { handleScore, updateLeaderboard, showLeaderboard, getHighScore };
 
   document.addEventListener('DOMContentLoaded', () => {
     const resultEl = document.querySelector('.score');
