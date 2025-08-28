@@ -28,18 +28,21 @@
     const overlay = document.createElement('div');
     overlay.className = 'leaderboard-overlay';
 
-    const inner = document.createElement('div');
-    inner.className = 'leaderboard';
-
     const canvas = document.querySelector('canvas');
     if (canvas) {
-      inner.style.width = canvas.offsetWidth * 0.9 + 'px';
-      inner.style.height = canvas.offsetHeight * 0.9 + 'px';
+      const rect = canvas.getBoundingClientRect();
+      const width = rect.width * 0.9;
+      const height = rect.height * 0.9;
+      overlay.style.position = 'absolute';
+      overlay.style.width = width + 'px';
+      overlay.style.height = height + 'px';
+      overlay.style.top = rect.top + window.scrollY + (rect.height - height) / 2 + 'px';
+      overlay.style.left = rect.left + window.scrollX + (rect.width - width) / 2 + 'px';
     }
 
     const title = document.createElement('h2');
     title.textContent = 'Leaderboard';
-    inner.appendChild(title);
+    overlay.appendChild(title);
 
     const list = document.createElement('div');
     list.className = 'leaderboard-list';
@@ -51,7 +54,7 @@
       list.appendChild(p);
     });
 
-    inner.appendChild(list);
+    overlay.appendChild(list);
 
     const buttons = document.createElement('div');
     buttons.className = 'leaderboard-buttons';
@@ -68,9 +71,8 @@
 
     buttons.appendChild(retry);
     buttons.appendChild(back);
-    inner.appendChild(buttons);
+    overlay.appendChild(buttons);
 
-    overlay.appendChild(inner);
     document.body.appendChild(overlay);
   }
 
