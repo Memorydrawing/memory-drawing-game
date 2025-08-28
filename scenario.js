@@ -85,7 +85,7 @@ function onShapeRevealed() {
   result.textContent = `Current avg: ${avg.toFixed(1)} px | Overall avg: ${overall.toFixed(1)} px`;
 
   if (scenarioConfig.afterAction === 'end') {
-    if (window.leaderboard) window.leaderboard.showLeaderboard(leaderboardKey);
+    if (window.leaderboard) window.leaderboard.showLeaderboard(leaderboardKey, score);
     return;
   }
   if (scenarioConfig.afterAction === 'next') {

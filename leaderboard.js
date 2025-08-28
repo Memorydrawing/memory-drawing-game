@@ -27,7 +27,7 @@
     return scores.length ? Math.max(...scores) : 0;
   }
 
-  function showLeaderboard(key) {
+  function showLeaderboard(key, playerScore) {
     const storeKey = 'leaderboard_' + key;
     const data = JSON.parse(localStorage.getItem(storeKey)) || {};
     const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
@@ -50,6 +50,21 @@
     const title = document.createElement('h2');
     title.textContent = 'Leaderboard';
     overlay.appendChild(title);
+
+    if (typeof playerScore === 'number') {
+      const scoreEl = document.createElement('p');
+      scoreEl.className = 'leaderboard-score';
+      overlay.appendChild(scoreEl);
+      const duration = 1000;
+      const start = performance.now();
+      function step(now) {
+        const progress = Math.min((now - start) / duration, 1);
+        const value = Math.floor(progress * playerScore);
+        scoreEl.textContent = `Score: ${value}`;
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
 
     const list = document.createElement('div');
     list.className = 'leaderboard-list';
@@ -85,7 +100,7 @@
 
   function handleScore(key, score) {
     updateLeaderboard(key, score);
-    showLeaderboard(key);
+    showLeaderboard(key, score);
   }
 
   window.leaderboard = { handleScore, updateLeaderboard, showLeaderboard, getHighScore };
