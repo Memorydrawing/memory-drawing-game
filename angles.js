@@ -1,4 +1,5 @@
 import { playSound } from './src/utils.js';
+import { overlayStartButton, hideStartButton } from './src/start-button.js';
 
 const canvas = document.getElementById('angleCanvas');
 const ctx = canvas.getContext('2d');
@@ -45,6 +46,7 @@ function createOptions() {
 }
 
 function startGame() {
+  hideStartButton(startBtn);
   audioCtx.resume();
   remainingAngles = [];
   for (let a = step; a <= 180; a += step) remainingAngles.push(a);
@@ -120,7 +122,6 @@ function onSelect(e) {
     if (done) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       result.textContent = `You got ${correct} out of ${total} correct.`;
-      startBtn.disabled = false;
       playing = false;
     } else {
       nextAngle();
@@ -143,7 +144,6 @@ function onSelect(e) {
     if (done) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       result.textContent = `You got ${correct} out of ${total} correct.`;
-      startBtn.disabled = false;
       playing = false;
     } else {
       nextAngle();
@@ -159,6 +159,7 @@ function nextAngle() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  overlayStartButton(canvas, startBtn);
   createOptions();
   const title = `Angles (${step}\u00B0 increments)`;
   document.querySelector('h2').textContent = title;

@@ -1,4 +1,5 @@
 import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
+import { overlayStartButton, hideStartButton } from './src/start-button.js';
 
 let canvas, ctx, startBtn, result, strikeElems;
 let playing = false;
@@ -90,7 +91,6 @@ function updateStrikes() {
 
 function endGame() {
   playing = false;
-  startBtn.disabled = false;
   result.textContent = `Struck out! You completed ${shapesCompleted} ${shapesCompleted === 1 ? 'shape' : 'shapes'}.`;
 }
 
@@ -172,6 +172,7 @@ function startTriangle() {
 }
 
 function startGame() {
+  hideStartButton(startBtn);
   audioCtx.resume();
   playing = true;
   startBtn.disabled = true;
@@ -188,6 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!canvas) return;
   ctx = canvas.getContext('2d');
   startBtn = document.getElementById('startBtn');
+  overlayStartButton(canvas, startBtn);
   result = document.getElementById('result');
   strikeElems = Array.from(document.querySelectorAll('#strikes .strike'));
   canvas.addEventListener('pointerdown', pointerDown);
