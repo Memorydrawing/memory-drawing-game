@@ -40,7 +40,7 @@ function showPoints(pos, prevTarget, grade) {
   feedbackCtx.beginPath();
   feedbackCtx.arc(pos.x, pos.y, 5, 0, Math.PI * 2);
   feedbackCtx.fill();
-  feedbackCtx.fillStyle = 'blue';
+  feedbackCtx.fillStyle = '#ccc';
   feedbackCtx.beginPath();
   feedbackCtx.arc(prevTarget.x, prevTarget.y, 5, 0, Math.PI * 2);
   feedbackCtx.fill();
