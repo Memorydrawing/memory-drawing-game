@@ -11,6 +11,8 @@ let guessesGreyed = false;
 let attemptCount = 0;
 let strikes = 0;
 let shapesCompleted = 0;
+let totalAttempts = 0;
+let scoreKey = 'triangles';
 let attemptHasRed = false;
 
 const SHOW_COLOR_TIME = 500;
@@ -91,7 +93,14 @@ function updateStrikes() {
 
 function endGame() {
   playing = false;
-  result.textContent = `Struck out! You completed ${shapesCompleted} ${shapesCompleted === 1 ? 'shape' : 'shapes'}.`;
+  const avg = shapesCompleted ? totalAttempts / shapesCompleted : 0;
+  const score = shapesCompleted ? Math.round((shapesCompleted * 100) / avg) : 0;
+  let high = parseInt(localStorage.getItem(scoreKey)) || 0;
+  if (score > high) {
+    high = score;
+    localStorage.setItem(scoreKey, high.toString());
+  }
+  result.textContent = `Struck out! Score: ${score} (Best: ${high})`;
 }
 
 function finishCycle() {
@@ -101,6 +110,7 @@ function finishCycle() {
   drawTriangle(true);
   if (success) {
     shapesCompleted++;
+    totalAttempts += attemptCount;
     result.textContent = `Completed in ${attemptCount} ${attemptCount === 1 ? 'try' : 'tries'}!`;
     setTimeout(() => {
       guessesGreyed = true;
@@ -180,6 +190,8 @@ function startGame() {
   attemptCount = 0;
   strikes = 0;
   shapesCompleted = 0;
+  totalAttempts = 0;
+  scoreKey = canvas.dataset.scoreKey || scoreKey;
   updateStrikes();
   startTriangle();
 }
