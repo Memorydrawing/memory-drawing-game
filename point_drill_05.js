@@ -1,7 +1,8 @@
 import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 import { hideStartButton } from './src/start-button.js';
+import { startCountdown } from './src/countdown.js';
 
-let canvas, ctx, feedbackCanvas, feedbackCtx, startBtn, result;
+let canvas, ctx, feedbackCanvas, feedbackCtx, startBtn, result, timerDisplay;
 
 let scoreKey = 'point_drill_05';
 
@@ -11,6 +12,7 @@ let target = null;
 let endTime = 0;
 let gameTimer = null;
 let stats = null;
+let stopTimer = null;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 const RESULT_DISPLAY_TIME = 300;
@@ -87,6 +89,7 @@ function startGame() {
   result.textContent = '';
   startBtn.disabled = true;
   endTime = Date.now() + 60000;
+  stopTimer = startCountdown(timerDisplay, 60000);
   gameTimer = setTimeout(endGame, 60000);
   drawTarget();
 }
@@ -95,6 +98,7 @@ function endGame() {
   if (!playing) return;
   playing = false;
   clearTimeout(gameTimer);
+  if (stopTimer) stopTimer();
   clearCanvas(ctx);
   const avg = stats.totalPoints ? stats.totalErr / stats.totalPoints : 0;
   const accuracy = stats.totalPoints
@@ -139,6 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
   feedbackCtx = feedbackCanvas.getContext('2d');
   startBtn = document.getElementById('startBtn');
   result = document.getElementById('result');
+  timerDisplay = document.getElementById('timer');
   scoreKey = canvas.dataset.scoreKey || scoreKey;
   wrapper.appendChild(startBtn);
   startBtn.style.position = 'absolute';
