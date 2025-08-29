@@ -2,49 +2,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const btn = document.getElementById('backBtn');
   if (!btn) return;
 
-  const DEFAULT_LABEL = 'Main Menu';
-  const labelMap = {
-    'index.html': 'Main Menu',
-    'drills.html': 'Drills',
-    'scenarios.html': 'Scenarios'
+  const PAGE_CONFIG = {
+    'scenarios.html': { label: 'Main Menu', target: 'index.html' },
+    'scenario_play.html': { label: 'Scenarios', target: 'scenarios.html' },
+    'scenario_player.html': { label: 'Scenarios', target: 'scenarios.html' },
+    'drills.html': { label: 'Main Menu', target: 'index.html' },
+    'dexterity_contours.html': { label: 'Drills', target: 'drills.html' },
+    'dexterity_thick_contours.html': { label: 'Drills', target: 'drills.html' },
+    'dexterity_thick_lines.html': { label: 'Drills', target: 'drills.html' },
+    'dexterity_thin_lines.html': { label: 'Drills', target: 'drills.html' },
+    'dexterity_point_drill.html': { label: 'Drills', target: 'drills.html' },
+    'dexterity_point_drill_large.html': { label: 'Drills', target: 'drills.html' },
+    'dexterity_point_drill_small.html': { label: 'Drills', target: 'drills.html' },
+    'point_drill_01.html': { label: 'Drills', target: 'drills.html' },
+    'point_drill_025.html': { label: 'Drills', target: 'drills.html' },
+    'point_drill_05.html': { label: 'Drills', target: 'drills.html' },
+    'inch_warmup.html': { label: 'Drills', target: 'drills.html' }
   };
 
-  const setLabel = text => {
-    btn.textContent = `\u2190 ${text}`;
-  };
+  const page = window.location.pathname.split('/').pop();
+  const cfg = PAGE_CONFIG[page] || { label: 'Main Menu', target: 'index.html' };
 
-  const ref = document.referrer;
-  let mapped = null;
-  if (ref) {
-    try {
-      const url = new URL(ref);
-      const page = url.pathname.split('/').pop();
-      mapped = labelMap[page] || null;
-    } catch {
-      mapped = null;
-    }
-  }
-
-  setLabel(mapped || DEFAULT_LABEL);
-
-  if (ref && !mapped) {
-    fetch(ref, { mode: 'same-origin' })
-      .then(res => res.text())
-      .then(html => {
-        const match = html.match(/<title>([^<]*)<\/title>/i);
-        if (match) {
-          const title = match[1].split(' - ')[0].trim();
-          setLabel(title);
-        }
-      })
-      .catch(() => {/* ignore errors, label stays default */});
-  }
-
+  btn.textContent = `\u2190 ${cfg.label}`;
   btn.addEventListener('click', () => {
-    if (ref) {
-      window.history.back();
-    } else {
-      window.location.href = 'index.html';
-    }
+    window.location.href = cfg.target;
   });
 });
