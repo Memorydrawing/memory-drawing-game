@@ -95,18 +95,36 @@
     const buttons = document.createElement('div');
     buttons.className = 'leaderboard-buttons';
 
-    const retry = document.createElement('button');
-    retry.textContent = 'Retry';
-    retry.addEventListener('click', () => location.reload());
+    if (window.parent && window.parent.scenarioNext) {
+      const back = document.createElement('button');
+      back.textContent = 'Back to scenarios';
+      back.addEventListener('click', () => {
+        window.parent.location.href = 'scenarios.html';
+      });
 
-    const back = document.createElement('button');
-    back.textContent = 'Back to drills';
-    back.addEventListener('click', () => {
-      window.location.href = 'drills.html';
-    });
+      const next = document.createElement('button');
+      next.textContent = 'Next drill';
+      next.addEventListener('click', () => {
+        window.parent.scenarioNext();
+      });
 
-    buttons.appendChild(retry);
-    buttons.appendChild(back);
+      buttons.appendChild(back);
+      buttons.appendChild(next);
+    } else {
+      const retry = document.createElement('button');
+      retry.textContent = 'Retry';
+      retry.addEventListener('click', () => location.reload());
+
+      const back = document.createElement('button');
+      back.textContent = 'Back to drills';
+      back.addEventListener('click', () => {
+        window.location.href = 'drills.html';
+      });
+
+      buttons.appendChild(retry);
+      buttons.appendChild(back);
+    }
+
     overlay.appendChild(buttons);
 
     document.body.appendChild(overlay);

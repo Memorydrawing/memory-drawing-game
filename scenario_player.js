@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const frame = document.getElementById('drillFrame');
 
   let observer;
-  const NEXT_DELAY = 1500; // delay to show score before next drill
 
   const resizeFrame = () => {
     try {
@@ -50,22 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
       // Hide inner back button to avoid duplicate navigation controls
       const innerBack = doc.getElementById('backBtn');
       if (innerBack) innerBack.style.display = 'none';
-
-      // Observe result element to auto-advance after score is shown
-      const resultEl = doc.getElementById('result');
-      if (resultEl) {
-        let advanced = false;
-        const resultObserver = new MutationObserver(() => {
-          if (!advanced && resultEl.textContent.trim() !== '') {
-            advanced = true;
-            setTimeout(() => {
-              index++;
-              loadCurrent();
-            }, NEXT_DELAY);
-          }
-        });
-        resultObserver.observe(resultEl, { childList: true, subtree: true });
-      }
     } catch {
       // Ignore cross-origin access errors
     }
@@ -94,6 +77,11 @@ document.addEventListener('DOMContentLoaded', () => {
       window.location.href = 'scenarios.html';
     }
   }
+
+  window.scenarioNext = () => {
+    index++;
+    loadCurrent();
+  };
 
   loadCurrent();
 });
