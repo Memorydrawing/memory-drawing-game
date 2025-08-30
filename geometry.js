@@ -13,6 +13,7 @@ export function generateShape(sides, width, height, size = 'medium') {
   };
   const radius = sizeMap[size] || 120;
   const minDim = 60;
+  const minArea = (radius * radius) / 2;
 
   const cx = width / 2;
   const cy = height / 2;
@@ -20,6 +21,7 @@ export function generateShape(sides, width, height, size = 'medium') {
   let points = [];
   let boxWidth = 0;
   let boxHeight = 0;
+  let area = 0;
 
   do {
     const angleOffset = Math.random() * Math.PI * 2;
@@ -36,9 +38,19 @@ export function generateShape(sides, width, height, size = 'medium') {
     const ys = points.map(p => p.y);
     boxWidth = Math.max(...xs) - Math.min(...xs);
     boxHeight = Math.max(...ys) - Math.min(...ys);
-  } while (boxWidth < minDim || boxHeight < minDim);
+    area = polygonArea(points);
+  } while (boxWidth < minDim || boxHeight < minDim || area < minArea);
 
   return points;
+}
+
+function polygonArea(points) {
+  let sum = 0;
+  for (let i = 0; i < points.length; i++) {
+    const j = (i + 1) % points.length;
+    sum += points[i].x * points[j].y - points[j].x * points[i].y;
+  }
+  return Math.abs(sum) / 2;
 }
 
 export function distancePointToSegment(p, a, b) {
