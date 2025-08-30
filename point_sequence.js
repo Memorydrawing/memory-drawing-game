@@ -15,8 +15,8 @@ let stats = { green: 0, yellow: 0, red: 0 };
 let startTime = 0;
 
 const BETWEEN_DELAY = 250;
-const FEEDBACK_TIME = 600;
-const FLASH_INTERVAL = 150;
+const FEEDBACK_TIME = 3000;
+const FLASH_INTERVAL = 500;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function generatePoint() {
@@ -51,20 +51,19 @@ async function showSequence() {
   }
 }
 
-function flashPoints(playerPts, actualPts, color, callback) {
-  let visible = false;
-  const interval = setInterval(() => {
+function flashGuesses(callback) {
+  let visible = true;
+  const toggle = () => {
     clearCanvas(feedbackCtx);
-    for (const a of actualPts) {
-      drawFeedbackPoint(feedbackCtx, a, 'black');
-    }
     if (visible) {
-      for (const p of playerPts) {
-        drawFeedbackPoint(feedbackCtx, p, color);
+      for (const g of guesses) {
+        drawFeedbackPoint(feedbackCtx, g.pos, g.color);
       }
     }
     visible = !visible;
-  }, FLASH_INTERVAL);
+  };
+  toggle();
+  const interval = setInterval(toggle, FLASH_INTERVAL);
   setTimeout(() => {
     clearInterval(interval);
     clearCanvas(feedbackCtx);
@@ -99,6 +98,7 @@ function endGame() {
 }
 
 async function startRound(addNewPoint = false) {
+  clearCanvas(feedbackCtx);
   if (addNewPoint) {
     sequence.push(generatePoint());
   }
@@ -115,12 +115,13 @@ function pointerDown(e) {
   const target = sequence[inputIndex];
   const grade = gradePoint(pos, target);
   stats[grade]++;
-  guesses.push(pos);
+  const color = grade === 'yellow' ? 'orange' : grade;
+  guesses.push({ pos, color });
   playSound(audioCtx, grade);
   if (grade !== 'green') {
-    const color = grade === 'yellow' ? 'orange' : grade;
+    drawFeedbackPoint(feedbackCtx, pos, color);
     state = 'feedback';
-    flashPoints([pos], [target], color, () => {
+    flashGuesses(() => {
       if (grade === 'red') {
         strikes++;
         updateStrikes();
@@ -133,10 +134,11 @@ function pointerDown(e) {
     });
     return;
   }
+  drawFeedbackPoint(feedbackCtx, pos, 'green');
   inputIndex++;
   if (inputIndex === sequence.length) {
     state = 'feedback';
-    flashPoints(guesses, sequence, 'green', () => {
+    flashGuesses(() => {
       strikes = 0;
       updateStrikes();
       if (playing) startRound(true);
