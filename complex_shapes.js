@@ -23,7 +23,7 @@ let stats = { green: 0, yellow: 0, red: 0 };
 let startTime = 0;
 
 const SHOW_COLOR_TIME = 500;
-const NEW_SHAPE_DELAY = 3000;
+const NEW_SHAPE_DELAY = 1000;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function gradeDistance(d) {
