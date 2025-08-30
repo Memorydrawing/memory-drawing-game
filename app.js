@@ -128,9 +128,9 @@ function retryShape() {
   drawShape(originalShape, "black");
   if (ghostShape.length) {
     if (drawModeToggle?.checked) {
-      ghostShape.forEach(pt => drawDot(pt, "#ccc"));
+      ghostShape.forEach(pt => drawDot(pt, "#ccc", false));
     } else if (ghostShape.length === 1) {
-      drawDot(ghostShape[0], "#ccc");
+      drawDot(ghostShape[0], "#ccc", false);
     } else if (ghostShape.length > 1) {
       ctx.beginPath();
       ctx.moveTo(ghostShape[0].x, ghostShape[0].y);
@@ -183,8 +183,17 @@ export function drawGivenPoints(points) {
   if (document.getElementById("giveRightmost").checked) drawDot(extremes.right, "blue");
 }
 
-function drawDot(pt, color) {
-  ctx.beginPath(); ctx.arc(pt.x, pt.y, 5, 0, 2 * Math.PI); ctx.fillStyle = color; ctx.fill();
+function drawDot(pt, color, fill = true) {
+  ctx.beginPath();
+  ctx.arc(pt.x, pt.y, 5, 0, 2 * Math.PI);
+  if (fill) {
+    ctx.fillStyle = color;
+    ctx.fill();
+  } else {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
 }
 
 function gradePoint(p) {

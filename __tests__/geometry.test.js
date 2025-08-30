@@ -25,6 +25,17 @@ describe('generateShape', () => {
     expect(boxHeight).toBeGreaterThanOrEqual(60);
   });
 
+  test('generates shapes with sufficient area', () => {
+    const points = generateShape(4, width, height, 'medium');
+    let area = 0;
+    for (let i = 0; i < points.length; i++) {
+      const j = (i + 1) % points.length;
+      area += points[i].x * points[j].y - points[j].x * points[i].y;
+    }
+    area = Math.abs(area) / 2;
+    expect(area).toBeGreaterThanOrEqual(7200);
+  });
+
   test('handles single point generation', () => {
     const points = generateShape(1, width, height);
     expect(points).toHaveLength(1);
