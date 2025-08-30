@@ -17,8 +17,8 @@ let activeTarget = null;
 let minT = 1;
 let maxT = 0;
 let lastPos = null;
-let offLineSegments = 0;
-let totalSegments = 0;
+let offLineDist = 0;
+let onLineDist = 0;
 
 // Match grading parameters with dexterity_thin_lines.js
 const tolerance = 4;
@@ -130,9 +130,9 @@ function endGame() {
   if (window.leaderboard) {
     window.leaderboard.updateLeaderboard(scoreKey, finalScore);
     const high = window.leaderboard.getHighScore(scoreKey);
-    result.textContent = `Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
+    result.textContent = `Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green.toFixed(0)} Red: ${stats.red.toFixed(0)}`;
   } else {
-    result.textContent = `Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
+    result.textContent = `Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green.toFixed(0)} Red: ${stats.red.toFixed(0)}`;
   }
 }
 
@@ -180,8 +180,8 @@ function pointerDown(e) {
   activeTarget = null;
   minT = 1;
   maxT = 0;
-  offLineSegments = 0;
-  totalSegments = 0;
+  offLineDist = 0;
+  onLineDist = 0;
   lastPos = pos;
 
   for (let i = 0; i < targets.length; i++) {
@@ -200,6 +200,9 @@ function pointerDown(e) {
 function pointerMove(e) {
   if (!playing || !drawing) return;
   const pos = getCanvasPos(canvas, e);
+  const dx = pos.x - lastPos.x;
+  const dy = pos.y - lastPos.y;
+  const segmentLen = Math.hypot(dx, dy);
 
   let dist = Infinity;
   let normT = 0;
@@ -225,12 +228,11 @@ function pointerMove(e) {
     ctx.strokeStyle = 'green';
     minT = Math.min(minT, normT);
     maxT = Math.max(maxT, normT);
-    totalSegments++;
+    onLineDist += segmentLen;
   } else {
     ctx.strokeStyle = 'red';
     if (activeTarget !== null) {
-      offLineSegments++;
-      totalSegments++;
+      offLineDist += segmentLen;
     }
   }
   ctx.stroke();
@@ -241,19 +243,24 @@ function pointerUp(e) {
   if (!playing || !drawing) return;
   drawing = false;
   canvas.releasePointerCapture(e.pointerId);
-  const offRatio = totalSegments > 0 ? offLineSegments / totalSegments : 1;
-  const coverage = maxT - minT;
-  if (activeTarget !== null && coverage >= 0.9 && offRatio <= maxOffSegmentRatio) {
-    stats.green++;
-    playSound(audioCtx, 'green');
-    targets[activeTarget] = randomCurve();
-    drawTargets();
-  } else {
-    stats.red++;
-    playSound(audioCtx, 'red');
+  const total = onLineDist + offLineDist;
+  if (total > 0) {
+    stats.green += onLineDist;
+    stats.red += offLineDist;
+    const offRatio = offLineDist / total;
+    const coverage = maxT - minT;
+    if (activeTarget !== null && coverage >= 0.9 && offRatio <= maxOffSegmentRatio) {
+      playSound(audioCtx, 'green');
+      targets[activeTarget] = randomCurve();
+      drawTargets();
+    } else {
+      playSound(audioCtx, 'red');
+    }
   }
   activeTarget = null;
   lastPos = null;
+  onLineDist = 0;
+  offLineDist = 0;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
