@@ -122,18 +122,14 @@ function pointerDown(e) {
   if (grade !== 'green') {
     drawFeedbackPoint(feedbackCtx, pos, color);
     state = 'feedback';
-    if (grade === 'yellow') {
-      setTimeout(() => {
-        if (playing) startRound(false);
-      }, AFTER_GRADE_DELAY);
-      return;
-    }
     flashGuesses(() => {
-      strikes++;
-      updateStrikes();
-      if (strikes >= 3) {
-        endGame();
-        return;
+      if (grade === 'red') {
+        strikes++;
+        updateStrikes();
+        if (strikes >= 3) {
+          endGame();
+          return;
+        }
       }
       if (playing) startRound(false);
     });
