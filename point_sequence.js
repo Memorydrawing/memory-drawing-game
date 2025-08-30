@@ -17,6 +17,7 @@ let startTime = 0;
 const BETWEEN_DELAY = 250;
 const FEEDBACK_TIME = 1500;
 const FLASH_INTERVAL = 500;
+const AFTER_GRADE_DELAY = 500;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function generatePoint() {
@@ -74,7 +75,9 @@ function flashGuesses(callback) {
     clearInterval(interval);
     clearCanvas(feedbackCtx);
     clearCanvas(ctx);
-    if (callback) callback();
+    if (callback) {
+      setTimeout(callback, AFTER_GRADE_DELAY);
+    }
   }, FEEDBACK_TIME);
 }
 
