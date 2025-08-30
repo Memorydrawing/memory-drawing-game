@@ -15,8 +15,6 @@ let stats = { green: 0, yellow: 0, red: 0 };
 let startTime = 0;
 
 const BETWEEN_DELAY = 250;
-const FEEDBACK_TIME = 1500;
-const FLASH_INTERVAL = 500;
 const AFTER_GRADE_DELAY = 500;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -52,33 +50,26 @@ async function showSequence() {
   }
 }
 
-function flashGuesses(callback) {
+async function flashGuesses(callback) {
   // show the original sequence points as reference
   clearCanvas(ctx);
   for (const pt of sequence) {
     drawFeedbackPoint(ctx, pt, 'black');
   }
 
-  let visible = true;
-  const toggle = () => {
+  for (let i = 0; i < 3; i++) {
     clearCanvas(feedbackCtx);
-    if (visible) {
-      for (const g of guesses) {
-        drawFeedbackPoint(feedbackCtx, g.pos, g.color);
-      }
+    for (const g of guesses) {
+      drawFeedbackPoint(feedbackCtx, g.pos, g.color);
     }
-    visible = !visible;
-  };
-  toggle();
-  const interval = setInterval(toggle, FLASH_INTERVAL);
-  setTimeout(() => {
-    clearInterval(interval);
+    await new Promise(r => setTimeout(r, lookTime));
     clearCanvas(feedbackCtx);
-    clearCanvas(ctx);
-    if (callback) {
-      setTimeout(callback, AFTER_GRADE_DELAY);
-    }
-  }, FEEDBACK_TIME);
+    await new Promise(r => setTimeout(r, BETWEEN_DELAY));
+  }
+
+  clearCanvas(ctx);
+  await new Promise(r => setTimeout(r, AFTER_GRADE_DELAY));
+  if (callback) callback();
 }
 
 function gradePoint(pos, target) {
@@ -131,14 +122,18 @@ function pointerDown(e) {
   if (grade !== 'green') {
     drawFeedbackPoint(feedbackCtx, pos, color);
     state = 'feedback';
+    if (grade === 'yellow') {
+      setTimeout(() => {
+        if (playing) startRound(false);
+      }, AFTER_GRADE_DELAY);
+      return;
+    }
     flashGuesses(() => {
-      if (grade === 'red') {
-        strikes++;
-        updateStrikes();
-        if (strikes >= 3) {
-          endGame();
-          return;
-        }
+      strikes++;
+      updateStrikes();
+      if (strikes >= 3) {
+        endGame();
+        return;
       }
       if (playing) startRound(false);
     });
