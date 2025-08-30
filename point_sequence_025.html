@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Point Sequence 0.25 sec Look - Memory Shape Drawing Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="practice-screen">
+    <button id="backBtn">← Back</button>
+    <h2>Point Sequence 0.25 sec Look</h2>
+    <button id="startBtn">Start</button>
+    <canvas id="gameCanvas" width="500" height="500" data-look-time="250" data-score-key="point_sequence_025"></canvas>
+    <div id="strikes" class="strikes">
+      <input type="checkbox" class="strike" disabled>
+      <input type="checkbox" class="strike" disabled>
+      <input type="checkbox" class="strike" disabled>
+    </div>
+    <p class="score" id="result"></p>
+  </div>
+  <script src="back.js"></script>
+  <script type="module" src="point_sequence.js"></script>
+  <script src="leaderboard.js"></script>
+</body>
+</html>
