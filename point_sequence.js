@@ -49,7 +49,8 @@ function showFeedback(pos, actual, grade) {
   feedbackCtx.beginPath();
   feedbackCtx.arc(pos.x, pos.y, 5, 0, Math.PI * 2);
   feedbackCtx.fill();
-  feedbackCtx.fillStyle = '#ccc';
+  // Draw the actual point in black for better contrast
+  feedbackCtx.fillStyle = 'black';
   feedbackCtx.beginPath();
   feedbackCtx.arc(actual.x, actual.y, 5, 0, Math.PI * 2);
   feedbackCtx.fill();
@@ -123,7 +124,8 @@ function pointerDown(e) {
   if (inputIndex === sequence.length) {
     strikes = 0;
     updateStrikes();
-    startRound();
+    // Start a fresh sequence after each successful attempt
+    restartSequence();
   }
 }
 
