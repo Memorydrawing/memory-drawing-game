@@ -6,6 +6,7 @@ let canvas, ctx, feedbackCanvas, feedbackCtx, startBtn, result, strikeElems;
 let lookTime = 500;
 let scoreKey = 'point_sequence';
 let sequence = [];
+let guesses = [];
 let inputIndex = 0;
 let playing = false;
 let state = 'idle';
@@ -13,8 +14,9 @@ let strikes = 0;
 let stats = { green: 0, yellow: 0, red: 0 };
 let startTime = 0;
 
-const RESULT_DISPLAY_TIME = 300;
 const BETWEEN_DELAY = 250;
+const FEEDBACK_TIME = 600;
+const FLASH_INTERVAL = 150;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function generatePoint() {
@@ -33,6 +35,13 @@ function drawPoint(pt) {
   ctx.fill();
 }
 
+function drawFeedbackPoint(context, pt, color) {
+  context.fillStyle = color;
+  context.beginPath();
+  context.arc(pt.x, pt.y, 5, 0, Math.PI * 2);
+  context.fill();
+}
+
 async function showSequence() {
   for (const pt of sequence) {
     drawPoint(pt);
@@ -42,20 +51,25 @@ async function showSequence() {
   }
 }
 
-function showFeedback(pos, actual, grade) {
-  feedbackCtx.save();
-  const color = grade === 'yellow' ? 'orange' : grade;
-  feedbackCtx.fillStyle = color;
-  feedbackCtx.beginPath();
-  feedbackCtx.arc(pos.x, pos.y, 5, 0, Math.PI * 2);
-  feedbackCtx.fill();
-  // Draw the actual point in black for better contrast
-  feedbackCtx.fillStyle = 'black';
-  feedbackCtx.beginPath();
-  feedbackCtx.arc(actual.x, actual.y, 5, 0, Math.PI * 2);
-  feedbackCtx.fill();
-  feedbackCtx.restore();
-  setTimeout(() => clearCanvas(feedbackCtx), RESULT_DISPLAY_TIME);
+function flashPoints(playerPts, actualPts, color, callback) {
+  let visible = false;
+  const interval = setInterval(() => {
+    clearCanvas(feedbackCtx);
+    for (const a of actualPts) {
+      drawFeedbackPoint(feedbackCtx, a, 'black');
+    }
+    if (visible) {
+      for (const p of playerPts) {
+        drawFeedbackPoint(feedbackCtx, p, color);
+      }
+    }
+    visible = !visible;
+  }, FLASH_INTERVAL);
+  setTimeout(() => {
+    clearInterval(interval);
+    clearCanvas(feedbackCtx);
+    if (callback) callback();
+  }, FEEDBACK_TIME);
 }
 
 function gradePoint(pos, target) {
@@ -84,20 +98,15 @@ function endGame() {
   }
 }
 
-async function startRound() {
-  sequence.push(generatePoint());
+async function startRound(addNewPoint = false) {
+  if (addNewPoint) {
+    sequence.push(generatePoint());
+  }
   state = 'show';
   await showSequence();
   state = 'input';
   inputIndex = 0;
-}
-
-function restartSequence() {
-  sequence = [];
-  inputIndex = 0;
-  setTimeout(() => {
-    if (playing) startRound();
-  }, RESULT_DISPLAY_TIME);
+  guesses = [];
 }
 
 function pointerDown(e) {
@@ -106,26 +115,32 @@ function pointerDown(e) {
   const target = sequence[inputIndex];
   const grade = gradePoint(pos, target);
   stats[grade]++;
+  guesses.push(pos);
   playSound(audioCtx, grade);
-  showFeedback(pos, target, grade);
   if (grade !== 'green') {
-    if (grade === 'red') {
-      strikes++;
-      updateStrikes();
-      if (strikes >= 3) {
-        endGame();
-        return;
+    const color = grade === 'yellow' ? 'orange' : grade;
+    state = 'feedback';
+    flashPoints([pos], [target], color, () => {
+      if (grade === 'red') {
+        strikes++;
+        updateStrikes();
+        if (strikes >= 3) {
+          endGame();
+          return;
+        }
       }
-    }
-    restartSequence();
+      if (playing) startRound(false);
+    });
     return;
   }
   inputIndex++;
   if (inputIndex === sequence.length) {
-    strikes = 0;
-    updateStrikes();
-    // Start a fresh sequence after each successful attempt
-    restartSequence();
+    state = 'feedback';
+    flashPoints(guesses, sequence, 'green', () => {
+      strikes = 0;
+      updateStrikes();
+      if (playing) startRound(true);
+    });
   }
 }
 
@@ -143,7 +158,7 @@ function startGame() {
   startTime = Date.now();
   scoreKey = canvas.dataset.scoreKey || scoreKey;
   lookTime = parseInt(canvas.dataset.lookTime, 10) || lookTime;
-  startRound();
+  startRound(true);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
