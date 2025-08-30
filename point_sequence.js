@@ -15,7 +15,7 @@ let stats = { green: 0, yellow: 0, red: 0 };
 let startTime = 0;
 
 const BETWEEN_DELAY = 250;
-const FEEDBACK_TIME = 3000;
+const FEEDBACK_TIME = 1500;
 const FLASH_INTERVAL = 500;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -52,6 +52,12 @@ async function showSequence() {
 }
 
 function flashGuesses(callback) {
+  // show the original sequence points as reference
+  clearCanvas(ctx);
+  for (const pt of sequence) {
+    drawFeedbackPoint(ctx, pt, 'black');
+  }
+
   let visible = true;
   const toggle = () => {
     clearCanvas(feedbackCtx);
@@ -67,6 +73,7 @@ function flashGuesses(callback) {
   setTimeout(() => {
     clearInterval(interval);
     clearCanvas(feedbackCtx);
+    clearCanvas(ctx);
     if (callback) callback();
   }, FEEDBACK_TIME);
 }
