@@ -13,7 +13,7 @@ let attemptCount = 0;
 let strikes = 0;
 let shapesCompleted = 0;
 let totalAttempts = 0;
-let scoreKey = 'line_segments';
+let scoreKey = 'two_points';
 let attemptHasRed = false;
 let stats = { green: 0, yellow: 0, red: 0 };
 let startTime = 0;
@@ -49,12 +49,12 @@ function drawGuesses() {
 function drawSegment(show = true) {
   clearCanvas(ctx);
   if (show) {
-    ctx.strokeStyle = 'black';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(vertices[0].x, vertices[0].y);
-    ctx.lineTo(vertices[1].x, vertices[1].y);
-    ctx.stroke();
+    ctx.fillStyle = 'black';
+    vertices.forEach(v => {
+      ctx.beginPath();
+      ctx.arc(v.x, v.y, 5, 0, Math.PI * 2);
+      ctx.fill();
+    });
   }
   drawGuesses();
 }

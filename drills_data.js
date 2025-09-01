@@ -1,7 +1,7 @@
 export const drills = [
-  { name: 'Line Segments', url: 'line_segments.html', description: 'Memorize line segment endpoints.', category: 'Memorization', subject: 'Lines', difficulty: 'Beginner' },
-  { name: 'Triangles', url: 'triangles.html', description: 'Memorize triangle vertices.', category: 'Memorization', subject: 'Shapes', difficulty: 'Beginner' },
-  { name: 'Quadrilaterals', url: 'quadrilaterals.html', description: 'Memorize quadrilateral vertices.', category: 'Memorization', subject: 'Shapes', difficulty: 'Adept' },
+  { name: 'Two Points', url: 'two_points.html', description: 'Memorize two points.', category: 'Memorization', subject: 'Points', difficulty: 'Beginner' },
+  { name: 'Three Points', url: 'three_points.html', description: 'Memorize three points.', category: 'Memorization', subject: 'Points', difficulty: 'Beginner' },
+  { name: 'Four Points', url: 'four_points.html', description: 'Memorize four points.', category: 'Memorization', subject: 'Points', difficulty: 'Adept' },
   { name: 'Complex Shapes', url: 'complex_shapes.html', description: 'Memorize mixed curved and straight shapes.', category: 'Memorization', subject: 'Shapes', difficulty: 'Expert' },
   { name: 'Angles (5° increments)', url: 'angles.html', description: 'Guess randomly oriented angles in 5° steps.', category: 'Memorization', subject: 'Angles', difficulty: 'Expert' },
   { name: 'Angles (10° increments)', url: 'angles.html?step=10', description: 'Guess randomly oriented angles in 10° steps.', category: 'Memorization', subject: 'Angles', difficulty: 'Beginner' },

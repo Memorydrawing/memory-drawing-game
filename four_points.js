@@ -14,7 +14,7 @@ let attemptCount = 0;
 let strikes = 0;
 let shapesCompleted = 0;
 let totalAttempts = 0;
-let scoreKey = 'quadrilaterals';
+let scoreKey = 'four_points';
 let attemptHasRed = false;
 let stats = { green: 0, yellow: 0, red: 0 };
 let startTime = 0;
@@ -41,13 +41,11 @@ function drawQuadrilateral(show = true) {
   clearCanvas(ctx);
   if (show) {
     ctx.fillStyle = 'black';
-    ctx.beginPath();
-    ctx.moveTo(vertices[0].x, vertices[0].y);
-    for (let i = 1; i < vertices.length; i++) {
-      ctx.lineTo(vertices[i].x, vertices[i].y);
-    }
-    ctx.closePath();
-    ctx.fill();
+    vertices.forEach(v => {
+      ctx.beginPath();
+      ctx.arc(v.x, v.y, 5, 0, Math.PI * 2);
+      ctx.fill();
+    });
   }
   drawGuesses();
 }
