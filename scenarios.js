@@ -53,17 +53,17 @@ export const scenarioData = {
     difficulty: 'Adept',
     subject: 'Points'
   },
-  "Triangles": {
-    url: 'triangles.html',
-    description: 'Memorize triangle vertices.',
+  "Three Points": {
+    url: 'three_points.html',
+    description: 'Memorize three points.',
     difficulty: 'Beginner',
-    subject: 'Shapes'
+    subject: 'Points'
   },
-  "Quadrilaterals": {
-    url: 'quadrilaterals.html',
-    description: 'Memorize quadrilateral vertices.',
+  "Four Points": {
+    url: 'four_points.html',
+    description: 'Memorize four points.',
     difficulty: 'Adept',
-    subject: 'Shapes'
+    subject: 'Points'
   }
 };
 
