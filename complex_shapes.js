@@ -1,6 +1,7 @@
 import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 import { generateShape, distancePointToSegment } from './geometry.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
+import { calculateScore } from './src/scoring.js';
 
 let canvas, ctx, startBtn, result, strikeElems;
 let playing = false;
@@ -27,8 +28,8 @@ const NEW_SHAPE_DELAY = 1000;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function gradeDistance(d) {
-  if (d <= 5) return 'green';
-  if (d <= 10) return 'yellow';
+  if (d <= 4) return 'green';
+  if (d <= 8) return 'yellow';
   return 'red';
 }
 
@@ -239,11 +240,11 @@ function endGame() {
   const elapsed = Date.now() - startTime;
   const { score: finalScore, accuracyPct, speed } = calculateScore(stats, elapsed);
   if (window.leaderboard) {
-    window.leaderboard.updateLeaderboard(scoreKey, finalScore);
+    window.leaderboard.handleScore(scoreKey, finalScore, accuracyPct, speed);
     const high = window.leaderboard.getHighScore(scoreKey);
-    result.textContent = `Struck out! Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
+    result.textContent = `Struck out! Final score ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
   } else {
-    result.textContent = `Struck out! Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
+    result.textContent = `Struck out! Final score ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
   }
 }
 
@@ -304,7 +305,7 @@ function pointerMove(e) {
   ctx.lineWidth = 1.5;
   ctx.stroke();
   totalSamples++;
-  if (d <= 5) correctSamples++;
+  if (d <= 4) correctSamples++;
 }
 
 function pointerUp() {
@@ -312,7 +313,7 @@ function pointerUp() {
   isDrawing = false;
   state = 'waiting';
   const accuracy = evaluateDrawing();
-  const grade = accuracy >= 0.9 ? 'green' : accuracy >= 0.8 ? 'yellow' : 'red';
+  const grade = accuracy >= 0.92 ? 'green' : accuracy >= 0.85 ? 'yellow' : 'red';
   const hadRed = segmentGrades.includes('red');
   playSound(audioCtx, grade);
   if (grade === 'green') stats.green++;
@@ -329,7 +330,7 @@ function pointerUp() {
     }
   }
 
-  if (accuracy >= 0.9) {
+  if (accuracy >= 0.92) {
     shapesCompleted++;
     totalAttempts += attemptCount;
     result.textContent = `Completed in ${attemptCount} ${attemptCount === 1 ? 'try' : 'tries'}!`;
