@@ -95,9 +95,9 @@ function endGame() {
   if (window.leaderboard) {
     window.leaderboard.updateLeaderboard(scoreKey, finalScore);
     const high = window.leaderboard.getHighScore(scoreKey);
-    result.textContent = `Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green.toFixed(0)} Red: ${stats.red.toFixed(0)}`;
+    result.textContent = `Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
   } else {
-    result.textContent = `Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green.toFixed(0)} Red: ${stats.red.toFixed(0)}`;
+    result.textContent = `Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
   }
 }
 
@@ -188,17 +188,17 @@ function pointerUp(e) {
   drawing = false;
   canvas.releasePointerCapture(e.pointerId);
   const total = onLineDist + offLineDist;
-  if (total > 0) {
-    stats.green += onLineDist;
-    stats.red += offLineDist;
+  if (total > 0 && activeTarget !== null) {
     const offRatio = offLineDist / total;
     const coverage = maxT - minT;
-    if (activeTarget !== null && coverage >= 0.9 && offRatio <= maxOffSegmentRatio) {
+    if (coverage >= 0.9 && offRatio <= maxOffSegmentRatio) {
       playSound(audioCtx, 'green');
+      stats.green += 1;
       targets[activeTarget] = randomLine();
       drawTargets();
     } else {
       playSound(audioCtx, 'red');
+      stats.red += 1;
     }
   }
   activeTarget = null;
