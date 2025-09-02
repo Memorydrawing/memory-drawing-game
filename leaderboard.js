@@ -21,6 +21,11 @@
       localStorage.setItem(storeKey, JSON.stringify(data));
       isNew = true;
     }
+    try {
+      sessionStorage.setItem(storeKey + '_new', isNew ? '1' : '');
+    } catch (e) {
+      // sessionStorage may be unavailable in some environments
+    }
     return isNew;
   }
 
@@ -143,6 +148,9 @@
   function handleScore(key, score, accuracy, speed) {
     const isNew = updateLeaderboard(key, score);
     showLeaderboard(key, score, accuracy, speed, isNew);
+    try {
+      sessionStorage.removeItem('leaderboard_' + key + '_new');
+    } catch (e) {}
   }
 
   window.leaderboard = { handleScore, updateLeaderboard, showLeaderboard, getHighScore };
@@ -153,6 +161,10 @@
     const canvas = document.querySelector('canvas[data-score-key]');
     const key = canvas ? canvas.dataset.scoreKey : 'default';
     const observer = new MutationObserver(() => {
+      if (document.querySelector('.leaderboard-overlay')) {
+        observer.disconnect();
+        return;
+      }
       const m = resultEl.textContent.match(/Score:\s*(\d+)/);
       if (m) {
         const score = parseInt(m[1], 10);
@@ -160,7 +172,17 @@
         const spdMatch = resultEl.textContent.match(/Speed:\s*(\d+(?:\.\d+)?)/);
         const accuracy = accMatch ? parseFloat(accMatch[1]) : undefined;
         const speed = spdMatch ? parseFloat(spdMatch[1]) : undefined;
-        handleScore(key, score, accuracy, speed);
+        const storeKey = 'leaderboard_' + key;
+        let wasNew = false;
+        try {
+          wasNew = sessionStorage.getItem(storeKey + '_new') === '1';
+        } catch (e) {}
+        const high = getHighScore(key);
+        updateLeaderboard(key, score);
+        showLeaderboard(key, score, accuracy, speed, wasNew || score > high);
+        try {
+          sessionStorage.removeItem(storeKey + '_new');
+        } catch (e) {}
         observer.disconnect();
       }
     });

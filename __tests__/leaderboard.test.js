@@ -45,4 +45,22 @@ describe('leaderboard display', () => {
     const msg = document.querySelector('.leaderboard-new-high');
     expect(msg).toBeNull();
   });
+
+  test('observer shows new high when leaderboard updated beforehand', async () => {
+    document.body.innerHTML = '<canvas data-score-key="point_drill_05"></canvas><p class="score"></p>';
+    window.requestAnimationFrame = cb => cb(Number.MAX_SAFE_INTEGER);
+    await import('../leaderboard.js');
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+    localStorage.setItem('playerName', 'Tester');
+    // simulate game updating leaderboard and result text
+    window.leaderboard.updateLeaderboard('point_drill_05', 150);
+    const result = document.querySelector('.score');
+    result.textContent = 'Score: 150 (Best: 150) | Accuracy: 80% | Speed: 2';
+    // allow mutation observer to process
+    await new Promise(r => setTimeout(r, 0));
+    await new Promise(r => setTimeout(r, 0));
+    const msg = document.querySelector('.leaderboard-new-high');
+    expect(msg).not.toBeNull();
+    expect(msg.textContent).toBe('New high score!');
+  });
 });
