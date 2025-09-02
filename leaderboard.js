@@ -15,10 +15,13 @@
     const storeKey = 'leaderboard_' + key;
     const data = JSON.parse(localStorage.getItem(storeKey)) || {};
     const current = data[name] || 0;
+    let isNew = false;
     if (score > current) {
       data[name] = score;
       localStorage.setItem(storeKey, JSON.stringify(data));
+      isNew = true;
     }
+    return isNew;
   }
 
   function getHighScore(key) {
@@ -28,7 +31,7 @@
     return scores.length ? Math.max(...scores) : 0;
   }
 
-  function showLeaderboard(key, playerScore, accuracy, speed) {
+  function showLeaderboard(key, playerScore, accuracy, speed, isNewHigh) {
     const storeKey = 'leaderboard_' + key;
     const data = JSON.parse(localStorage.getItem(storeKey)) || {};
     const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
@@ -65,6 +68,13 @@
         if (progress < 1) requestAnimationFrame(step);
       }
       requestAnimationFrame(step);
+    }
+
+    if (isNewHigh) {
+      const msg = document.createElement('p');
+      msg.className = 'leaderboard-new-high';
+      msg.textContent = 'New high score!';
+      overlay.appendChild(msg);
     }
 
     if (typeof accuracy === 'number' || typeof speed === 'number') {
@@ -131,8 +141,8 @@
   }
 
   function handleScore(key, score, accuracy, speed) {
-    updateLeaderboard(key, score);
-    showLeaderboard(key, score, accuracy, speed);
+    const isNew = updateLeaderboard(key, score);
+    showLeaderboard(key, score, accuracy, speed, isNew);
   }
 
   window.leaderboard = { handleScore, updateLeaderboard, showLeaderboard, getHighScore };
