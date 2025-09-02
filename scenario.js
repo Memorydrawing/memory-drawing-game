@@ -84,8 +84,9 @@ function onShapeRevealed() {
   if (sEl) sEl.textContent = finalScore;
   const leaderboardKey = `scenario_${scenarioName}`;
   let high = 0;
+  let isNewHigh = false;
   if (window.leaderboard) {
-    window.leaderboard.updateLeaderboard(leaderboardKey, finalScore);
+    isNewHigh = window.leaderboard.updateLeaderboard(leaderboardKey, finalScore);
     high = window.leaderboard.getHighScore(leaderboardKey);
     const hEl = document.getElementById('highScoreValue');
     if (hEl) hEl.textContent = high.toString();
@@ -96,7 +97,10 @@ function onShapeRevealed() {
     if (window.leaderboard) {
       window.leaderboard.showLeaderboard(
         leaderboardKey,
-        finalScore
+        finalScore,
+        undefined,
+        undefined,
+        isNewHigh
       );
     }
     return;
