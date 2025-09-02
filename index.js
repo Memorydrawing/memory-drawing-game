@@ -25,4 +25,29 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('aboutBtn')?.addEventListener('click', () => {
     window.location.href = 'about.html';
   });
+  document.getElementById('resetScoresBtn')?.addEventListener('click', () => {
+    if (!confirm('Reset all high scores?')) return;
+    try {
+      const remove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (
+          key &&
+          (key.startsWith('leaderboard_') ||
+           key.startsWith('scenarioScore_') ||
+           key === 'p2pBest' ||
+           key === 'freehandBest')
+        ) {
+          remove.push(key);
+        }
+      }
+      remove.forEach(k => localStorage.removeItem(k));
+    } catch {
+      // Ignore errors if localStorage is unavailable
+    }
+    const p2pEl = document.getElementById('p2pBest');
+    const freeEl = document.getElementById('freehandBest');
+    if (p2pEl) p2pEl.textContent = 'N/A';
+    if (freeEl) freeEl.textContent = 'N/A';
+  });
 });
