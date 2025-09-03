@@ -25,6 +25,7 @@ import { calculateScore } from './src/scoring.js';
 
 let scenarioTimer = null;
 let scoreSummary = { totalDist: 0, totalPoints: 0, green: 0, yellow: 0, red: 0 };
+let currentShape = { totalDist: 0, totalPoints: 0, green: 0, yellow: 0, red: 0 };
 let scenarioConfig = null;
 let scenarioName = '';
 let totalDuration = 0;
@@ -35,19 +36,6 @@ function toggleThreshold() {
   const wrapper = document.getElementById('thresholdWrapper');
   const val = document.getElementById('afterSelect').value;
   if (wrapper) wrapper.style.display = val === 'repeat' ? 'inline-flex' : 'none';
-}
-
-function computeAverageError() {
-  if (!playerShape.length) return 0;
-  let total = 0;
-  playerShape.forEach(p => {
-    const closest = originalShape.reduce((min, q) => {
-      const d = Math.hypot(p.x - q.x, p.y - q.y);
-      return d < min ? d : min;
-    }, Infinity);
-    total += closest;
-  });
-  return total / playerShape.length;
 }
 
 function animateScoreChange(diff) {
@@ -78,38 +66,53 @@ function updateScore(newScore) {
   displayedScore = newScore;
 }
 
+function onPointScored(e) {
+  if (!scenarioConfig) return;
+  const { color, dist } = e.detail;
+  scoreSummary.totalDist += dist;
+  scoreSummary.totalPoints += 1;
+  currentShape.totalDist += dist;
+  currentShape.totalPoints += 1;
+  if (color === 'green') {
+    scoreSummary.green++;
+    currentShape.green++;
+  } else if (color === 'orange' || color === 'yellow') {
+    scoreSummary.yellow++;
+    currentShape.yellow++;
+  } else {
+    scoreSummary.red++;
+    currentShape.red++;
+  }
+  const avgEl = document.getElementById('avgError');
+  const gEl = document.getElementById('greenCount');
+  const yEl = document.getElementById('yellowCount');
+  const rEl = document.getElementById('redCount');
+  if (avgEl) avgEl.textContent = (scoreSummary.totalDist / scoreSummary.totalPoints).toFixed(1);
+  if (gEl) gEl.textContent = scoreSummary.green.toString();
+  if (yEl) yEl.textContent = scoreSummary.yellow.toString();
+  if (rEl) rEl.textContent = scoreSummary.red.toString();
+  const now = Date.now();
+  const elapsed = totalDuration + (drawStartTime ? now - drawStartTime : 0);
+  const { score } = calculateScore(
+    { green: scoreSummary.green, yellow: scoreSummary.yellow, red: scoreSummary.red },
+    elapsed
+  );
+  updateScore(score);
+}
+
+document.addEventListener('pointScored', onPointScored);
+
 function onShapeRevealed() {
   if (!scenarioConfig) return;
-  const avg = computeAverageError();
-  const counts = playerShape.reduce((acc, p) => {
-    const c = p.color;
-    if (!c) return acc;
-    if (c === 'green') acc.green++;
-    else if (c === 'orange' || c === 'yellow') acc.yellow++;
-    else acc.red++;
-    return acc;
-  }, { green: 0, yellow: 0, red: 0 });
-  scoreSummary.totalDist += avg * playerShape.length;
-  scoreSummary.totalPoints += playerShape.length;
-  scoreSummary.green += counts.green;
-  scoreSummary.yellow += counts.yellow;
-  scoreSummary.red += counts.red;
   const elapsed = Date.now() - drawStartTime;
   totalDuration += elapsed;
+  const currentAvg = currentShape.totalPoints ? currentShape.totalDist / currentShape.totalPoints : 0;
   const overall = scoreSummary.totalPoints ? scoreSummary.totalDist / scoreSummary.totalPoints : 0;
   const { score: finalScore, accuracyPct, speed } = calculateScore(
     { green: scoreSummary.green, yellow: scoreSummary.yellow, red: scoreSummary.red },
     totalDuration
   );
-  const avgEl = document.getElementById('avgError');
-  const gEl = document.getElementById('greenCount');
-  const yEl = document.getElementById('yellowCount');
-  const rEl = document.getElementById('redCount');
-    if (avgEl) avgEl.textContent = overall.toFixed(1);
-    if (gEl) gEl.textContent = scoreSummary.green;
-    if (yEl) yEl.textContent = scoreSummary.yellow;
-    if (rEl) rEl.textContent = scoreSummary.red;
-    updateScore(finalScore);
+  updateScore(finalScore);
   const leaderboardKey = `scenario_${scenarioName}`;
   let high = 0;
   let isNewHigh = false;
@@ -119,7 +122,7 @@ function onShapeRevealed() {
     const hEl = document.getElementById('highScoreValue');
     if (hEl) hEl.textContent = high.toString();
   }
-  result.textContent = `Current avg: ${avg.toFixed(1)} px | Overall avg: ${overall.toFixed(1)} px | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s`;
+  result.textContent = `Current avg: ${currentAvg.toFixed(1)} px | Overall avg: ${overall.toFixed(1)} px | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s`;
 
   if (scenarioConfig.afterAction === 'end') {
     if (window.leaderboard) {
@@ -131,17 +134,19 @@ function onShapeRevealed() {
         isNewHigh
       );
     }
+    currentShape = { totalDist: 0, totalPoints: 0, green: 0, yellow: 0, red: 0 };
     return;
   }
   if (scenarioConfig.afterAction === 'next') {
     setTimeout(() => startScenario(false), 1000);
   } else if (scenarioConfig.afterAction === 'repeat') {
-    if (avg <= scenarioConfig.thresholdPoints) {
+    if (currentAvg <= scenarioConfig.thresholdPoints) {
       setTimeout(() => startScenario(false), 1000);
     } else {
       setTimeout(() => startScenario(true), 1000);
     }
   }
+  currentShape = { totalDist: 0, totalPoints: 0, green: 0, yellow: 0, red: 0 };
 }
 
 document.addEventListener('shapeRevealed', onShapeRevealed);
@@ -302,6 +307,8 @@ function startScenario(repeat = false) {
   const bufferTime = Math.max(0, parseFloat(document.getElementById('bufferInput').value) * 1000);
   const challengeLength = Math.max(1000, parseFloat(document.getElementById('challengeInput').value) * 1000);
   const sides = parseInt(document.getElementById('sidesSelect').value);
+
+  currentShape = { totalDist: 0, totalPoints: 0, green: 0, yellow: 0, red: 0 };
 
   if (!repeat) {
     scoreSummary = { totalDist: 0, totalPoints: 0, green: 0, yellow: 0, red: 0 };
