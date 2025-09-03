@@ -112,11 +112,27 @@ canvas {
   gap: 4px;
   font-weight: bold;
   position: relative;
+  align-items: center;
+  margin: 10px auto 0;
+  font-size: 24px;
+  text-align: center;
 }
 
 .scoreboard p {
   margin: 2px 0;
+}
+
+.scoreboard .score-value {
   color: black;
+  transition: color 0.3s;
+}
+
+.scoreboard .score-value.increase {
+  color: green;
+}
+
+.scoreboard .score-value.decrease {
+  color: red;
 }
 
 .score-change {
