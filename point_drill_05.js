@@ -2,6 +2,7 @@ import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 import { hideStartButton } from './src/start-button.js';
 import { startCountdown } from './src/countdown.js';
 import { calculateScore } from './src/scoring.js';
+import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
 
 let canvas, ctx, feedbackCanvas, feedbackCtx, startBtn, result, timerDisplay;
 
@@ -73,6 +74,7 @@ function pointerDown(e) {
   }
   const prevTarget = target;
   playSound(audioCtx, grade);
+  updateScoreboard(grade === 'yellow' ? 'orange' : grade);
   if (Date.now() < endTime) {
     drawTarget();
   }
@@ -85,6 +87,7 @@ function pointerDown(e) {
 function startGame() {
   hideStartButton(startBtn);
   audioCtx.resume();
+  startScoreboard(canvas);
   stats = { totalErr: 0, totalPoints: 0, green: 0, yellow: 0, red: 0 };
   playing = true;
   awaitingClick = false;
