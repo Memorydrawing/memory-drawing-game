@@ -42,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
       playerShape.push({ ...pos, color, dist });
       playSound(audioCtx, sound);
       drawDots();
+      document.dispatchEvent(new CustomEvent('pointScored', { detail: { color, dist } }));
       if (playerShape.length === originalShape.length) {
         setTimeout(revealShape, 300);
       }
