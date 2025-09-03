@@ -29,6 +29,7 @@ let scenarioConfig = null;
 let scenarioName = '';
 let totalDuration = 0;
 let drawStartTime = 0;
+let displayedScore = 0;
 
 function toggleThreshold() {
   const wrapper = document.getElementById('thresholdWrapper');
@@ -47,6 +48,34 @@ function computeAverageError() {
     total += closest;
   });
   return total / playerShape.length;
+}
+
+function animateScoreChange(diff) {
+  const board = document.querySelector('.scoreboard');
+  if (!board || diff === 0) return;
+  const el = document.createElement('span');
+  el.className = `score-change ${diff >= 0 ? 'positive' : 'negative'}`;
+  el.textContent = (diff > 0 ? '+' : '') + diff;
+  board.appendChild(el);
+  el.addEventListener('animationend', () => el.remove());
+}
+
+function updateScore(newScore) {
+  const sEl = document.getElementById('scoreValue');
+  if (!sEl) return;
+  const start = displayedScore;
+  const diff = newScore - start;
+  const duration = 500;
+  const startTime = performance.now();
+  function step(now) {
+    const progress = Math.min((now - startTime) / duration, 1);
+    const value = Math.round(start + diff * progress);
+    sEl.textContent = value.toString();
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+  animateScoreChange(diff);
+  displayedScore = newScore;
 }
 
 function onShapeRevealed() {
@@ -76,12 +105,11 @@ function onShapeRevealed() {
   const gEl = document.getElementById('greenCount');
   const yEl = document.getElementById('yellowCount');
   const rEl = document.getElementById('redCount');
-  const sEl = document.getElementById('scoreValue');
-  if (avgEl) avgEl.textContent = overall.toFixed(1);
-  if (gEl) gEl.textContent = scoreSummary.green;
-  if (yEl) yEl.textContent = scoreSummary.yellow;
-  if (rEl) rEl.textContent = scoreSummary.red;
-  if (sEl) sEl.textContent = finalScore;
+    if (avgEl) avgEl.textContent = overall.toFixed(1);
+    if (gEl) gEl.textContent = scoreSummary.green;
+    if (yEl) yEl.textContent = scoreSummary.yellow;
+    if (rEl) rEl.textContent = scoreSummary.red;
+    updateScore(finalScore);
   const leaderboardKey = `scenario_${scenarioName}`;
   let high = 0;
   let isNewHigh = false;
@@ -288,11 +316,12 @@ function startScenario(repeat = false) {
     const yEl = document.getElementById('yellowCount');
     const rEl = document.getElementById('redCount');
     const sEl = document.getElementById('scoreValue');
-    if (avgEl) avgEl.textContent = '0.0';
-    if (gEl) gEl.textContent = '0';
-    if (yEl) yEl.textContent = '0';
-    if (rEl) rEl.textContent = '0';
-    if (sEl) sEl.textContent = '0';
+      if (avgEl) avgEl.textContent = '0.0';
+      if (gEl) gEl.textContent = '0';
+      if (yEl) yEl.textContent = '0';
+      if (rEl) rEl.textContent = '0';
+      if (sEl) sEl.textContent = '0';
+      displayedScore = 0;
   }
 
   if (!repeat) {
