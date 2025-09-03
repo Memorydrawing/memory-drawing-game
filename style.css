@@ -111,10 +111,39 @@ canvas {
   flex-direction: column;
   gap: 4px;
   font-weight: bold;
+  position: relative;
 }
 
 .scoreboard p {
   margin: 2px 0;
+  color: black;
+}
+
+.score-change {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: bold;
+  animation: float-score 1s forwards;
+}
+
+.score-change.positive {
+  color: green;
+}
+
+.score-change.negative {
+  color: red;
+}
+
+@keyframes float-score {
+  from {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
 }
 .controls, .switches-group, .checkboxes-group {
   display: flex;
