@@ -2,6 +2,7 @@ import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
 import { startCountdown } from './src/countdown.js';
 import { calculateScore } from './src/scoring.js';
+import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
 
 let canvas, ctx, startBtn, result, timerDisplay;
 let playing = false;
@@ -39,6 +40,7 @@ function startGame() {
   audioCtx.resume();
   playing = true;
   stats = { green: 0, yellow: 0, red: 0 };
+  startScoreboard(canvas);
   result.textContent = '';
   startBtn.disabled = true;
   targets = [randomTarget(), randomTarget()];
@@ -77,6 +79,7 @@ function pointerDown(e) {
     const d = Math.hypot(pos.x - t.x, pos.y - t.y);
     if (d <= gradingTolerance) {
       stats.green++;
+      updateScoreboard('green');
       hit = true;
       setTimeout(() => playSound(audioCtx, 'green'), 0);
       targets[i] = randomTarget();
@@ -87,6 +90,7 @@ function pointerDown(e) {
   if (!hit) {
     stats.red++;
     setTimeout(() => playSound(audioCtx, 'red'), 0);
+    updateScoreboard('red');
   }
 }
 

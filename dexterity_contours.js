@@ -2,6 +2,7 @@ import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
 import { startCountdown } from './src/countdown.js';
 import { calculateScore } from './src/scoring.js';
+import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
 
 let canvas, ctx, startBtn, result, timerDisplay;
 let playing = false;
@@ -118,6 +119,7 @@ function startGame() {
   audioCtx.resume();
   playing = true;
   stats = { green: 0, yellow: 0, red: 0 };
+  startScoreboard(canvas);
   startTime = Date.now();
   result.textContent = '';
   startBtn.disabled = true;
@@ -261,11 +263,13 @@ function pointerUp(e) {
     if (coverage >= 0.9 && offRatio <= maxOffSegmentRatio) {
       playSound(audioCtx, 'green');
       stats.green += 1;
+      updateScoreboard('green');
       targets[activeTarget] = randomCurve();
       drawTargets();
     } else {
       playSound(audioCtx, 'red');
       stats.red += 1;
+      updateScoreboard('red');
     }
   }
   activeTarget = null;

@@ -1,6 +1,7 @@
 import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
 import { calculateScore } from './src/scoring.js';
+import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
 
 let canvas, ctx, feedbackCanvas, feedbackCtx, startBtn, result, strikeElems;
 let lookTime = 500;
@@ -118,6 +119,7 @@ function pointerDown(e) {
   stats[grade]++;
   const color = grade === 'yellow' ? 'orange' : grade;
   guesses.push({ pos, color });
+  updateScoreboard(color);
   playSound(audioCtx, grade);
   if (grade !== 'green') {
     drawFeedbackPoint(feedbackCtx, pos, color);
@@ -156,6 +158,7 @@ function startGame() {
   strikes = 0;
   updateStrikes();
   stats = { green: 0, yellow: 0, red: 0 };
+  startScoreboard(canvas);
   sequence = [];
   inputIndex = 0;
   startTime = Date.now();

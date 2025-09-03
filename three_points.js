@@ -1,6 +1,7 @@
 import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
 import { calculateScore } from './src/scoring.js';
+import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
 
 let canvas, ctx, startBtn, result, strikeElems;
 let playing = false;
@@ -158,6 +159,7 @@ function pointerDown(e) {
     if (grade === 'green') stats.green++;
     else if (grade === 'yellow') stats.yellow++;
     else stats.red++;
+    updateScoreboard(grade);
     playSound(audioCtx, grade);
     remaining.splice(remaining.indexOf(idx), 1);
     state = 'guess';
@@ -171,6 +173,7 @@ function pointerDown(e) {
     if (grade === 'green') stats.green++;
     else if (grade === 'yellow') stats.yellow++;
     else stats.red++;
+    updateScoreboard(grade);
     playSound(audioCtx, grade);
     remaining.splice(remaining.indexOf(idx), 1);
     clearCanvas(ctx);
@@ -204,6 +207,7 @@ function startGame() {
   startTime = Date.now();
   scoreKey = canvas.dataset.scoreKey || scoreKey;
   updateStrikes();
+  startScoreboard(canvas);
   startTriangle();
 }
 

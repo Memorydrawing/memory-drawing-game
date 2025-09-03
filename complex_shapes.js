@@ -2,6 +2,7 @@ import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 import { generateShape, distancePointToSegment } from './geometry.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
 import { calculateScore } from './src/scoring.js';
+import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
 
 let canvas, ctx, startBtn, result, strikeElems;
 let playing = false;
@@ -273,6 +274,7 @@ function startGame() {
   startTime = Date.now();
   scoreKey = canvas.dataset.scoreKey || scoreKey;
   updateStrikes();
+  startScoreboard(canvas);
   startShape();
 }
 
@@ -319,6 +321,7 @@ function pointerUp() {
   if (grade === 'green') stats.green++;
   else if (grade === 'yellow') stats.yellow++;
   else stats.red++;
+  updateScoreboard(grade);
   attemptCount++;
 
   if (hadRed) {

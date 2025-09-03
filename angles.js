@@ -1,6 +1,7 @@
 import { playSound } from './src/utils.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
 import { calculateScore } from './src/scoring.js';
+import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
 
 const canvas = document.getElementById('angleCanvas');
 const ctx = canvas.getContext('2d');
@@ -53,6 +54,7 @@ function createOptions() {
 function startGame() {
   hideStartButton(startBtn);
   audioCtx.resume();
+  startScoreboard(canvas);
   remainingAngles = [];
   for (let a = step; a <= 180; a += step) remainingAngles.push(a);
   currentAngle = null;
@@ -126,6 +128,7 @@ function onSelect(e) {
     total++;
     stats.green++;
     playSound(audioCtx, grade);
+    updateScoreboard('green');
     remainingAngles = remainingAngles.filter(a => a !== selected);
     const done = remainingAngles.length === 0;
     if (done) {
@@ -141,10 +144,12 @@ function onSelect(e) {
     grade = 'yellow';
     label.classList.add('close');
     stats.yellow++;
+    updateScoreboard('orange');
   } else {
     grade = 'red';
     label.classList.add('incorrect');
     stats.red++;
+    updateScoreboard('red');
   }
   total++;
   playSound(audioCtx, grade);
