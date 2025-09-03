@@ -259,7 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   const startBtn = document.getElementById('startBtn');
-  if (startBtn) {
+  if (startBtn && canvas) {
     overlayStartButton(canvas, startBtn);
     const params = new URLSearchParams(window.location.search);
     scenarioName = params.get('name') || 'default';
