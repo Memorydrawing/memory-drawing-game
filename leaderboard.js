@@ -143,6 +143,12 @@
     overlay.appendChild(buttons);
 
     document.body.appendChild(overlay);
+
+    const resultEl = document.querySelector('.score');
+    if (resultEl) {
+      resultEl.textContent = '';
+      resultEl.style.display = 'none';
+    }
   }
 
   function handleScore(key, score, accuracy, speed) {
