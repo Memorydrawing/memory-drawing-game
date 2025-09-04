@@ -63,4 +63,15 @@ describe('leaderboard display', () => {
     expect(msg).not.toBeNull();
     expect(msg.textContent).toBe('New high score!');
   });
+
+  test('score element hidden after leaderboard displayed', async () => {
+    document.body.innerHTML = '<canvas data-score-key="point_drill_05"></canvas><p class="score">Score: 0</p>';
+    window.requestAnimationFrame = cb => cb(Number.MAX_SAFE_INTEGER);
+    await import('../leaderboard.js');
+    localStorage.setItem('playerName', 'Tester');
+    window.leaderboard.handleScore('point_drill_05', 80, 80, 2);
+    const result = document.querySelector('.score');
+    expect(result.textContent).toBe('');
+    expect(result.style.display).toBe('none');
+  });
 });
