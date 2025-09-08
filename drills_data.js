@@ -5,6 +5,7 @@ export const drills = [
   { name: 'Complex Shapes', url: 'complex_shapes.html', description: 'Memorize mixed curved and straight shapes.', category: 'Memorization', subject: 'Shapes', difficulty: 'Expert' },
   { name: 'Angles (5° increments)', url: 'angles.html', description: 'Guess randomly oriented angles in 5° steps.', category: 'Memorization', subject: 'Angles', difficulty: 'Expert' },
   { name: 'Angles (10° increments)', url: 'angles.html?step=10', description: 'Guess randomly oriented angles in 10° steps.', category: 'Memorization', subject: 'Angles', difficulty: 'Beginner' },
+  { name: 'Line Memory', url: 'line_memory.html', description: 'Memorize a line and recreate it after it disappears.', category: 'Memorization', subject: 'Lines', difficulty: 'Adept' },
   { name: 'Point Drill 0.5 sec Look', url: 'point_drill_05.html', description: 'Memorize a point after a 0.5 second preview and tap its location.', category: 'Memorization', subject: 'Points', difficulty: 'Beginner' },
   { name: 'Point Drill 0.25 sec Look', url: 'point_drill_025.html', description: 'Memorize a point after a 0.25 second preview and tap its location.', category: 'Memorization', subject: 'Points', difficulty: 'Adept' },
   { name: 'Point Drill 0.1 sec Look', url: 'point_drill_01.html', description: 'Memorize a point after a 0.1 second preview and tap its location.', category: 'Memorization', subject: 'Points', difficulty: 'Expert' },
