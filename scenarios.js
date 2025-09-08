@@ -41,18 +41,6 @@ export const scenarioData = {
     difficulty: 'Adept',
     subject: 'Points'
   },
-  "Point Sequence 0.25 sec Look": {
-    url: 'point_sequence_025.html',
-    description: 'Memorize an expanding sequence of points after a 0.25 second preview.',
-    difficulty: 'Adept',
-    subject: 'Points'
-  },
-  "Point Sequence 0.1 sec Look": {
-    url: 'point_sequence_01.html',
-    description: 'Memorize an expanding sequence of points after a 0.1 second preview.',
-    difficulty: 'Adept',
-    subject: 'Points'
-  },
   "Three Points": {
     url: 'three_points.html',
     description: 'Memorize three points.',
