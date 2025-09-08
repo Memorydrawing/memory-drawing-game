@@ -20,7 +20,6 @@ let stats = { green: 0, yellow: 0, red: 0 };
 let startTime = 0;
 
 const SHOW_COLOR_TIME = 500;
-const NEW_SEGMENT_DELAY = 1000;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function generateSegment() {
@@ -107,18 +106,11 @@ function finishCycle() {
   if (success) {
     shapesCompleted++;
     totalAttempts += attemptCount;
-    result.textContent = `Completed in ${attemptCount} ${attemptCount === 1 ? 'try' : 'tries'}!`;
-    setTimeout(() => {
-      guessesGreyed = true;
-      drawSegment(true);
-    }, SHOW_COLOR_TIME);
-    setTimeout(() => {
-      result.textContent = '';
-      attemptCount = 0;
-      strikes = 0;
-      updateStrikes();
-      startSegment();
-    }, NEW_SEGMENT_DELAY);
+    result.textContent = '';
+    attemptCount = 0;
+    strikes = 0;
+    updateStrikes();
+    startSegment();
   } else {
     if (attemptHasRed) {
       strikes++;

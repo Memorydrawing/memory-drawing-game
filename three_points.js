@@ -20,7 +20,6 @@ let stats = { green: 0, yellow: 0, red: 0 };
 let startTime = 0;
 
 const SHOW_COLOR_TIME = 500;
-const NEW_TRIANGLE_DELAY = 1000;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function generateTriangle() {
@@ -115,18 +114,11 @@ function finishCycle() {
   if (success) {
     shapesCompleted++;
     totalAttempts += attemptCount;
-    result.textContent = `Completed in ${attemptCount} ${attemptCount === 1 ? 'try' : 'tries'}!`;
-    setTimeout(() => {
-      guessesGreyed = true;
-      drawTriangle(true);
-    }, SHOW_COLOR_TIME);
-    setTimeout(() => {
-      result.textContent = '';
-      attemptCount = 0;
-      strikes = 0;
-      updateStrikes();
-      startTriangle();
-    }, NEW_TRIANGLE_DELAY);
+    result.textContent = '';
+    attemptCount = 0;
+    strikes = 0;
+    updateStrikes();
+    startTriangle();
   } else {
     if (attemptHasRed) {
       strikes++;
