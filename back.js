@@ -23,8 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
     'point_drill_025.html': { label: 'Drills', target: 'drills.html' },
     'point_drill_05.html': { label: 'Drills', target: 'drills.html' },
     'point_sequence_05.html': { label: 'Drills', target: 'drills.html' },
-    'point_sequence_025.html': { label: 'Drills', target: 'drills.html' },
-    'point_sequence_01.html': { label: 'Drills', target: 'drills.html' },
     'inch_warmup.html': { label: 'Drills', target: 'drills.html' }
   };
 
