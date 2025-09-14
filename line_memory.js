@@ -211,6 +211,8 @@ function pointerUp(e) {
   }
   const prevTarget = target;
   target = randomLine();
+  clearCanvas(ctx);
+  drawTarget();
   drawTargetPreview(prevTarget);
   setTimeout(() => {
     clearCanvas(ctx);
