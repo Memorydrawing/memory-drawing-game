@@ -26,6 +26,8 @@ const tolerance = 4;
 const maxOffSegmentRatio = 0.1;
 const LINE_WIDTH = (8 / 3);
 const SAMPLE_POINTS = 50;
+const MARGIN = 40;
+const MIN_CURVE_LEN = 200;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -38,18 +40,22 @@ function cubicBezier(p0, p1, p2, p3, t) {
 }
 
 function randomCurve() {
-  const margin = 40;
-  const x1 = Math.random() * (canvas.width - 2 * margin) + margin;
-  const y1 = Math.random() * (canvas.height - 2 * margin) + margin;
-  const x2 = Math.random() * (canvas.width - 2 * margin) + margin;
-  const y2 = Math.random() * (canvas.height - 2 * margin) + margin;
+  let x1, y1, x2, y2, dx, dy, len;
+  // Ensure the endpoints are a reasonable distance apart
+  do {
+    x1 = Math.random() * (canvas.width - 2 * MARGIN) + MARGIN;
+    y1 = Math.random() * (canvas.height - 2 * MARGIN) + MARGIN;
+    x2 = Math.random() * (canvas.width - 2 * MARGIN) + MARGIN;
+    y2 = Math.random() * (canvas.height - 2 * MARGIN) + MARGIN;
+    dx = x2 - x1;
+    dy = y2 - y1;
+    len = Math.hypot(dx, dy);
+  } while (len < MIN_CURVE_LEN);
 
-  const dx = x2 - x1;
-  const dy = y2 - y1;
-  const len = Math.hypot(dx, dy) || 1;
   const nx = -dy / len;
   const ny = dx / len;
-  const offset = len * (0.3 + Math.random() * 0.2);
+  // Expand offset range for greater variety in curve depth
+  const offset = len * (0.1 + Math.random() * 0.6);
   const type = Math.random() < 0.5 ? 'C' : 'S';
 
   const cp1 = {
@@ -60,6 +66,12 @@ function randomCurve() {
     x: x1 + 2 * dx / 3 + nx * offset * (type === 'C' ? 1 : -1),
     y: y1 + 2 * dy / 3 + ny * offset * (type === 'C' ? 1 : -1)
   };
+
+  // Keep the control points on the canvas so the curve doesn't go off-screen
+  cp1.x = Math.min(canvas.width - MARGIN, Math.max(MARGIN, cp1.x));
+  cp1.y = Math.min(canvas.height - MARGIN, Math.max(MARGIN, cp1.y));
+  cp2.x = Math.min(canvas.width - MARGIN, Math.max(MARGIN, cp2.x));
+  cp2.y = Math.min(canvas.height - MARGIN, Math.max(MARGIN, cp2.y));
 
   const points = [];
   for (let i = 0; i <= SAMPLE_POINTS; i++) {

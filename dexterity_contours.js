@@ -54,7 +54,8 @@ function randomCurve() {
 
   const nx = -dy / len;
   const ny = dx / len;
-  const offset = len * (0.3 + Math.random() * 0.2);
+  // Vary the control point offset more widely to create shallower and deeper curves
+  const offset = len * (0.1 + Math.random() * 0.6);
   const type = Math.random() < 0.5 ? 'C' : 'S';
 
   const cp1 = {
