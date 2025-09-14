@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'dexterity_contours.html': { label: 'Drills', target: 'drills.html' },
     'dexterity_thick_contours.html': { label: 'Drills', target: 'drills.html' },
     'dexterity_thick_lines.html': { label: 'Drills', target: 'drills.html' },
-    'dexterity_thin_lines.html': { label: 'Drills', target: 'drills.html' },
+    'dexterity_lines.html': { label: 'Drills', target: 'drills.html' },
     'dexterity_point_drill.html': { label: 'Drills', target: 'drills.html' },
     'dexterity_point_drill_large.html': { label: 'Drills', target: 'drills.html' },
     'dexterity_point_drill_small.html': { label: 'Drills', target: 'drills.html' },

@@ -8,7 +8,7 @@ let canvas, ctx, startBtn, result, timerDisplay;
 let playing = false;
 let targets = [];
 let gameTimer = null;
-let scoreKey = 'dexterity_thin_lines';
+let scoreKey = 'dexterity_lines';
 let stopTimer = null;
 let stats = { green: 0, yellow: 0, red: 0 };
 let startTime = 0;
