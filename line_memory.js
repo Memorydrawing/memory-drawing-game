@@ -23,6 +23,7 @@ let onLineDist = 0;
 const tolerance = 4;
 const maxOffSegmentRatio = 0.1;
 const LINE_WIDTH = 2;
+const PREVIEW_DELAY = 500; // ms to show previous target
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -62,6 +63,33 @@ function drawTarget() {
   );
   ctx.closePath();
   ctx.fill();
+}
+
+function drawTargetPreview(seg) {
+  ctx.save();
+  ctx.strokeStyle = 'gray';
+  ctx.lineWidth = LINE_WIDTH;
+  ctx.beginPath();
+  ctx.moveTo(seg.x1, seg.y1);
+  ctx.lineTo(seg.x2, seg.y2);
+  ctx.stroke();
+
+  const headLen = 10;
+  const angle = Math.atan2(seg.y2 - seg.y1, seg.x2 - seg.x1);
+  ctx.beginPath();
+  ctx.moveTo(seg.x2, seg.y2);
+  ctx.lineTo(
+    seg.x2 - headLen * Math.cos(angle - Math.PI / 6),
+    seg.y2 - headLen * Math.sin(angle - Math.PI / 6)
+  );
+  ctx.lineTo(
+    seg.x2 - headLen * Math.cos(angle + Math.PI / 6),
+    seg.y2 - headLen * Math.sin(angle + Math.PI / 6)
+  );
+  ctx.closePath();
+  ctx.fillStyle = 'gray';
+  ctx.fill();
+  ctx.restore();
 }
 
 function startGame() {
@@ -181,8 +209,13 @@ function pointerUp(e) {
       updateScoreboard('red');
     }
   }
+  const prevTarget = target;
   target = randomLine();
-  drawTarget();
+  drawTargetPreview(prevTarget);
+  setTimeout(() => {
+    clearCanvas(ctx);
+    drawTarget();
+  }, PREVIEW_DELAY);
   lastPos = null;
   onLineDist = 0;
   offLineDist = 0;
