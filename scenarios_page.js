@@ -3,6 +3,9 @@ import { drills } from './drills_data.js';
 const diffMap = { Beginner: 1, Adept: 2, Expert: 3 };
 const diffReverse = { 1: 'Beginner', 2: 'Adept', 3: 'Expert' };
 
+let editMode = false;
+let editingTitle = null;
+
 function loadScenarios() {
   try {
     return JSON.parse(localStorage.getItem('userScenarios') || '{}');
@@ -70,7 +73,11 @@ function renderScenarioList() {
     info.appendChild(p);
     item.appendChild(info);
     item.addEventListener('click', () => {
-      window.location.href = `scenario_player.html?name=${encodeURIComponent(title)}`;
+      if (editMode) {
+        editScenario(title);
+      } else {
+        window.location.href = `scenario_player.html?name=${encodeURIComponent(title)}`;
+      }
     });
     container.appendChild(item);
   });
@@ -105,6 +112,24 @@ function showBuilder(show) {
   document.getElementById('builderScreen').style.display = show ? 'block' : 'none';
 }
 
+function editScenario(title) {
+  const scenarios = loadScenarios();
+  const steps = scenarios[title];
+  if (!steps) return;
+  editingTitle = title;
+  document.getElementById('scenarioTitle').value = title;
+  const container = document.getElementById('sequenceContainer');
+  container.innerHTML = '';
+  steps.forEach(step => {
+    addDrillRow();
+    const row = container.lastElementChild;
+    row.querySelector('select').value = step.name;
+    row.querySelector('input').value = step.repeats;
+  });
+  showBuilder(true);
+  editMode = false;
+}
+
 function saveCurrentScenario() {
   const title = document.getElementById('scenarioTitle').value.trim();
   if (!title) return;
@@ -115,21 +140,34 @@ function saveCurrentScenario() {
     steps.push({ name, repeats });
   });
   const data = loadScenarios();
+  if (editingTitle && editingTitle !== title) {
+    delete data[editingTitle];
+  }
   data[title] = steps;
   saveScenarios(data);
   renderScenarioList();
   showBuilder(false);
+  editingTitle = null;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   renderScenarioList();
   document.getElementById('newScenarioBtn')?.addEventListener('click', () => {
+    editingTitle = null;
+    editMode = false;
     document.getElementById('scenarioTitle').value = '';
     document.getElementById('sequenceContainer').innerHTML = '';
     addDrillRow();
     showBuilder(true);
   });
-  document.getElementById('builderBackBtn')?.addEventListener('click', () => showBuilder(false));
+  document.getElementById('editScenarioBtn')?.addEventListener('click', () => {
+    editMode = true;
+    alert('Select a scenario to edit');
+  });
+  document.getElementById('builderBackBtn')?.addEventListener('click', () => {
+    showBuilder(false);
+    editingTitle = null;
+  });
   document.getElementById('addDrillBtn')?.addEventListener('click', addDrillRow);
   document.getElementById('saveScenarioBtn')?.addEventListener('click', saveCurrentScenario);
 });
