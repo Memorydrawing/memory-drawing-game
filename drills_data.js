@@ -13,6 +13,6 @@ export const drills = [
   { name: 'Large Points', url: 'dexterity_point_drill_large.html', description: 'Point drill with larger targets for easier accuracy.', category: 'Dexterity', subject: 'Points', difficulty: 'Beginner' },
   { name: 'Medium Points', url: 'dexterity_point_drill.html', description: 'Improve pointer accuracy with rapid taps.', category: 'Dexterity', subject: 'Points', difficulty: 'Adept' },
   { name: 'Small Points', url: 'dexterity_point_drill_small.html', description: 'Point drill with smaller targets for higher precision.', category: 'Dexterity', subject: 'Points', difficulty: 'Expert' },
-  { name: 'Thin Lines', url: 'dexterity_thin_lines.html', description: 'Practice tracing thin lines of different lengths and directions.', category: 'Dexterity', subject: 'Lines', difficulty: 'Adept' },
+  { name: 'Lines', url: 'dexterity_lines.html', description: 'Practice tracing lines of different lengths and directions.', category: 'Dexterity', subject: 'Lines', difficulty: 'Adept' },
   { name: 'Contours', url: 'dexterity_contours.html', description: 'Trace C and S shaped curves for advanced control.', category: 'Dexterity', subject: 'Lines', difficulty: 'Expert' }
 ];
