@@ -21,7 +21,7 @@ let lastPos = null;
 let offLineDist = 0;
 let onLineDist = 0;
 
-// Match grading parameters with dexterity_thin_lines.js
+// Match grading parameters with dexterity_lines.js
 const tolerance = 4;
 const maxOffSegmentRatio = 0.1;
 const LINE_WIDTH = 2;
