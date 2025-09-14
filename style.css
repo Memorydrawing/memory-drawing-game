@@ -382,7 +382,8 @@ h2, h1 { margin: 10px 0; }
 
 .difficulty-label,
 .category-label,
-.subject-label {
+.subject-label,
+.experimental-label {
   padding: 4px 8px;
   border-radius: 10px;
   font-size: 12px;
@@ -395,6 +396,10 @@ h2, h1 { margin: 10px 0; }
 
 .subject-label {
   background-color: #bdbdbd;
+}
+
+.experimental-label {
+  background-color: #ff9800;
 }
 
 .category-memorization {
