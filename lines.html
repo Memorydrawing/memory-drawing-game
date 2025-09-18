@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lines - Memory Shape Drawing Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="practice-screen">
+    <button id="backBtn">← Back</button>
+    <h2>Lines</h2>
+    <button id="startBtn">Start</button>
+    <p class="timer" id="timer">60.00</p>
+    <canvas
+      id="gameCanvas"
+      width="500"
+      height="500"
+      data-score-key="memory_lines"
+      data-vertex-count="2"
+      data-closed="false"
+      data-coverage-threshold="0.9"
+      data-off-ratio="0.2"
+      data-min-segment-length="80"
+      data-preview-delay="600"
+      data-tolerance="6"
+    ></canvas>
+    <p class="score" id="result"></p>
+  </div>
+  <script src="back.js"></script>
+  <script type="module" src="memory_shape.js"></script>
+  <script src="leaderboard.js"></script>
+</body>
+</html>
