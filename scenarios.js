@@ -17,12 +17,6 @@ export const scenarioData = {
     difficulty: 'Beginner',
     subject: 'Lines'
   },
-  "Line Memory": {
-    url: 'line_memory.html',
-    description: 'Memorize a line and recreate it after it disappears.',
-    difficulty: 'Adept',
-    subject: 'Lines'
-  },
   "Point Drill 0.5 sec Look": {
     url: 'point_drill_05.html',
     description: 'Memorize a point after a 0.5 second preview and tap its location.',
