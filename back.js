@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
     'three_points.html': { label: 'Drills', target: 'drills.html' },
     'four_points.html': { label: 'Drills', target: 'drills.html' },
     'lines.html': { label: 'Drills', target: 'drills.html' },
-    'line_memory.html': { label: 'Drills', target: 'drills.html' },
     'triangles.html': { label: 'Drills', target: 'drills.html' },
     'quadrilaterals.html': { label: 'Drills', target: 'drills.html' },
     'complex_shapes.html': { label: 'Drills', target: 'drills.html' },

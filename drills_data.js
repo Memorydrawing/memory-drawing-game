@@ -84,16 +84,6 @@ export const drills = [
     scoreKey: 'angles_10'
   },
   {
-    name: 'Line Memory',
-    url: 'line_memory.html',
-    description: 'Memorize a line and recreate it after it disappears.',
-    category: 'Memorization',
-    subject: 'Lines',
-    difficulty: 'Adept',
-    scoreKey: 'memory_lines',
-    tags: ['Experimental']
-  },
-  {
     name: 'Point Drill 0.5 sec Look',
     url: 'point_drill_05.html',
     description: 'Memorize a point after a 0.5 second preview and tap its location.',
