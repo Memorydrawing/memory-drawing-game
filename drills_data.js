@@ -166,26 +166,6 @@ export const drills = [
     scoreKey: 'dexterity_contours'
   },
   {
-    name: 'Thick Lines',
-    url: 'dexterity_thick_lines.html',
-    description: 'Trace thick directional strokes to sharpen your freehand accuracy.',
-    category: 'Dexterity',
-    subject: 'Lines',
-    difficulty: 'Expert',
-    scoreKey: 'dexterity_thick_lines',
-    tags: ['Freehand']
-  },
-  {
-    name: 'Thick Contours',
-    url: 'dexterity_thick_contours.html',
-    description: 'Follow bold C and S curves for steadier freehand control.',
-    category: 'Dexterity',
-    subject: 'Lines',
-    difficulty: 'Expert',
-    scoreKey: 'dexterity_thick_contours',
-    tags: ['Freehand']
-  },
-  {
     name: 'Inch Drill',
     url: 'inch_warmup.html',
     description: 'Draw one-inch strokes by feel to warm up your freehand accuracy.',
