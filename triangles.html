@@ -11,7 +11,6 @@
     <button id="backBtn">← Back</button>
     <h2>Triangles</h2>
     <button id="startBtn">Start</button>
-    <p class="timer" id="timer">60.00</p>
     <canvas
       id="gameCanvas"
       width="500"
@@ -24,7 +23,13 @@
       data-min-segment-length="70"
       data-preview-delay="700"
       data-tolerance="7"
+      data-fill-shape="true"
     ></canvas>
+    <div id="strikes" class="strikes">
+      <input type="checkbox" class="strike" disabled>
+      <input type="checkbox" class="strike" disabled>
+      <input type="checkbox" class="strike" disabled>
+    </div>
     <p class="score" id="result"></p>
   </div>
   <script src="back.js"></script>

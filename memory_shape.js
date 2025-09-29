@@ -1,10 +1,8 @@
 import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
-import { startCountdown } from './src/countdown.js';
 import { calculateScore } from './src/scoring.js';
 import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
 
-const GAME_DURATION = 60000;
 const LINE_WIDTH = 2;
 const DEFAULT_TOLERANCE = 6;
 const DEFAULT_OFF_RATIO = 0.25;
@@ -12,20 +10,27 @@ const DEFAULT_PREVIEW_DELAY = 600;
 const DEFAULT_COVERAGE_THRESHOLD = 0.85;
 const DEFAULT_COVERAGE_SAMPLES = 24;
 const DEFAULT_MIN_SEGMENT_LENGTH = 60;
+const MAX_STRIKES = 3;
+const DESATURATED_COLORS = {
+  green: '#6ca96c',
+  red: '#b06c6c'
+};
 
-let canvas, ctx, startBtn, result, timerDisplay;
+let canvas, ctx, startBtn, result, strikeElems;
 let playing = false;
 let drawing = false;
 let target = null;
 let scoreKey = 'memory_shape';
 let stats = { green: 0, red: 0 };
-let startTime = 0;
-let gameTimer = null;
-let stopTimer = null;
+let sessionStart = 0;
+let strikes = 0;
+let showingFeedback = false;
+let feedbackTimeout = null;
 let lastPos = null;
 let onLineDist = 0;
 let offLineDist = 0;
 let config = null;
+let currentPath = [];
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -148,7 +153,6 @@ function generateTarget() {
 function drawTarget(shape = target, color = 'black') {
   if (!shape || shape.points.length === 0) return;
   ctx.save();
-  ctx.strokeStyle = color;
   ctx.lineWidth = LINE_WIDTH;
   ctx.beginPath();
   ctx.moveTo(shape.points[0].x, shape.points[0].y);
@@ -158,13 +162,13 @@ function drawTarget(shape = target, color = 'black') {
   if (shape.closed) {
     ctx.closePath();
   }
+  if (config?.fillShape && shape.closed) {
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
+  ctx.strokeStyle = color;
   ctx.stroke();
   ctx.restore();
-}
-
-function drawTargetPreview(previous) {
-  if (!previous) return;
-  drawTarget(previous, 'gray');
 }
 
 function projectPointToSegments(point, shape) {
@@ -217,58 +221,111 @@ function resetDrawingState() {
   lastPos = null;
   onLineDist = 0;
   offLineDist = 0;
+  currentPath = [];
+}
+
+function updateStrikes() {
+  if (!strikeElems || strikeElems.length === 0) return;
+  strikeElems.forEach((el, idx) => {
+    el.checked = idx < strikes;
+  });
+}
+
+function drawAttemptPath(path, desaturated = false) {
+  if (!path || path.length === 0) return;
+  ctx.save();
+  ctx.lineWidth = LINE_WIDTH;
+  path.forEach(segment => {
+    ctx.beginPath();
+    ctx.moveTo(segment.start.x, segment.start.y);
+    ctx.lineTo(segment.end.x, segment.end.y);
+    const baseColor = segment.color || 'black';
+    ctx.strokeStyle = desaturated ? DESATURATED_COLORS[baseColor] || baseColor : baseColor;
+    ctx.stroke();
+  });
+  ctx.restore();
+}
+
+function showGradingFeedback(prevTarget, attemptPath, callback) {
+  showingFeedback = true;
+  if (feedbackTimeout) {
+    clearTimeout(feedbackTimeout);
+  }
+  clearCanvas(ctx);
+  drawTarget(prevTarget);
+  drawAttemptPath(attemptPath, true);
+  feedbackTimeout = setTimeout(() => {
+    showingFeedback = false;
+    feedbackTimeout = null;
+    if (callback) callback();
+  }, config.previewDelay);
 }
 
 function startGame() {
   hideStartButton(startBtn);
   audioCtx.resume();
   playing = true;
+  showingFeedback = false;
+  if (feedbackTimeout) {
+    clearTimeout(feedbackTimeout);
+    feedbackTimeout = null;
+  }
   stats = { green: 0, red: 0 };
+  strikes = 0;
   startScoreboard(canvas);
-  startTime = Date.now();
+  sessionStart = Date.now();
   result.textContent = '';
   startBtn.disabled = true;
   target = generateTarget();
   clearCanvas(ctx);
   drawTarget();
-  stopTimer = startCountdown(timerDisplay, GAME_DURATION);
-  gameTimer = setTimeout(endGame, GAME_DURATION);
+  updateStrikes();
 }
 
 function endGame() {
   if (!playing) return;
   playing = false;
-  clearTimeout(gameTimer);
-  if (stopTimer) stopTimer();
+  if (feedbackTimeout) {
+    clearTimeout(feedbackTimeout);
+    feedbackTimeout = null;
+  }
   clearCanvas(ctx);
-  const elapsed = Date.now() - startTime;
+  const elapsed = sessionStart ? Date.now() - sessionStart : 0;
   const { score: finalScore, accuracyPct, speed } = calculateScore(
     { green: stats.green, yellow: 0, red: stats.red },
     elapsed
   );
+  const prefix = strikes >= MAX_STRIKES ? 'Struck out! ' : '';
   if (window.leaderboard) {
     window.leaderboard.updateLeaderboard(scoreKey, finalScore);
     const high = window.leaderboard.getHighScore(scoreKey);
-    result.textContent = `Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
+    result.textContent = `${prefix}Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
   } else {
-    result.textContent = `Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
+    result.textContent = `${prefix}Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
   }
+  strikes = Math.min(strikes, MAX_STRIKES);
+  updateStrikes();
+  startBtn.disabled = false;
+  startBtn.style.display = '';
+  target = null;
+  sessionStart = 0;
   resetDrawingState();
 }
 
 function pointerDown(e) {
-  if (!playing) return;
+  if (!playing || showingFeedback) return;
   const pos = getCanvasPos(canvas, e);
   drawing = true;
   lastPos = pos;
   onLineDist = 0;
   offLineDist = 0;
+  currentPath = [];
   clearCanvas(ctx);
   canvas.setPointerCapture(e.pointerId);
 }
 
 function pointerMove(e) {
-  if (!playing || !drawing) return;
+  if (!playing || !drawing || showingFeedback) return;
   const pos = getCanvasPos(canvas, e);
   const dx = pos.x - lastPos.x;
   const dy = pos.y - lastPos.y;
@@ -280,10 +337,14 @@ function pointerMove(e) {
   const avgDist = (lastProjection.dist + projection.dist) / 2;
   const onShape = avgDist <= config.tolerance;
 
+  const from = { x: lastPos.x, y: lastPos.y };
+  const to = { x: pos.x, y: pos.y };
+
   ctx.beginPath();
   ctx.moveTo(lastPos.x, lastPos.y);
   ctx.lineTo(pos.x, pos.y);
   ctx.lineWidth = LINE_WIDTH;
+  const segmentColor = onShape ? 'green' : 'red';
   if (onShape) {
     ctx.strokeStyle = 'green';
     onLineDist += segmentLen;
@@ -298,6 +359,8 @@ function pointerMove(e) {
     offLineDist += segmentLen;
   }
   ctx.stroke();
+
+  currentPath.push({ start: from, end: to, color: segmentColor });
 
   lastPos = pos;
 }
@@ -324,27 +387,9 @@ function gradeAttempt() {
   return success;
 }
 
-function pointerUp(e) {
+function finishAttempt(e) {
   if (!playing || !drawing) return;
-  canvas.releasePointerCapture(e.pointerId);
-  drawing = false;
-  gradeAttempt();
-  const prevTarget = target;
-  target = generateTarget();
-  clearCanvas(ctx);
-  drawTarget();
-  drawTargetPreview(prevTarget);
-  setTimeout(() => {
-    if (!playing) return;
-    clearCanvas(ctx);
-    drawTarget();
-  }, config.previewDelay);
-  resetDrawingState();
-}
-
-function pointerCancel(e) {
-  if (!playing || !drawing) return;
-  if (e.pointerId != null) {
+  if (e?.pointerId != null) {
     try {
       canvas.releasePointerCapture(e.pointerId);
     } catch (err) {
@@ -352,18 +397,47 @@ function pointerCancel(e) {
     }
   }
   drawing = false;
-  gradeAttempt();
+
   const prevTarget = target;
-  target = generateTarget();
-  clearCanvas(ctx);
-  drawTarget();
-  drawTargetPreview(prevTarget);
-  setTimeout(() => {
+  const attemptPath = currentPath.map(segment => ({
+    start: { x: segment.start.x, y: segment.start.y },
+    end: { x: segment.end.x, y: segment.end.y },
+    color: segment.color
+  }));
+
+  const success = gradeAttempt();
+  if (!success) {
+    strikes = Math.min(MAX_STRIKES, strikes + 1);
+    updateStrikes();
+  } else {
+    strikes = 0;
+    updateStrikes();
+  }
+
+  const shouldEnd = !success && strikes >= MAX_STRIKES;
+  const nextTarget = success
+    ? generateTarget()
+    : buildTarget(prevTarget.points.map(point => ({ x: point.x, y: point.y })), prevTarget.closed);
+  target = nextTarget;
+  resetDrawingState();
+
+  showGradingFeedback(prevTarget, attemptPath, () => {
+    if (shouldEnd) {
+      endGame();
+      return;
+    }
     if (!playing) return;
     clearCanvas(ctx);
-    drawTarget();
-  }, config.previewDelay);
-  resetDrawingState();
+    drawTarget(target);
+  });
+}
+
+function pointerUp(e) {
+  finishAttempt(e);
+}
+
+function pointerCancel(e) {
+  finishAttempt(e);
 }
 
 function initConfig() {
@@ -378,7 +452,8 @@ function initConfig() {
     previewDelay: parseInt(canvas.dataset.previewDelay, 10) || DEFAULT_PREVIEW_DELAY,
     coverageThreshold: parseFloat(canvas.dataset.coverageThreshold) || DEFAULT_COVERAGE_THRESHOLD,
     coverageSamples: parseInt(canvas.dataset.coverageSamples, 10) || DEFAULT_COVERAGE_SAMPLES,
-    minSegmentLength: parseFloat(canvas.dataset.minSegmentLength) || DEFAULT_MIN_SEGMENT_LENGTH
+    minSegmentLength: parseFloat(canvas.dataset.minSegmentLength) || DEFAULT_MIN_SEGMENT_LENGTH,
+    fillShape: canvas.dataset.fillShape === 'true'
   };
 }
 
@@ -388,10 +463,11 @@ function setup() {
   ctx = canvas.getContext('2d');
   startBtn = document.getElementById('startBtn');
   result = document.getElementById('result');
-  timerDisplay = document.getElementById('timer');
+  strikeElems = Array.from(document.querySelectorAll('#strikes .strike'));
   overlayStartButton(canvas, startBtn);
   scoreKey = canvas.dataset.scoreKey || scoreKey;
   initConfig();
+  updateStrikes();
 
   canvas.addEventListener('pointerdown', pointerDown);
   canvas.addEventListener('pointermove', pointerMove);
