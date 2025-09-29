@@ -172,6 +172,6 @@ export const drills = [
     category: 'Dexterity',
     subject: 'Lines',
     difficulty: 'Beginner',
-    tags: ['Freehand']
+    tags: ['Experimental']
   }
 ];
