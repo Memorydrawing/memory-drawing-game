@@ -157,6 +157,17 @@ export const drills = [
     scoreKey: 'dexterity_lines'
   },
   {
+    name: 'Snake',
+    url: 'snake.html',
+    description:
+      'Follow a moving snake path and keep your stylus aligned as it slithers across the canvas.',
+    category: 'Dexterity',
+    subject: 'Lines',
+    difficulty: 'Adept',
+    scoreKey: 'snake',
+    tags: ['Adapt', 'Dexterity', 'Experimental']
+  },
+  {
     name: 'Contours',
     url: 'dexterity_contours.html',
     description: 'Trace C and S shaped curves for advanced control.',
