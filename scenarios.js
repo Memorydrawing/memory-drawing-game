@@ -44,7 +44,7 @@ export const scenarioData = {
   "Three Points": {
     url: 'three_points.html',
     description: 'Memorize three points.',
-    difficulty: 'Beginner',
+    difficulty: 'Adept',
     subject: 'Points'
   },
   "Four Points": {
