@@ -165,7 +165,7 @@ export const drills = [
     subject: 'Lines',
     difficulty: 'Adept',
     scoreKey: 'snake',
-    tags: ['Adapt', 'Dexterity', 'Experimental']
+    tags: ['Experimental']
   },
   {
     name: 'Contours',
