@@ -14,7 +14,7 @@ export const drills = [
     description: 'Memorize three points.',
     category: 'Memorization',
     subject: 'Points',
-    difficulty: 'Beginner',
+    difficulty: 'Adept',
     scoreKey: 'three_points'
   },
   {
