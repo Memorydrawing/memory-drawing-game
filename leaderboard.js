@@ -144,7 +144,7 @@
 
     document.body.appendChild(overlay);
 
-    const resultEl = document.querySelector('.score');
+    const resultEl = document.querySelector('#result');
     if (resultEl) {
       resultEl.textContent = '';
       resultEl.style.display = 'none';
@@ -162,7 +162,7 @@
   window.leaderboard = { handleScore, updateLeaderboard, showLeaderboard, getHighScore };
 
   document.addEventListener('DOMContentLoaded', () => {
-    const resultEl = document.querySelector('.score');
+    const resultEl = document.querySelector('#result');
     if (!resultEl) return;
     const canvas = document.querySelector('canvas[data-score-key]');
     const key = canvas ? canvas.dataset.scoreKey : 'default';
