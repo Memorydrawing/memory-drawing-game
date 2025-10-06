@@ -5,9 +5,10 @@ import { startCountdown } from './src/countdown.js';
 const SNAKE_LENGTH = 420;
 const SNAKE_SPEED = 95; // pixels per second
 const STEP_SIZE = 4;
-const TURN_VARIANCE = Math.PI / 12;
+const TURN_ACCEL_VARIANCE = Math.PI * 1.5; // radians per second squared
+const MAX_TURN_RATE = Math.PI / 2; // radians per second
 const BOUNDARY_MARGIN = 35;
-const TOLERANCE = 18;
+const TOLERANCE = 4;
 
 let canvas;
 let ctx;
@@ -27,6 +28,7 @@ let snakePoints = [];
 let snakeSegments = [];
 let snakeLength = 0;
 let headDirection = 0;
+let turnVelocity = 0;
 
 let drawing = false;
 let lastPointerPos = null;
@@ -45,13 +47,20 @@ function initSnake() {
   snakeSegments.push(Math.sqrt(2));
   snakeLength = snakeSegments[0];
   headDirection = Math.random() * Math.PI * 2;
+  turnVelocity = 0;
 }
 
 function advanceSnake(delta) {
   let distance = SNAKE_SPEED * delta;
   while (distance > 0) {
     const step = Math.min(STEP_SIZE, distance);
-    headDirection += (Math.random() - 0.5) * TURN_VARIANCE;
+    const stepTime = step / SNAKE_SPEED;
+    const turnAccel = (Math.random() - 0.5) * TURN_ACCEL_VARIANCE * stepTime;
+    turnVelocity = Math.max(
+      -MAX_TURN_RATE,
+      Math.min(MAX_TURN_RATE, turnVelocity + turnAccel)
+    );
+    headDirection += turnVelocity * stepTime;
 
     const head = snakePoints[snakePoints.length - 1];
     let nextX = head.x + Math.cos(headDirection) * step;
@@ -67,7 +76,8 @@ function advanceSnake(delta) {
         canvas.height / 2 - head.y,
         canvas.width / 2 - head.x
       );
-      headDirection = centerAngle + (Math.random() - 0.5) * (TURN_VARIANCE * 2);
+      headDirection = centerAngle;
+      turnVelocity = (Math.random() - 0.5) * (MAX_TURN_RATE / 2);
       nextX = head.x + Math.cos(headDirection) * step;
       nextY = head.y + Math.sin(headDirection) * step;
     }
@@ -132,10 +142,10 @@ function trimPlayerPath() {
 
 function renderSnake() {
   if (snakePoints.length < 2) return;
-  ctx.lineWidth = 6;
+  ctx.lineWidth = 2;
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
-  ctx.strokeStyle = '#263d73';
+  ctx.strokeStyle = 'black';
   ctx.beginPath();
   ctx.moveTo(snakePoints[0].x, snakePoints[0].y);
   for (let i = 1; i < snakePoints.length; i++) {
@@ -147,7 +157,7 @@ function renderSnake() {
   const prev = snakePoints[snakePoints.length - 2];
   const angle = Math.atan2(head.y - prev.y, head.x - prev.x);
   const arrowLength = 16;
-  ctx.fillStyle = '#263d73';
+  ctx.fillStyle = 'black';
   ctx.beginPath();
   ctx.moveTo(head.x, head.y);
   ctx.lineTo(
@@ -164,11 +174,11 @@ function renderSnake() {
 
 function renderPlayerPath() {
   if (!playerSegments.length) return;
-  ctx.lineWidth = 6;
+  ctx.lineWidth = 2;
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
   playerSegments.forEach(seg => {
-    ctx.strokeStyle = seg.color === 'green' ? '#2ecc71' : '#e74c3c';
+    ctx.strokeStyle = seg.color;
     ctx.beginPath();
     ctx.moveTo(seg.start.x, seg.start.y);
     ctx.lineTo(seg.end.x, seg.end.y);
