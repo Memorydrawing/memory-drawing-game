@@ -148,6 +148,16 @@ export const drills = [
     scoreKey: 'dexterity_point_drill_small'
   },
   {
+    name: 'Peripherals Points',
+    url: 'peripherals_points.html',
+    description: 'Tap peripheral points while focusing on a fixed center.',
+    category: 'Dexterity',
+    subject: 'Points',
+    difficulty: 'Expert',
+    scoreKey: 'peripherals_points',
+    tags: ['expert', 'dexterity', 'points']
+  },
+  {
     name: 'Lines',
     url: 'dexterity_lines.html',
     description: 'Practice tracing lines of different lengths and directions.',
