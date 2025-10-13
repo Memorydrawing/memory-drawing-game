@@ -16,6 +16,7 @@ let gameTimer = null;
 let stats = null;
 let stopTimer = null;
 let startTime = 0;
+let hideTargetTimeout = null;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 const RESULT_DISPLAY_TIME = 300;
@@ -32,8 +33,12 @@ function drawTarget() {
   ctx.arc(target.x, target.y, 5, 0, Math.PI * 2);
   ctx.fill();
   awaitingClick = true;
-  setTimeout(() => {
+  if (hideTargetTimeout) {
+    clearTimeout(hideTargetTimeout);
+  }
+  hideTargetTimeout = setTimeout(() => {
     clearCanvas(ctx);
+    hideTargetTimeout = null;
   }, 500);
 }
 
@@ -104,6 +109,10 @@ function endGame() {
   if (!playing) return;
   playing = false;
   clearTimeout(gameTimer);
+  if (hideTargetTimeout) {
+    clearTimeout(hideTargetTimeout);
+    hideTargetTimeout = null;
+  }
   if (stopTimer) stopTimer();
   clearCanvas(ctx);
   const avg = stats.totalPoints ? stats.totalErr / stats.totalPoints : 0;

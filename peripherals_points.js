@@ -117,6 +117,8 @@ document.addEventListener('DOMContentLoaded', () => {
   ctx = canvas.getContext('2d');
   startBtn = document.getElementById('startBtn');
   overlayStartButton(canvas, startBtn);
+  // Remove the mobile double-tap delay so fast taps always register.
+  canvas.style.touchAction = 'none';
   result = document.getElementById('result');
   timerDisplay = document.getElementById('timer');
   targetRadius = Number(canvas.dataset.radius) || targetRadius;
