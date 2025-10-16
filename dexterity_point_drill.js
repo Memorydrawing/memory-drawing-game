@@ -103,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Allow rapid successive taps by disabling the browser's double-tap zoom
   // detection delay on touch devices.
   canvas.style.touchAction = 'none';
+  canvas.setAttribute('touch-action', 'none');
   result = document.getElementById('result');
   timerDisplay = document.getElementById('timer');
   targetRadius = Number(canvas.dataset.radius) || targetRadius;

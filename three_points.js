@@ -207,6 +207,11 @@ document.addEventListener('DOMContentLoaded', () => {
   canvas = document.getElementById('gameCanvas');
   if (!canvas) return;
   ctx = canvas.getContext('2d');
+
+  // Allow rapid successive taps by disabling the browser's double-tap zoom
+  // heuristics on touch devices.
+  canvas.style.touchAction = 'none';
+
   startBtn = document.getElementById('startBtn');
   overlayStartButton(canvas, startBtn);
   result = document.getElementById('result');

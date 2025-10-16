@@ -131,6 +131,10 @@ document.addEventListener('DOMContentLoaded', () => {
   canvas = document.getElementById('gameCanvas');
   if (!canvas) return;
 
+  // Allow rapid successive taps by disabling the browser's double-tap zoom
+  // heuristics on touch devices.
+  canvas.style.touchAction = 'none';
+
   // wrap the existing canvas so we can overlay feedback
   const wrapper = document.createElement('div');
   wrapper.style.position = 'relative';
