@@ -1,4 +1,4 @@
-import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
+import { getCanvasPos, clearCanvas, playSound, preventDoubleTapZoom } from './src/utils.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
 import { startCountdown } from './src/countdown.js';
 import { calculateScore } from './src/scoring.js';
@@ -102,8 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
   overlayStartButton(canvas, startBtn);
   // Allow rapid successive taps by disabling the browser's double-tap zoom
   // detection delay on touch devices.
-  canvas.style.touchAction = 'none';
-  canvas.setAttribute('touch-action', 'none');
+  preventDoubleTapZoom(canvas);
   result = document.getElementById('result');
   timerDisplay = document.getElementById('timer');
   targetRadius = Number(canvas.dataset.radius) || targetRadius;

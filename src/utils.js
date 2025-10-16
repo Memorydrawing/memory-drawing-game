@@ -1,3 +1,42 @@
+export function preventDoubleTapZoom(element) {
+  if (!element) return;
+
+  element.style.touchAction = 'none';
+  element.setAttribute('touch-action', 'none');
+
+  let lastTouchEnd = 0;
+
+  const handleTouchStart = (event) => {
+    if (event.touches.length > 1) {
+      event.preventDefault();
+    }
+  };
+
+  const handleTouchEnd = (event) => {
+    const now = Date.now();
+
+    if (event.touches.length > 1) {
+      lastTouchEnd = 0;
+      event.preventDefault();
+      return;
+    }
+
+    if (now - lastTouchEnd < 500) {
+      event.preventDefault();
+    }
+
+    lastTouchEnd = now;
+  };
+
+  const handleDoubleClick = (event) => {
+    event.preventDefault();
+  };
+
+  element.addEventListener('touchstart', handleTouchStart, { passive: false });
+  element.addEventListener('touchend', handleTouchEnd, { passive: false });
+  element.addEventListener('dblclick', handleDoubleClick);
+}
+
 export function getCanvasPos(canvas, e) {
   // On some devices (notably iOS Safari), pointer events report unreliable
   // `offsetX/Y` values for touch input, which causes taps to be mislocated.

@@ -1,4 +1,4 @@
-import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
+import { getCanvasPos, clearCanvas, playSound, preventDoubleTapZoom } from './src/utils.js';
 import { hideStartButton } from './src/start-button.js';
 import { startCountdown } from './src/countdown.js';
 import { calculateScore } from './src/scoring.js';
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Allow rapid successive taps by disabling the browser's double-tap zoom
   // heuristics on touch devices.
-  canvas.style.touchAction = 'none';
+  preventDoubleTapZoom(canvas);
 
   const wrapper = document.createElement('div');
   wrapper.style.position = 'relative';
