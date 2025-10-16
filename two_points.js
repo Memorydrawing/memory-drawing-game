@@ -1,4 +1,4 @@
-import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
+import { getCanvasPos, clearCanvas, playSound, preventDoubleTapZoom } from './src/utils.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
 import { calculateScore } from './src/scoring.js';
 import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Allow rapid successive taps by disabling the browser's double-tap zoom
   // heuristics on touch devices.
-  canvas.style.touchAction = 'none';
+  preventDoubleTapZoom(canvas);
 
   startBtn = document.getElementById('startBtn');
   overlayStartButton(canvas, startBtn);

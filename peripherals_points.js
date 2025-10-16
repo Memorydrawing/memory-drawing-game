@@ -1,4 +1,4 @@
-import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
+import { getCanvasPos, clearCanvas, playSound, preventDoubleTapZoom } from './src/utils.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
 import { startCountdown } from './src/countdown.js';
 import { calculateScore } from './src/scoring.js';
@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
   startBtn = document.getElementById('startBtn');
   overlayStartButton(canvas, startBtn);
   // Remove the mobile double-tap delay so fast taps always register.
-  canvas.style.touchAction = 'none';
+  preventDoubleTapZoom(canvas);
   result = document.getElementById('result');
   timerDisplay = document.getElementById('timer');
   targetRadius = Number(canvas.dataset.radius) || targetRadius;
