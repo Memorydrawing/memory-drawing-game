@@ -8,6 +8,14 @@ html, body {
   -ms-user-select: none;
   user-select: none;
   min-height: 100%;
+  touch-action: manipulation;
+}
+.screen button,
+button,
+a,
+input,
+select {
+  touch-action: manipulation;
 }
 .screen {
   display: none;
