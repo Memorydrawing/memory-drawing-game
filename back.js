@@ -39,6 +39,39 @@
   viewport.setAttribute('content', updatedContent);
 })();
 
+(function preventTouchGestureZoom() {
+  let lastTouchEnd = 0;
+
+  const cancelIfMultiTouch = (event) => {
+    if (event.touches && event.touches.length > 1) {
+      event.preventDefault();
+    }
+  };
+
+  document.addEventListener('touchstart', cancelIfMultiTouch, { passive: false });
+  document.addEventListener('touchmove', cancelIfMultiTouch, { passive: false });
+
+  document.addEventListener(
+    'touchend',
+    (event) => {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+      }
+      lastTouchEnd = now;
+    },
+    { passive: false }
+  );
+
+  document.addEventListener(
+    'gesturestart',
+    (event) => {
+      event.preventDefault();
+    },
+    { passive: false }
+  );
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
   const btn = document.getElementById('backBtn');
   if (!btn) return;
