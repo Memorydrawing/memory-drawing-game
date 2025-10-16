@@ -9,7 +9,6 @@ let state = 'idle';
 let vertices = [];
 let remaining = [];
 let guesses = [];
-let guessesGreyed = false;
 let attemptCount = 0;
 let strikes = 0;
 let shapesCompleted = 0;
@@ -46,7 +45,7 @@ function generateTriangle() {
 
 function drawGuesses() {
   guesses.forEach(g => {
-    const color = guessesGreyed ? 'grey' : g.grade === 'yellow' ? 'orange' : g.grade;
+    const color = g.grade === 'yellow' ? 'orange' : g.grade;
     ctx.fillStyle = color;
     ctx.beginPath();
     ctx.arc(g.x, g.y, 5, 0, Math.PI * 2);
@@ -129,7 +128,7 @@ function finishCycle() {
       }
     }
     setTimeout(() => {
-      guessesGreyed = true;
+      guesses = [];
       drawTriangle(true);
       state = 'preview';
     }, SHOW_COLOR_TIME);
@@ -141,7 +140,6 @@ function pointerDown(e) {
   const pos = getCanvasPos(canvas, e);
   if (state === 'preview') {
     guesses = [];
-    guessesGreyed = false;
     remaining = [0, 1, 2];
     attemptHasRed = false;
     const { idx, dist } = nearestVertex(pos);
@@ -179,7 +177,6 @@ function pointerDown(e) {
 function startTriangle() {
   generateTriangle();
   guesses = [];
-  guessesGreyed = false;
   remaining = [0, 1, 2];
   state = 'preview';
   drawTriangle(true);

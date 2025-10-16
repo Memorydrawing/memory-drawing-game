@@ -10,10 +10,8 @@ let state = 'idle';
 let segments = [];
 let polyline = [];
 let playerShape = [];
-let previousAttempt = [];
 let segmentGrades = [];
 let isDrawing = false;
-let attemptGreyed = false;
 let attemptCount = 0;
 let correctSamples = 0;
 let totalSamples = 0;
@@ -186,17 +184,6 @@ function drawComplexShape(show = true) {
     ctx.fill();
   }
 
-  if (attemptGreyed && previousAttempt.length > 1) {
-    ctx.beginPath();
-    ctx.moveTo(previousAttempt[0].x, previousAttempt[0].y);
-    for (let i = 1; i < previousAttempt.length; i++) {
-      ctx.lineTo(previousAttempt[i].x, previousAttempt[i].y);
-    }
-    ctx.strokeStyle = 'grey';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-  }
-
   if (playerShape.length > 1) {
     for (let i = 1; i < playerShape.length; i++) {
       const grade = segmentGrades[i - 1];
@@ -252,9 +239,7 @@ function endGame() {
 function startShape() {
   generateComplexShape();
   playerShape = [];
-  previousAttempt = [];
   segmentGrades = [];
-  attemptGreyed = false;
   isDrawing = false;
   state = 'preview';
   drawComplexShape(true);
@@ -287,8 +272,6 @@ function pointerDown(e) {
   segmentGrades = [];
   correctSamples = 0;
   totalSamples = 0;
-  attemptGreyed = false;
-  previousAttempt = [];
   clearCanvas(ctx);
 }
 
@@ -338,8 +321,6 @@ function pointerUp() {
     totalAttempts += attemptCount;
     result.textContent = `Completed in ${attemptCount} ${attemptCount === 1 ? 'try' : 'tries'}!`;
     setTimeout(() => {
-      attemptGreyed = true;
-      previousAttempt = [...playerShape];
       playerShape = [];
       segmentGrades = [];
       drawComplexShape(true);
@@ -354,8 +335,6 @@ function pointerUp() {
   } else {
     result.textContent = `Accuracy: ${(accuracy * 100).toFixed(1)}%`;
     setTimeout(() => {
-      attemptGreyed = true;
-      previousAttempt = [...playerShape];
       playerShape = [];
       segmentGrades = [];
       drawComplexShape(true);
