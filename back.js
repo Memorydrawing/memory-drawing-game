@@ -1,3 +1,44 @@
+(function ensureViewportDoesNotZoomOnDoubleTap() {
+  const viewport = document.querySelector('meta[name="viewport"]');
+  if (!viewport) return;
+
+  const content = viewport.getAttribute('content') || '';
+  const directives = content
+    .split(',')
+    .map((token) => token.trim())
+    .filter(Boolean);
+
+  const order = [];
+  const map = new Map();
+
+  directives.forEach((directive) => {
+    const [key, ...rest] = directive.split('=');
+    const name = key.trim();
+    const value = rest.join('=').trim();
+    if (!order.includes(name)) order.push(name);
+    map.set(name, value);
+  });
+
+  const desired = {
+    'maximum-scale': '1',
+    'user-scalable': 'no'
+  };
+
+  Object.keys(desired).forEach((key) => {
+    if (!order.includes(key)) order.push(key);
+    map.set(key, desired[key]);
+  });
+
+  const updatedContent = order
+    .map((key) => {
+      const value = map.get(key);
+      return value ? `${key}=${value}` : key;
+    })
+    .join(', ');
+
+  viewport.setAttribute('content', updatedContent);
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
   const btn = document.getElementById('backBtn');
   if (!btn) return;
