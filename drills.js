@@ -63,6 +63,12 @@ function createExerciseItem(drill) {
   return item;
 }
 
+const difficultyOrder = {
+  Beginner: 0,
+  Adept: 1,
+  Expert: 2
+};
+
 function renderExerciseLists() {
   const dexterityList = document.getElementById('dexterityList');
   const memoryList = document.getElementById('memoryList');
@@ -74,7 +80,16 @@ function renderExerciseLists() {
   dexterityList.innerHTML = '';
   memoryList.innerHTML = '';
 
-  return drills
+  const sortedDrills = [...drills].sort((a, b) => {
+    const diffA = difficultyOrder[a.difficulty] ?? Number.POSITIVE_INFINITY;
+    const diffB = difficultyOrder[b.difficulty] ?? Number.POSITIVE_INFINITY;
+    if (diffA !== diffB) {
+      return diffA - diffB;
+    }
+    return a.name.localeCompare(b.name);
+  });
+
+  return sortedDrills
     .map(drill => {
       const item = createExerciseItem(drill);
       const targetList =
