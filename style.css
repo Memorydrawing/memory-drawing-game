@@ -401,6 +401,28 @@ h2, h1 { margin: 10px 0; }
 }
 
 /* Exercise list styles */
+.exercise-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 25px;
+  width: 100%;
+  justify-content: center;
+}
+
+.exercise-group {
+  flex: 1 1 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.exercise-group > h3 {
+  margin: 0;
+  font-size: 22px;
+  color: #333;
+}
+
 .exercise-list {
   display: flex;
   flex-direction: column;
