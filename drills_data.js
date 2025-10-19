@@ -31,7 +31,7 @@ export const drills = [
     url: 'lines.html',
     description: 'Memorize a line segment and recreate it freehand.',
     category: 'Memorization',
-    subject: 'Shapes',
+    subject: 'Lines',
     difficulty: 'Beginner',
     scoreKey: 'memory_lines',
     tags: ['Memory']
