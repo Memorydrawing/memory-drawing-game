@@ -9,11 +9,21 @@
 <body>
   <div class="menu-screen">
     <button id="backBtn">← Back</button>
-    <h2>Drills</h2>
-    <input id="searchInput" type="text" placeholder="Search drills..." />
-    <select id="tagSelect">
-      <option value="">All Tags</option>
-    </select>
+    <h2>Choose a Focus</h2>
+    <div class="drill-category-menu">
+      <div class="drill-category-item">
+        <button class="drill-category-button" data-subject="Points">Points</button>
+        <p>Practice locating and remembering precise points.</p>
+      </div>
+      <div class="drill-category-item">
+        <button class="drill-category-button" data-subject="Lines">Lines</button>
+        <p>Improve your flow with tracing and line control exercises.</p>
+      </div>
+      <div class="drill-category-item">
+        <button class="drill-category-button" data-subject="Shapes">Shapes</button>
+        <p>Challenge your memory with angles, triangles, and complex shapes.</p>
+      </div>
+    </div>
     <div id="exerciseList" class="exercise-list"></div>
   </div>
   <script src="back.js"></script>

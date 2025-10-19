@@ -28,6 +28,9 @@ function createExerciseItem(drill) {
   const item = document.createElement('div');
   item.className = 'exercise-item';
   item.dataset.link = drill.url;
+  if (drill.subject) {
+    item.dataset.subject = drill.subject;
+  }
   if (drill.difficulty) {
     item.dataset.difficulty = drill.difficulty;
   }
@@ -83,18 +86,31 @@ function renderExerciseList() {
     return [];
   }
   list.innerHTML = '';
-  const createdItems = drills.map(drill => {
+  return drills.map(drill => {
     const item = createExerciseItem(drill);
     list.appendChild(item);
     return item;
   });
-  return createdItems;
 }
 
 function init() {
   renderExerciseList();
 
   const items = Array.from(document.querySelectorAll('.exercise-item[data-link]'));
+
+  const subjectGroups = {
+    Points: ['Points'],
+    Lines: ['Lines'],
+    Shapes: ['Shapes', 'Angles']
+  };
+
+  const selectSubject = subject => {
+    const allowedSubjects = subjectGroups[subject] || subjectGroups.Points;
+    items.forEach(item => {
+      const itemSubject = item.dataset.subject;
+      item.style.display = allowedSubjects.includes(itemSubject) ? '' : 'none';
+    });
+  };
 
   items.forEach(item => {
     const info = item.querySelector('.exercise-info');
@@ -111,42 +127,31 @@ function init() {
     });
   });
 
-  const search = document.getElementById('searchInput');
-  const tagSelect = document.getElementById('tagSelect');
+  const buttons = Array.from(document.querySelectorAll('.drill-category-button'));
+  const params = new URLSearchParams(window.location.search);
+  const defaultSubject = params.get('subject');
 
-  const filterList = () => {
-    const term = search?.value.toLowerCase() || '';
-    const selectedTag = tagSelect?.value || '';
-    items.forEach(item => {
-      const title = item.querySelector('h3')?.textContent.toLowerCase() || '';
-      const tags = Array.from(item.querySelectorAll('.tag-container span')).map(
-        span => span.textContent
-      );
-      const matchesSearch = title.includes(term);
-      const matchesTag = !selectedTag || tags.includes(selectedTag);
-      item.style.display = matchesSearch && matchesTag ? '' : 'none';
+  const normalizedSubject = subjectGroups[defaultSubject] ? defaultSubject : 'Points';
+
+  const setActiveButton = subject => {
+    buttons.forEach(button => {
+      const isActive = button.dataset.subject === subject;
+      button.classList.toggle('active', isActive);
     });
+    selectSubject(subject);
   };
 
-  if (search) {
-    search.addEventListener('input', filterList);
-  }
+  buttons.forEach(button => {
+    button.addEventListener('click', () => {
+      const subject = button.dataset.subject || 'Points';
+      const url = new URL(window.location.href);
+      url.searchParams.set('subject', subject);
+      window.history.replaceState({}, '', url.toString());
+      setActiveButton(subject);
+    });
+  });
 
-  if (tagSelect) {
-    const tags = new Set();
-    items.forEach(item => {
-      item
-        .querySelectorAll('.tag-container span')
-        .forEach(span => tags.add(span.textContent));
-    });
-    tags.forEach(tag => {
-      const option = document.createElement('option');
-      option.value = tag;
-      option.textContent = tag;
-      tagSelect.appendChild(option);
-    });
-    tagSelect.addEventListener('change', filterList);
-  }
+  setActiveButton(normalizedSubject);
 }
 
 if (document.readyState === 'loading') {
