@@ -16,14 +16,18 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('tutorialBtn')?.addEventListener('click', () => {
     window.location.href = 'tutorial.html';
   });
-  document.getElementById('drillsBtn')?.addEventListener('click', () => {
-    window.location.href = 'drills.html';
-  });
   document.getElementById('scenariosBtn')?.addEventListener('click', () => {
     window.location.href = 'scenarios.html';
   });
   document.getElementById('aboutBtn')?.addEventListener('click', () => {
     window.location.href = 'about.html';
+  });
+  document.querySelectorAll('.drill-link').forEach(button => {
+    button.addEventListener('click', () => {
+      const subject = button.dataset.subject || 'Points';
+      const query = new URLSearchParams({ subject }).toString();
+      window.location.href = `drills.html?${query}`;
+    });
   });
   document.getElementById('resetScoresBtn')?.addEventListener('click', () => {
     if (!confirm('Reset all high scores?')) return;
