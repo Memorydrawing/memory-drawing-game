@@ -80,23 +80,39 @@ function createExerciseItem(drill) {
   return item;
 }
 
-function renderExerciseList() {
-  const list = document.getElementById('exerciseList');
-  if (!list) {
+function renderExerciseLists() {
+  const dexterityList = document.getElementById('dexterityList');
+  const memoryList = document.getElementById('memoryList');
+
+  if (!dexterityList || !memoryList) {
     return [];
   }
-  list.innerHTML = '';
-  return drills.map(drill => {
-    const item = createExerciseItem(drill);
-    list.appendChild(item);
-    return item;
-  });
+
+  dexterityList.innerHTML = '';
+  memoryList.innerHTML = '';
+
+  return drills
+    .map(drill => {
+      const item = createExerciseItem(drill);
+      const targetList =
+        drill.category === 'Dexterity'
+          ? dexterityList
+          : drill.category === 'Memorization'
+          ? memoryList
+          : null;
+
+      if (!targetList) {
+        return null;
+      }
+
+      targetList.appendChild(item);
+      return item;
+    })
+    .filter(Boolean);
 }
 
 function init() {
-  renderExerciseList();
-
-  const items = Array.from(document.querySelectorAll('.exercise-item[data-link]'));
+  const items = renderExerciseLists();
 
   const subjectGroups = {
     Points: ['Points'],
