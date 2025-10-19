@@ -85,7 +85,7 @@ function renderExerciseLists() {
   const memoryList = document.getElementById('memoryList');
 
   if (!dexterityList || !memoryList) {
-    return [];
+    return Array.from(document.querySelectorAll('.exercise-item'));
   }
 
   dexterityList.innerHTML = '';
