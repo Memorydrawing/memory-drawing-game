@@ -6,11 +6,6 @@ function getHighScore(key) {
   return scores.length ? Math.max(...scores) : 0;
 }
 
-const categoryClassMap = {
-  Memorization: 'category-memorization',
-  Dexterity: 'category-dexterity'
-};
-
 const difficultyClassMap = {
   Beginner: 'difficulty-beginner',
   Adept: 'difficulty-adept',
@@ -40,23 +35,11 @@ function createExerciseItem(drill) {
 
   const tagContainer = document.createElement('div');
   tagContainer.className = 'tag-container';
-  if (drill.category) {
-    tagContainer.appendChild(
-      createLabelSpan('category-label', drill.category, categoryClassMap[drill.category])
-    );
-  }
-  if (drill.subject) {
-    tagContainer.appendChild(createLabelSpan('subject-label', drill.subject));
-  }
   if (drill.difficulty) {
     tagContainer.appendChild(
       createLabelSpan('difficulty-label', drill.difficulty, difficultyClassMap[drill.difficulty])
     );
   }
-  (drill.tags || []).forEach(tag => {
-    const spanClass = tag === 'Experimental' ? 'experimental-label' : 'tag-label';
-    tagContainer.appendChild(createLabelSpan(spanClass, tag));
-  });
 
   const preview = document.createElement('img');
   preview.className = 'exercise-gif';
