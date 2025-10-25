@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Dexterity Triangles - Memory Shape Drawing Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="practice-screen">
+    <button id="backBtn">← Back</button>
+    <h2>Triangles Dexterity</h2>
+    <button id="startBtn">Start</button>
+    <p class="timer" id="timer">60.00</p>
+    <canvas
+      id="gameCanvas"
+      width="500"
+      height="500"
+      data-score-key="dexterity_triangles"
+      data-vertex-count="3"
+      data-closed="true"
+      data-coverage-threshold="0.8"
+      data-off-ratio="0.25"
+      data-min-segment-length="70"
+      data-tolerance="6"
+      data-fill-shape="true"
+    ></canvas>
+    <p class="score" id="result"></p>
+  </div>
+  <script src="back.js"></script>
+  <script type="module" src="dexterity_polygons.js"></script>
+  <script src="leaderboard.js"></script>
+</body>
+</html>

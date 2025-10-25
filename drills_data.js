@@ -187,6 +187,33 @@ export const drills = [
     scoreKey: 'dexterity_contours'
   },
   {
+    name: 'Triangles',
+    url: 'dexterity_triangles.html',
+    description: 'Trace randomly generated triangles without leaving the edges.',
+    category: 'Dexterity',
+    subject: 'Shapes',
+    difficulty: 'Adept',
+    scoreKey: 'dexterity_triangles'
+  },
+  {
+    name: 'Quadrilaterals',
+    url: 'dexterity_quadrilaterals.html',
+    description: 'Stay aligned while tracing varied four-sided silhouettes.',
+    category: 'Dexterity',
+    subject: 'Shapes',
+    difficulty: 'Expert',
+    scoreKey: 'dexterity_quadrilaterals'
+  },
+  {
+    name: 'Complex Shapes',
+    url: 'dexterity_complex_shapes.html',
+    description: 'Follow mixed straight and curved segments for continuous control.',
+    category: 'Dexterity',
+    subject: 'Shapes',
+    difficulty: 'Expert',
+    scoreKey: 'dexterity_complex_shapes'
+  },
+  {
     name: 'Inch Drill',
     url: 'inch_warmup.html',
     description: 'Draw one-inch strokes by feel to warm up your freehand accuracy.',
