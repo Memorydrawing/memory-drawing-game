@@ -37,6 +37,16 @@ export const drills = [
     tags: ['Memory']
   },
   {
+    name: 'Contours',
+    url: 'memory_contours.html',
+    description: 'Memorize flowing contour curves and redraw them from memory.',
+    category: 'Memorization',
+    subject: 'Lines',
+    difficulty: 'Expert',
+    scoreKey: 'memory_contours',
+    tags: ['Memory']
+  },
+  {
     name: 'Triangles',
     url: 'triangles.html',
     description: 'Memorize a triangle outline and redraw it from memory.',
