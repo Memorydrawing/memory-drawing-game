@@ -8,10 +8,9 @@ import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
 let canvas, ctx, startBtn, result, timerDisplay;
 let playing = false;
 let drawing = false;
-let segments = [];
-let polyline = [];
+let shapes = [];
+let activeShapeIndex = -1;
 let playerShape = [];
-let segmentGrades = [];
 let stats = { green: 0, yellow: 0, red: 0 };
 let startTime = 0;
 let scoreKey = 'dexterity_complex_shapes';
@@ -29,7 +28,7 @@ function gradeDistance(d) {
   return 'red';
 }
 
-function sampleLine(p0, p1) {
+function sampleLine(polyline, p0, p1) {
   if (polyline.length === 0) polyline.push(p0);
   for (let t = SAMPLE_STEP; t <= 1; t += SAMPLE_STEP) {
     polyline.push({
@@ -39,28 +38,11 @@ function sampleLine(p0, p1) {
   }
 }
 
-function sampleQuadratic(p0, p1, p2) {
+function sampleQuadratic(polyline, p0, p1, p2) {
   if (polyline.length === 0) polyline.push(p0);
   for (let t = SAMPLE_STEP; t <= 1; t += SAMPLE_STEP) {
     const x = (1 - t) * (1 - t) * p0.x + 2 * (1 - t) * t * p1.x + t * t * p2.x;
     const y = (1 - t) * (1 - t) * p0.y + 2 * (1 - t) * t * p1.y + t * t * p2.y;
-    polyline.push({ x, y });
-  }
-}
-
-function sampleCubic(p0, p1, p2, p3) {
-  if (polyline.length === 0) polyline.push(p0);
-  for (let t = SAMPLE_STEP; t <= 1; t += SAMPLE_STEP) {
-    const x =
-      (1 - t) * (1 - t) * (1 - t) * p0.x +
-      3 * (1 - t) * (1 - t) * t * p1.x +
-      3 * (1 - t) * t * t * p2.x +
-      t * t * t * p3.x;
-    const y =
-      (1 - t) * (1 - t) * (1 - t) * p0.y +
-      3 * (1 - t) * (1 - t) * t * p1.y +
-      3 * (1 - t) * t * t * p2.y +
-      t * t * t * p3.y;
     polyline.push({ x, y });
   }
 }
@@ -91,7 +73,7 @@ function segmentsIntersect(a, b, c, d) {
   );
 }
 
-function curveIntersects(points) {
+function curveIntersects(polyline, points) {
   for (let i = 1; i < points.length; i++) {
     const a = points[i - 1];
     const b = points[i];
@@ -109,8 +91,8 @@ function generateComplexShape() {
   const sizes = ['small', 'medium', 'medium', 'big', 'big'];
   const size = sizes[Math.floor(Math.random() * sizes.length)];
   const verts = generateShape(sides, canvas.width, canvas.height, size);
-  segments = [];
-  polyline = [];
+  const segments = [];
+  const polyline = [];
 
   for (let i = 0; i < verts.length; i++) {
     const start = verts[i];
@@ -118,7 +100,7 @@ function generateComplexShape() {
     const type = ['I', 'C', 'S'][Math.floor(Math.random() * 3)];
     if (type === 'I') {
       segments.push({ type, start, end });
-      sampleLine(start, end);
+      sampleLine(polyline, start, end);
     } else if (type === 'C') {
       const dx = end.x - start.x;
       const dy = end.y - start.y;
@@ -130,7 +112,7 @@ function generateComplexShape() {
       const dir = Math.random() < 0.5 ? 1 : -1;
       const cp = { x: mid.x + nx * offset * dir, y: mid.y + ny * offset * dir };
       segments.push({ type, start, end, cp });
-      sampleQuadratic(start, cp, end);
+      sampleQuadratic(polyline, start, cp, end);
     } else {
       const dx = end.x - start.x;
       const dy = end.y - start.y;
@@ -153,52 +135,54 @@ function generateComplexShape() {
         };
         pts = sampleCubicPoints(start, cp1, cp2, end);
         attempts++;
-      } while (curveIntersects(pts) && attempts < 10);
+      } while (curveIntersects(polyline, pts) && attempts < 10);
       segments.push({ type, start, end, cp1, cp2 });
       if (polyline.length === 0) polyline.push(start);
       pts.slice(1).forEach(p => polyline.push(p));
     }
   }
+
+  return { segments, polyline };
 }
 
-function drawComplexShape() {
+function drawShapes() {
   clearCanvas(ctx);
-  if (!segments.length) return;
-  ctx.save();
-  ctx.beginPath();
-  ctx.moveTo(segments[0].start.x, segments[0].start.y);
-  segments.forEach(seg => {
-    if (seg.type === 'I') {
-      ctx.lineTo(seg.end.x, seg.end.y);
-    } else if (seg.type === 'C') {
-      ctx.quadraticCurveTo(seg.cp.x, seg.cp.y, seg.end.x, seg.end.y);
-    } else {
-      ctx.bezierCurveTo(seg.cp1.x, seg.cp1.y, seg.cp2.x, seg.cp2.y, seg.end.x, seg.end.y);
-    }
+  shapes.forEach(({ segments }) => {
+    if (!segments.length) return;
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(segments[0].start.x, segments[0].start.y);
+    segments.forEach(seg => {
+      if (seg.type === 'I') {
+        ctx.lineTo(seg.end.x, seg.end.y);
+      } else if (seg.type === 'C') {
+        ctx.quadraticCurveTo(seg.cp.x, seg.cp.y, seg.end.x, seg.end.y);
+      } else {
+        ctx.bezierCurveTo(seg.cp1.x, seg.cp1.y, seg.cp2.x, seg.cp2.y, seg.end.x, seg.end.y);
+      }
+    });
+    ctx.closePath();
+    ctx.fillStyle = '#000';
+    ctx.fill();
+    ctx.restore();
   });
-  ctx.closePath();
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
-  ctx.fill();
-  ctx.lineWidth = 2;
-  ctx.strokeStyle = '#444';
-  ctx.stroke();
-  ctx.restore();
 }
 
-function distanceToPath(p) {
+function distanceToPath(p, path) {
   let min = Infinity;
-  for (let i = 0; i < polyline.length; i++) {
-    const a = polyline[i];
-    const b = polyline[(i + 1) % polyline.length];
+  if (!path || path.length < 2) return min;
+  for (let i = 0; i < path.length - 1; i++) {
+    const a = path[i];
+    const b = path[i + 1];
     const d = distancePointToSegment(p, a, b);
     if (d < min) min = d;
   }
   return min;
 }
 
-function evaluateDrawing() {
+function evaluateDrawing(shape) {
   if (playerShape.length < 2) return 0;
-  const coverage = Math.min(totalSamples / Math.max(polyline.length, 1), 1);
+  const coverage = Math.min(totalSamples / Math.max(shape.polyline.length, 1), 1);
   const pathAccuracy = correctSamples / Math.max(totalSamples, 1);
   return pathAccuracy * coverage;
 }
@@ -206,9 +190,29 @@ function evaluateDrawing() {
 function resetDrawing() {
   drawing = false;
   playerShape = [];
-  segmentGrades = [];
   correctSamples = 0;
   totalSamples = 0;
+  activeShapeIndex = -1;
+}
+
+function ensureShapeCount() {
+  const targetCount = 2;
+  while (shapes.length < targetCount) {
+    shapes.push(generateComplexShape());
+  }
+}
+
+function findNearestShape(pos) {
+  let bestIndex = -1;
+  let bestDistance = Infinity;
+  shapes.forEach((shape, index) => {
+    const d = distanceToPath(pos, shape.polyline);
+    if (d < bestDistance) {
+      bestDistance = d;
+      bestIndex = index;
+    }
+  });
+  return { index: bestIndex, distance: bestDistance };
 }
 
 function startGame() {
@@ -217,11 +221,12 @@ function startGame() {
   playing = true;
   stats = { green: 0, yellow: 0, red: 0 };
   startScoreboard(canvas);
-  result.textContent = '';
+  result.textContent = 'Trace both shapes carefully. They will only disappear after a clean outline.';
   startBtn.disabled = true;
   startTime = Date.now();
-  generateComplexShape();
-  drawComplexShape();
+  shapes = [];
+  ensureShapeCount();
+  drawShapes();
   stopTimer = startCountdown(timerDisplay, 60000);
   gameTimer = setTimeout(endGame, 60000);
 }
@@ -233,13 +238,13 @@ function endGame() {
   if (stopTimer) stopTimer();
   clearCanvas(ctx);
   const elapsed = Date.now() - startTime;
-  const { score: finalScore, accuracyPct, speed } = calculateScore(stats, elapsed);
+  const { score: finalScore } = calculateScore(stats, elapsed);
   if (window.leaderboard) {
     window.leaderboard.updateLeaderboard(scoreKey, finalScore);
     const high = window.leaderboard.getHighScore(scoreKey);
-    result.textContent = `Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
+    result.textContent = `Score: ${finalScore} (Best: ${high}). Time's up—press Start to tackle more shapes.`;
   } else {
-    result.textContent = `Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
+    result.textContent = `Score: ${finalScore}. Time's up—press Start to tackle more shapes.`;
   }
   resetDrawing();
 }
@@ -247,9 +252,16 @@ function endGame() {
 function pointerDown(e) {
   if (!playing) return;
   const pos = getCanvasPos(canvas, e);
+  const { index, distance } = findNearestShape(pos);
+  if (index === -1 || distance > 20) {
+    if (result) {
+      result.textContent = 'Start your trace directly on a shape to select it.';
+    }
+    return;
+  }
   drawing = true;
+  activeShapeIndex = index;
   playerShape = [pos];
-  segmentGrades = [];
   correctSamples = 0;
   totalSamples = 0;
   canvas.setPointerCapture(e.pointerId);
@@ -257,12 +269,13 @@ function pointerDown(e) {
 
 function pointerMove(e) {
   if (!playing || !drawing) return;
+  const shape = shapes[activeShapeIndex];
+  if (!shape) return;
   const pos = getCanvasPos(canvas, e);
   const prev = playerShape[playerShape.length - 1];
   playerShape.push(pos);
-  const d = distanceToPath(pos);
+  const d = distanceToPath(pos, shape.polyline);
   const grade = gradeDistance(d);
-  segmentGrades.push(grade);
   ctx.beginPath();
   ctx.moveTo(prev.x, prev.y);
   ctx.lineTo(pos.x, pos.y);
@@ -282,24 +295,32 @@ function pointerUp(e) {
     // ignore release errors
   }
 
-  const accuracy = evaluateDrawing();
+  const shape = shapes[activeShapeIndex];
+  const accuracy = shape ? evaluateDrawing(shape) : 0;
   const grade = accuracy >= 0.9 ? 'green' : accuracy >= 0.8 ? 'yellow' : 'red';
   stats[grade] += 1;
   updateScoreboard(grade);
   playSound(audioCtx, grade === 'yellow' ? 'yellow' : grade);
 
   if (result) {
-    result.textContent = `Accuracy ${(accuracy * 100).toFixed(1)}%`;
-    setTimeout(() => {
-      if (result && playing) result.textContent = '';
-    }, 1000);
+    if (grade === 'green' && shape) {
+      result.textContent = 'Great trace! Keep clearing the remaining shapes.';
+    } else if (grade === 'yellow') {
+      result.textContent = 'Close! Trace the full outline without drifting to clear it.';
+    } else {
+      result.textContent = 'Try again. Start on the shape and stay on its edge to clear it.';
+    }
+  }
+
+  if (grade === 'green' && shape) {
+    shapes.splice(activeShapeIndex, 1);
+    ensureShapeCount();
   }
 
   if (playing) {
     setTimeout(() => {
       if (!playing) return;
-      generateComplexShape();
-      drawComplexShape();
+      drawShapes();
     }, 200);
   }
 
