@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Ellipses - Memory Shape Drawing Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="practice-screen">
+    <button id="backBtn">← Back</button>
+    <h2>Ellipses</h2>
+    <button id="startBtn">Start</button>
+    <canvas
+      id="gameCanvas"
+      width="500"
+      height="500"
+      data-score-key="memory_ellipses"
+      data-shape-type="ellipse"
+      data-coverage-threshold="0.82"
+      data-off-ratio="0.28"
+      data-min-segment-length="70"
+      data-preview-delay="800"
+      data-tolerance="7"
+      data-ellipse-segments="120"
+      data-ellipse-margin="55"
+      data-ellipse-min-radius="85"
+      data-ellipse-max-radius="170"
+      data-ellipse-min-ratio="0.7"
+    ></canvas>
+    <div id="strikes" class="strikes">
+      <input type="checkbox" class="strike" disabled>
+      <input type="checkbox" class="strike" disabled>
+      <input type="checkbox" class="strike" disabled>
+    </div>
+    <p class="score" id="result"></p>
+  </div>
+  <script src="back.js"></script>
+  <script type="module" src="memory_shape.js"></script>
+  <script src="leaderboard.js"></script>
+</body>
+</html>

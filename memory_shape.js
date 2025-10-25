@@ -10,6 +10,9 @@ const DEFAULT_PREVIEW_DELAY = 600;
 const DEFAULT_COVERAGE_THRESHOLD = 0.85;
 const DEFAULT_COVERAGE_SAMPLES = 24;
 const DEFAULT_MIN_SEGMENT_LENGTH = 60;
+const DEFAULT_ELLIPSE_SEGMENTS = 96;
+const DEFAULT_ELLIPSE_MARGIN = 50;
+const DEFAULT_ELLIPSE_MIN_RATIO = 0.65;
 const MAX_STRIKES = 3;
 const DESATURATED_COLORS = {
   green: '#6ca96c',
@@ -42,7 +45,7 @@ function distance(a, b) {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-function buildTarget(points, closed) {
+function buildTarget(points, closed, meta = null) {
   const segments = [];
   const coverageSamples = config.coverageSamples;
   for (let i = 0; i < points.length - 1; i++) {
@@ -62,7 +65,7 @@ function buildTarget(points, closed) {
     }
   }
   const totalLength = segments.reduce((sum, seg) => sum + seg.length, 0);
-  return { points, segments, closed, totalLength };
+  return { points, segments, closed, totalLength, meta };
 }
 
 function randomLineTarget() {
@@ -143,7 +146,80 @@ function randomPolygonTarget(vertexCount) {
   return buildTarget(points, true);
 }
 
+function buildEllipsePoints(center, radiusX, radiusY, rotation, segments) {
+  const cosPhi = Math.cos(rotation);
+  const sinPhi = Math.sin(rotation);
+  const points = [];
+  for (let i = 0; i <= segments; i++) {
+    const theta = (i / segments) * Math.PI * 2;
+    const cosT = Math.cos(theta);
+    const sinT = Math.sin(theta);
+    const x = center.x + radiusX * cosT * cosPhi - radiusY * sinT * sinPhi;
+    const y = center.y + radiusX * cosT * sinPhi + radiusY * sinT * cosPhi;
+    points.push({ x, y });
+  }
+  return points;
+}
+
+function randomEllipseTarget() {
+  const margin = config.ellipseMargin ?? DEFAULT_ELLIPSE_MARGIN;
+  const minCanvasDim = Math.min(canvas.width, canvas.height);
+  const minRadiusRaw = config.ellipseMinRadius ?? minCanvasDim * 0.18;
+  const maxRadiusRaw = config.ellipseMaxRadius ?? minCanvasDim * 0.38;
+  const minRadius = Math.max(20, Math.min(minRadiusRaw, maxRadiusRaw));
+  const maxRadius = Math.max(minRadiusRaw, maxRadiusRaw);
+  const minRatio = Math.max(0.3, Math.min(config.ellipseMinRatio ?? DEFAULT_ELLIPSE_MIN_RATIO, 1));
+  const rawMaxRatio = Math.min(1, config.ellipseMaxRatio ?? 1);
+  const maxRatio = Math.max(minRatio, rawMaxRatio);
+  const segments = config.ellipseSegments ?? DEFAULT_ELLIPSE_SEGMENTS;
+
+  for (let attempt = 0; attempt < 80; attempt++) {
+    const major = randomInRange(minRadius, maxRadius);
+    const ratio = randomInRange(minRatio, maxRatio);
+    const minor = Math.max(minRadius * minRatio, major * ratio);
+
+    const radiusX = major;
+    const radiusY = minor;
+    const center = {
+      x: randomInRange(margin + radiusX, canvas.width - margin - radiusX),
+      y: randomInRange(margin + radiusY, canvas.height - margin - radiusY)
+    };
+
+    if (
+      center.x - radiusX < margin ||
+      center.x + radiusX > canvas.width - margin ||
+      center.y - radiusY < margin ||
+      center.y + radiusY > canvas.height - margin
+    ) {
+      continue;
+    }
+
+    const rotation = randomInRange(0, Math.PI);
+    const points = buildEllipsePoints(center, radiusX, radiusY, rotation, segments);
+    const targetMeta = { type: 'ellipse', center, radiusX, radiusY, rotation };
+    const ellipseTarget = buildTarget(points, true, targetMeta);
+    if (ellipseTarget.totalLength >= config.minSegmentLength * 4) {
+      return ellipseTarget;
+    }
+  }
+
+  const fallbackRadius = minCanvasDim * 0.3;
+  const center = { x: canvas.width / 2, y: canvas.height / 2 };
+  const rotation = 0;
+  const points = buildEllipsePoints(center, fallbackRadius, fallbackRadius * 0.85, rotation, segments);
+  return buildTarget(points, true, {
+    type: 'ellipse',
+    center,
+    radiusX: fallbackRadius,
+    radiusY: fallbackRadius * 0.85,
+    rotation
+  });
+}
+
 function generateTarget() {
+  if (config.shapeType === 'ellipse') {
+    return randomEllipseTarget();
+  }
   if (config.vertexCount <= 2 && !config.closed) {
     return randomLineTarget();
   }
@@ -154,20 +230,32 @@ function drawTarget(shape = target, color = 'black') {
   if (!shape || shape.points.length === 0) return;
   ctx.save();
   ctx.lineWidth = LINE_WIDTH;
-  ctx.beginPath();
-  ctx.moveTo(shape.points[0].x, shape.points[0].y);
-  for (let i = 1; i < shape.points.length; i++) {
-    ctx.lineTo(shape.points[i].x, shape.points[i].y);
+  if (shape.meta?.type === 'ellipse') {
+    const { center, radiusX, radiusY, rotation } = shape.meta;
+    ctx.beginPath();
+    ctx.ellipse(center.x, center.y, radiusX, radiusY, rotation, 0, Math.PI * 2);
+    if (config?.fillShape) {
+      ctx.fillStyle = color;
+      ctx.fill();
+    }
+    ctx.strokeStyle = color;
+    ctx.stroke();
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(shape.points[0].x, shape.points[0].y);
+    for (let i = 1; i < shape.points.length; i++) {
+      ctx.lineTo(shape.points[i].x, shape.points[i].y);
+    }
+    if (shape.closed) {
+      ctx.closePath();
+    }
+    if (config?.fillShape && shape.closed) {
+      ctx.fillStyle = color;
+      ctx.fill();
+    }
+    ctx.strokeStyle = color;
+    ctx.stroke();
   }
-  if (shape.closed) {
-    ctx.closePath();
-  }
-  if (config?.fillShape && shape.closed) {
-    ctx.fillStyle = color;
-    ctx.fill();
-  }
-  ctx.strokeStyle = color;
-  ctx.stroke();
   ctx.restore();
 }
 
@@ -417,7 +505,11 @@ function finishAttempt(e) {
   const shouldEnd = !success && strikes >= MAX_STRIKES;
   const nextTarget = success
     ? generateTarget()
-    : buildTarget(prevTarget.points.map(point => ({ x: point.x, y: point.y })), prevTarget.closed);
+    : buildTarget(
+        prevTarget.points.map(point => ({ x: point.x, y: point.y })),
+        prevTarget.closed,
+        prevTarget.meta ? { ...prevTarget.meta } : null
+      );
   target = nextTarget;
   resetDrawingState();
 
@@ -442,8 +534,18 @@ function pointerCancel(e) {
 
 function initConfig() {
   const vertexCount = parseInt(canvas.dataset.vertexCount || '2', 10);
+  const shapeType = canvas.dataset.shapeType || 'polygon';
   const closedAttr = canvas.dataset.closed;
-  const closed = closedAttr !== 'false' && !(vertexCount <= 2 && closedAttr !== 'true');
+  let closed = closedAttr !== 'false' && !(vertexCount <= 2 && closedAttr !== 'true');
+  if (shapeType === 'ellipse') {
+    closed = true;
+  }
+  const ellipseSegments = parseInt(canvas.dataset.ellipseSegments || '', 10);
+  const ellipseMargin = parseFloat(canvas.dataset.ellipseMargin || '');
+  const ellipseMinRadius = parseFloat(canvas.dataset.ellipseMinRadius || '');
+  const ellipseMaxRadius = parseFloat(canvas.dataset.ellipseMaxRadius || '');
+  const ellipseMinRatio = parseFloat(canvas.dataset.ellipseMinRatio || '');
+  const ellipseMaxRatio = parseFloat(canvas.dataset.ellipseMaxRatio || '');
   config = {
     vertexCount: vertexCount > 0 ? vertexCount : 2,
     closed,
@@ -453,7 +555,14 @@ function initConfig() {
     coverageThreshold: parseFloat(canvas.dataset.coverageThreshold) || DEFAULT_COVERAGE_THRESHOLD,
     coverageSamples: parseInt(canvas.dataset.coverageSamples, 10) || DEFAULT_COVERAGE_SAMPLES,
     minSegmentLength: parseFloat(canvas.dataset.minSegmentLength) || DEFAULT_MIN_SEGMENT_LENGTH,
-    fillShape: canvas.dataset.fillShape === 'true'
+    fillShape: canvas.dataset.fillShape === 'true',
+    shapeType,
+    ellipseSegments: Number.isFinite(ellipseSegments) && ellipseSegments > 12 ? ellipseSegments : undefined,
+    ellipseMargin: Number.isFinite(ellipseMargin) && ellipseMargin >= 0 ? ellipseMargin : undefined,
+    ellipseMinRadius: Number.isFinite(ellipseMinRadius) && ellipseMinRadius > 0 ? ellipseMinRadius : undefined,
+    ellipseMaxRadius: Number.isFinite(ellipseMaxRadius) && ellipseMaxRadius > 0 ? ellipseMaxRadius : undefined,
+    ellipseMinRatio: Number.isFinite(ellipseMinRatio) && ellipseMinRatio > 0 ? ellipseMinRatio : undefined,
+    ellipseMaxRatio: Number.isFinite(ellipseMaxRatio) && ellipseMaxRatio > 0 ? ellipseMaxRatio : undefined
   };
 }
 

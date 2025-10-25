@@ -47,6 +47,16 @@ export const drills = [
     tags: ['Memory']
   },
   {
+    name: 'Ellipses',
+    url: 'ellipses.html',
+    description: 'Memorize ellipses with changing tilt and proportions, then redraw them from memory.',
+    category: 'Memorization',
+    subject: 'Shapes',
+    difficulty: 'Adept',
+    scoreKey: 'memory_ellipses',
+    tags: ['Memory']
+  },
+  {
     name: 'Quadrilaterals',
     url: 'quadrilaterals.html',
     description: 'Memorize a quadrilateral outline and redraw it from memory.',
@@ -185,6 +195,15 @@ export const drills = [
     subject: 'Lines',
     difficulty: 'Expert',
     scoreKey: 'dexterity_contours'
+  },
+  {
+    name: 'Ellipses',
+    url: 'dexterity_ellipses.html',
+    description: 'Trace ellipses with varied size and rotation while staying on the path.',
+    category: 'Dexterity',
+    subject: 'Shapes',
+    difficulty: 'Adept',
+    scoreKey: 'dexterity_ellipses'
   },
   {
     name: 'Inch Drill',
