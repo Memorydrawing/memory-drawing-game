@@ -36,33 +36,28 @@ function valueToColor(value) {
   return `rgb(${shade}, ${shade}, ${shade})`;
 }
 
-function drawSquare(value, size, stroke = 'rgba(0, 0, 0, 0.35)') {
+function drawSquare(value, size) {
   const half = size / 2;
   const cx = canvas.width / 2;
   const cy = canvas.height / 2;
   ctx.fillStyle = valueToColor(value);
   ctx.fillRect(cx - half, cy - half, size, size);
-  if (stroke) {
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = stroke;
-    ctx.strokeRect(cx - half, cy - half, size, size);
-  }
 }
 
 function showTarget() {
   clearCanvas(ctx);
-  drawSquare(targetValue, TARGET_SIZE, 'rgba(0, 0, 0, 0.4)');
+  drawSquare(targetValue, TARGET_SIZE);
 }
 
 function showPreview(value) {
   clearCanvas(ctx);
-  drawSquare(value, PREVIEW_SIZE, 'rgba(255, 255, 255, 0.7)');
+  drawSquare(value, PREVIEW_SIZE);
 }
 
 function showComparison(playerValue) {
   clearCanvas(ctx);
-  drawSquare(targetValue, TARGET_SIZE, 'rgba(0, 0, 0, 0.5)');
-  drawSquare(playerValue, PLAYER_SIZE, 'rgba(255, 255, 255, 0.9)');
+  drawSquare(targetValue, TARGET_SIZE);
+  drawSquare(playerValue, PLAYER_SIZE);
 }
 
 function updateStrikesUI() {
@@ -76,21 +71,27 @@ function setSliderEnabled(enabled) {
   slider.classList.toggle('value-slider-disabled', !enabled);
 }
 
-function startRound() {
+function startRound({ reuseTarget = false } = {}) {
   if (!playing) return;
   if (roundTimeout) {
     clearTimeout(roundTimeout);
     roundTimeout = null;
   }
-  targetValue = Math.random();
+  if (!reuseTarget) {
+    targetValue = Math.random();
+  }
   roundActive = true;
   isAdjusting = false;
   setSliderEnabled(true);
   slider.value = '50';
   showTarget();
-  result.textContent = totals.rounds === 0
-    ? 'Adjust the slider to match the square\'s value.'
-    : 'Ready for the next square. Match the value again!';
+  if (reuseTarget) {
+    result.textContent = 'Try again with the same value.';
+  } else {
+    result.textContent = totals.rounds === 0
+      ? 'Adjust the slider to match the square\'s value.'
+      : 'Ready for the next square. Match the value again!';
+  }
 }
 
 function endGame() {
@@ -162,7 +163,7 @@ function evaluate(playerValue) {
     return;
   }
   roundTimeout = setTimeout(() => {
-    startRound();
+    startRound({ reuseTarget: grade === 'red' });
   }, ROUND_PAUSE);
 }
 
