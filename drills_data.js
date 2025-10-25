@@ -67,6 +67,16 @@ export const drills = [
     tags: ['Memory']
   },
   {
+    name: 'Ellipses',
+    url: 'ellipses.html',
+    description: 'Memorize an ellipse and redraw it from memory.',
+    category: 'Memorization',
+    subject: 'Shapes',
+    difficulty: 'Expert',
+    scoreKey: 'memory_ellipses',
+    tags: ['Memory']
+  },
+  {
     name: 'Complex Shapes',
     url: 'complex_shapes.html',
     description: 'Memorize mixed curved and straight shapes.',
