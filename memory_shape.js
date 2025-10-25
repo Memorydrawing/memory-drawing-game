@@ -18,15 +18,19 @@ const LINE_ARROW_SIZE = 10;
 const MAX_STRIKES = 3;
 const DESATURATED_COLORS = {
   green: '#6ca96c',
-  red: '#b06c6c'
+  red: '#b06c6c',
+  yellow: '#bfa76c'
 };
+
+const DEFAULT_GRACE_OFF_RATIO_BUFFER = 0.1;
+const DEFAULT_GRACE_COVERAGE_BUFFER = 0.1;
 
 let canvas, ctx, startBtn, result, strikeElems;
 let playing = false;
 let drawing = false;
 let target = null;
 let scoreKey = 'memory_shape';
-let stats = { green: 0, red: 0 };
+let stats = { green: 0, yellow: 0, red: 0 };
 let sessionStart = 0;
 let strikes = 0;
 let showingFeedback = false;
@@ -502,7 +506,7 @@ function startGame() {
     clearTimeout(feedbackTimeout);
     feedbackTimeout = null;
   }
-  stats = { green: 0, red: 0 };
+  stats = { green: 0, yellow: 0, red: 0 };
   strikes = 0;
   startScoreboard(canvas);
   sessionStart = Date.now();
@@ -524,16 +528,16 @@ function endGame() {
   clearCanvas(ctx);
   const elapsed = sessionStart ? Date.now() - sessionStart : 0;
   const { score: finalScore, accuracyPct, speed } = calculateScore(
-    { green: stats.green, yellow: 0, red: stats.red },
+    { green: stats.green, yellow: stats.yellow, red: stats.red },
     elapsed
   );
   const prefix = strikes >= MAX_STRIKES ? 'Struck out! ' : '';
   if (window.leaderboard) {
     window.leaderboard.updateLeaderboard(scoreKey, finalScore);
     const high = window.leaderboard.getHighScore(scoreKey);
-    result.textContent = `${prefix}Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
+    result.textContent = `${prefix}Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
   } else {
-    result.textContent = `${prefix}Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
+    result.textContent = `${prefix}Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
   }
   strikes = Math.min(strikes, MAX_STRIKES);
   updateStrikes();
@@ -599,24 +603,37 @@ function pointerMove(e) {
 
 function gradeAttempt() {
   const total = onLineDist + offLineDist;
-  if (total === 0) {
-    playSound(audioCtx, 'red');
-    stats.red += 1;
-    updateScoreboard('red');
-    return false;
+  let grade = 'red';
+  if (total > 0) {
+    const offRatio = offLineDist / total;
+    const coverageValues = target.segments.map(seg => segmentCoverage(seg));
+    const coverageOk = coverageValues.every(value => value >= config.coverageThreshold);
+    const graceCoverageThreshold = Math.max(0, config.coverageThreshold - config.graceCoverageBuffer);
+    const coverageGrace = coverageValues.every(value => value >= graceCoverageThreshold);
+    const success = coverageOk && offRatio <= config.offRatioLimit;
+    const nearMiss =
+      !success &&
+      coverageGrace &&
+      offRatio <= config.offRatioLimit + config.graceOffRatioBuffer;
+    if (success) {
+      grade = 'green';
+    } else if (nearMiss) {
+      grade = 'yellow';
+    }
   }
-  const offRatio = offLineDist / total;
-  const coverageOk = target.segments.every(seg => segmentCoverage(seg) >= config.coverageThreshold);
-  const success = coverageOk && offRatio <= config.offRatioLimit;
-  playSound(audioCtx, success ? 'green' : 'red');
-  if (success) {
+
+  playSound(audioCtx, grade);
+  if (grade === 'green') {
     stats.green += 1;
     updateScoreboard('green');
+  } else if (grade === 'yellow') {
+    stats.yellow += 1;
+    updateScoreboard('orange');
   } else {
     stats.red += 1;
     updateScoreboard('red');
   }
-  return success;
+  return grade;
 }
 
 function finishAttempt(e) {
@@ -631,23 +648,24 @@ function finishAttempt(e) {
   drawing = false;
 
   const prevTarget = target;
+
+  const grade = gradeAttempt();
+  const success = grade === 'green';
+  const nearMiss = grade === 'yellow';
   const attemptPath = currentPath.map(segment => ({
     start: { x: segment.start.x, y: segment.start.y },
     end: { x: segment.end.x, y: segment.end.y },
-    color: segment.color
+    color: nearMiss ? 'yellow' : segment.color
   }));
-
-  const success = gradeAttempt();
-  if (!success) {
-    strikes = Math.min(MAX_STRIKES, strikes + 1);
-    updateStrikes();
-  } else {
+  if (success) {
     strikes = 0;
-    updateStrikes();
+  } else if (!nearMiss) {
+    strikes = Math.min(MAX_STRIKES, strikes + 1);
   }
+  updateStrikes();
 
-  const shouldEnd = !success && strikes >= MAX_STRIKES;
-  const nextTarget = success ? generateTarget() : cloneTarget(prevTarget);
+  const shouldEnd = grade === 'red' && strikes >= MAX_STRIKES;
+  const nextTarget = success || nearMiss ? generateTarget() : cloneTarget(prevTarget);
   target = nextTarget;
   resetDrawingState();
 
@@ -682,6 +700,8 @@ function initConfig() {
   }
   const derivedShapeType =
     shapeTypeAttr || (closed ? 'polygon' : vertexCount <= 2 ? 'line' : 'polyline');
+  const graceOffRatioAttr = parseFloat(canvas.dataset.graceOffBuffer);
+  const graceCoverageAttr = parseFloat(canvas.dataset.graceCoverageBuffer);
   config = {
     vertexCount: vertexCount > 0 ? vertexCount : 2,
     closed,
@@ -694,7 +714,13 @@ function initConfig() {
       (derivedShapeType === 'contour' ? DEFAULT_CONTOUR_MIN_LENGTH : DEFAULT_MIN_SEGMENT_LENGTH),
     fillShape: canvas.dataset.fillShape === 'true',
     shapeType: derivedShapeType,
-    ellipseSegments: parseInt(canvas.dataset.ellipseSegments, 10) || DEFAULT_ELLIPSE_SEGMENTS
+    ellipseSegments: parseInt(canvas.dataset.ellipseSegments, 10) || DEFAULT_ELLIPSE_SEGMENTS,
+    graceOffRatioBuffer: Number.isFinite(graceOffRatioAttr) && graceOffRatioAttr >= 0
+      ? graceOffRatioAttr
+      : DEFAULT_GRACE_OFF_RATIO_BUFFER,
+    graceCoverageBuffer: Number.isFinite(graceCoverageAttr) && graceCoverageAttr >= 0
+      ? graceCoverageAttr
+      : DEFAULT_GRACE_COVERAGE_BUFFER
   };
 }
 
