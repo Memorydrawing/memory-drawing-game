@@ -196,6 +196,15 @@ export const drills = [
     scoreKey: 'dexterity_lines'
   },
   {
+    name: 'Ellipses',
+    url: 'dexterity_ellipses.html',
+    description: 'Trace rotating ellipses as accurately as possible within the time limit.',
+    category: 'Dexterity',
+    subject: 'Shapes',
+    difficulty: 'Expert',
+    scoreKey: 'dexterity_ellipses'
+  },
+  {
     name: 'Snake',
     url: 'snake.html',
     description:
