@@ -3,26 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Lines - Memory Shape Drawing Game</title>
+  <title>Memory Contours - Memory Shape Drawing Game</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="practice-screen">
     <button id="backBtn">← Back</button>
-    <h2>Lines</h2>
+    <h2>Memory Contours</h2>
     <button id="startBtn">Start</button>
     <canvas
       id="gameCanvas"
       width="500"
       height="500"
-      data-score-key="memory_lines"
-      data-shape-type="line"
-      data-vertex-count="2"
+      data-score-key="memory_contours"
+      data-shape-type="contour"
+      data-vertex-count="0"
       data-closed="false"
-      data-coverage-threshold="0.9"
-      data-off-ratio="0.2"
-      data-min-segment-length="80"
-      data-preview-delay="600"
+      data-coverage-threshold="0.85"
+      data-coverage-samples="24"
+      data-off-ratio="0.25"
+      data-min-segment-length="200"
+      data-preview-delay="700"
       data-tolerance="6"
     ></canvas>
     <div id="strikes" class="strikes">

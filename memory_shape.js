@@ -10,6 +10,10 @@ const DEFAULT_PREVIEW_DELAY = 600;
 const DEFAULT_COVERAGE_THRESHOLD = 0.85;
 const DEFAULT_COVERAGE_SAMPLES = 24;
 const DEFAULT_MIN_SEGMENT_LENGTH = 60;
+const DEFAULT_CONTOUR_MIN_LENGTH = 180;
+const CONTOUR_SAMPLE_POINTS = 60;
+const CONTOUR_MARGIN = 40;
+const LINE_ARROW_SIZE = 10;
 const MAX_STRIKES = 3;
 const DESATURATED_COLORS = {
   green: '#6ca96c',
@@ -42,7 +46,27 @@ function distance(a, b) {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-function buildTarget(points, closed) {
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function cubicBezierPoint(p0, p1, p2, p3, t) {
+  const mt = 1 - t;
+  return {
+    x:
+      mt * mt * mt * p0.x +
+      3 * mt * mt * t * p1.x +
+      3 * mt * t * t * p2.x +
+      t * t * t * p3.x,
+    y:
+      mt * mt * mt * p0.y +
+      3 * mt * mt * t * p1.y +
+      3 * mt * t * t * p2.y +
+      t * t * t * p3.y
+  };
+}
+
+function buildTarget(points, closed, options = {}) {
   const segments = [];
   const coverageSamples = config.coverageSamples;
   for (let i = 0; i < points.length - 1; i++) {
@@ -62,11 +86,25 @@ function buildTarget(points, closed) {
     }
   }
   const totalLength = segments.reduce((sum, seg) => sum + seg.length, 0);
-  return { points, segments, closed, totalLength };
+  return {
+    points,
+    segments,
+    closed,
+    totalLength,
+    type: options.type || (closed ? 'polygon' : 'polyline'),
+    meta: options.meta || null
+  };
+}
+
+function cloneTarget(source) {
+  if (!source) return null;
+  const clonedPoints = source.points.map(point => ({ x: point.x, y: point.y }));
+  const meta = source.meta ? JSON.parse(JSON.stringify(source.meta)) : null;
+  return buildTarget(clonedPoints, source.closed, { type: source.type, meta });
 }
 
 function randomLineTarget() {
-  const margin = 40;
+  const margin = 20;
   const minLen = Math.max(config.minSegmentLength, 40);
   for (let i = 0; i < 50; i++) {
     const p1 = {
@@ -78,14 +116,87 @@ function randomLineTarget() {
       y: randomInRange(margin, canvas.height - margin)
     };
     if (distance(p1, p2) >= minLen) {
-      return buildTarget([p1, p2], false);
+      return buildTarget([p1, p2], false, {
+        type: 'line',
+        meta: { start: p1, end: p2 }
+      });
     }
   }
   const fallback = [
     { x: margin, y: margin },
     { x: canvas.width - margin, y: canvas.height - margin }
   ];
-  return buildTarget(fallback, false);
+  return buildTarget(fallback, false, {
+    type: 'line',
+    meta: { start: fallback[0], end: fallback[1] }
+  });
+}
+
+function randomContourTarget() {
+  const minLen = Math.max(config.minSegmentLength, DEFAULT_CONTOUR_MIN_LENGTH);
+  for (let attempt = 0; attempt < 60; attempt++) {
+    const start = {
+      x: randomInRange(CONTOUR_MARGIN, canvas.width - CONTOUR_MARGIN),
+      y: randomInRange(CONTOUR_MARGIN, canvas.height - CONTOUR_MARGIN)
+    };
+    const end = {
+      x: randomInRange(CONTOUR_MARGIN, canvas.width - CONTOUR_MARGIN),
+      y: randomInRange(CONTOUR_MARGIN, canvas.height - CONTOUR_MARGIN)
+    };
+    const dx = end.x - start.x;
+    const dy = end.y - start.y;
+    const len = Math.hypot(dx, dy);
+    if (len < minLen) continue;
+
+    const nx = -dy / len;
+    const ny = dx / len;
+    const offset = len * (0.15 + Math.random() * 0.55);
+    const sameSide = Math.random() < 0.5;
+
+    let cp1 = {
+      x: start.x + dx / 3 + nx * offset,
+      y: start.y + dy / 3 + ny * offset
+    };
+    let cp2 = {
+      x: start.x + (2 * dx) / 3 + nx * offset * (sameSide ? 1 : -1),
+      y: start.y + (2 * dy) / 3 + ny * offset * (sameSide ? 1 : -1)
+    };
+
+    cp1 = {
+      x: clamp(cp1.x, CONTOUR_MARGIN, canvas.width - CONTOUR_MARGIN),
+      y: clamp(cp1.y, CONTOUR_MARGIN, canvas.height - CONTOUR_MARGIN)
+    };
+    cp2 = {
+      x: clamp(cp2.x, CONTOUR_MARGIN, canvas.width - CONTOUR_MARGIN),
+      y: clamp(cp2.y, CONTOUR_MARGIN, canvas.height - CONTOUR_MARGIN)
+    };
+
+    const points = [];
+    for (let i = 0; i <= CONTOUR_SAMPLE_POINTS; i++) {
+      const t = i / CONTOUR_SAMPLE_POINTS;
+      points.push(cubicBezierPoint(start, cp1, cp2, end, t));
+    }
+
+    return buildTarget(points, false, {
+      type: 'contour',
+      meta: { start, cp1, cp2, end }
+    });
+  }
+
+  const start = { x: CONTOUR_MARGIN, y: canvas.height / 2 };
+  const end = { x: canvas.width - CONTOUR_MARGIN, y: canvas.height / 2 };
+  const cpOffset = (end.x - start.x) / 4;
+  const cp1 = { x: start.x + cpOffset, y: start.y - cpOffset };
+  const cp2 = { x: end.x - cpOffset, y: end.y + cpOffset };
+  const points = [];
+  for (let i = 0; i <= CONTOUR_SAMPLE_POINTS; i++) {
+    const t = i / CONTOUR_SAMPLE_POINTS;
+    points.push(cubicBezierPoint(start, cp1, cp2, end, t));
+  }
+  return buildTarget(points, false, {
+    type: 'contour',
+    meta: { start, cp1, cp2, end }
+  });
 }
 
 function randomPolygonTarget(vertexCount) {
@@ -144,30 +255,67 @@ function randomPolygonTarget(vertexCount) {
 }
 
 function generateTarget() {
-  if (config.vertexCount <= 2 && !config.closed) {
+  if (config.shapeType === 'contour') {
+    return randomContourTarget();
+  }
+  if (config.shapeType === 'line' || (config.vertexCount <= 2 && !config.closed)) {
     return randomLineTarget();
   }
   return randomPolygonTarget(config.vertexCount);
+}
+
+function drawArrowhead(endpoint, angle, color) {
+  const headLen = LINE_ARROW_SIZE;
+  ctx.beginPath();
+  ctx.moveTo(endpoint.x, endpoint.y);
+  ctx.lineTo(
+    endpoint.x - headLen * Math.cos(angle - Math.PI / 6),
+    endpoint.y - headLen * Math.sin(angle - Math.PI / 6)
+  );
+  ctx.lineTo(
+    endpoint.x - headLen * Math.cos(angle + Math.PI / 6),
+    endpoint.y - headLen * Math.sin(angle + Math.PI / 6)
+  );
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
 }
 
 function drawTarget(shape = target, color = 'black') {
   if (!shape || shape.points.length === 0) return;
   ctx.save();
   ctx.lineWidth = LINE_WIDTH;
-  ctx.beginPath();
-  ctx.moveTo(shape.points[0].x, shape.points[0].y);
-  for (let i = 1; i < shape.points.length; i++) {
-    ctx.lineTo(shape.points[i].x, shape.points[i].y);
-  }
-  if (shape.closed) {
-    ctx.closePath();
-  }
-  if (config?.fillShape && shape.closed) {
-    ctx.fillStyle = color;
-    ctx.fill();
-  }
   ctx.strokeStyle = color;
-  ctx.stroke();
+
+  if (shape.type === 'contour' && shape.meta) {
+    const { start, cp1, cp2, end } = shape.meta;
+    ctx.beginPath();
+    ctx.moveTo(start.x, start.y);
+    ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);
+    ctx.stroke();
+    const angle = Math.atan2(end.y - cp2.y, end.x - cp2.x);
+    drawArrowhead(end, angle, color);
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(shape.points[0].x, shape.points[0].y);
+    for (let i = 1; i < shape.points.length; i++) {
+      ctx.lineTo(shape.points[i].x, shape.points[i].y);
+    }
+    if (shape.closed) {
+      ctx.closePath();
+    }
+    if (config?.fillShape && shape.closed) {
+      ctx.fillStyle = color;
+      ctx.fill();
+    }
+    ctx.stroke();
+
+    if (!shape.closed && shape.type === 'line' && shape.meta) {
+      const { start, end } = shape.meta;
+      const angle = Math.atan2(end.y - start.y, end.x - start.x);
+      drawArrowhead(end, angle, color);
+    }
+  }
   ctx.restore();
 }
 
@@ -415,9 +563,7 @@ function finishAttempt(e) {
   }
 
   const shouldEnd = !success && strikes >= MAX_STRIKES;
-  const nextTarget = success
-    ? generateTarget()
-    : buildTarget(prevTarget.points.map(point => ({ x: point.x, y: point.y })), prevTarget.closed);
+  const nextTarget = success ? generateTarget() : cloneTarget(prevTarget);
   target = nextTarget;
   resetDrawingState();
 
@@ -443,7 +589,13 @@ function pointerCancel(e) {
 function initConfig() {
   const vertexCount = parseInt(canvas.dataset.vertexCount || '2', 10);
   const closedAttr = canvas.dataset.closed;
-  const closed = closedAttr !== 'false' && !(vertexCount <= 2 && closedAttr !== 'true');
+  const shapeTypeAttr = (canvas.dataset.shapeType || '').toLowerCase();
+  let closed = closedAttr !== 'false' && !(vertexCount <= 2 && closedAttr !== 'true');
+  if (shapeTypeAttr === 'line' || shapeTypeAttr === 'contour') {
+    closed = false;
+  }
+  const derivedShapeType =
+    shapeTypeAttr || (closed ? 'polygon' : vertexCount <= 2 ? 'line' : 'polyline');
   config = {
     vertexCount: vertexCount > 0 ? vertexCount : 2,
     closed,
@@ -452,8 +604,10 @@ function initConfig() {
     previewDelay: parseInt(canvas.dataset.previewDelay, 10) || DEFAULT_PREVIEW_DELAY,
     coverageThreshold: parseFloat(canvas.dataset.coverageThreshold) || DEFAULT_COVERAGE_THRESHOLD,
     coverageSamples: parseInt(canvas.dataset.coverageSamples, 10) || DEFAULT_COVERAGE_SAMPLES,
-    minSegmentLength: parseFloat(canvas.dataset.minSegmentLength) || DEFAULT_MIN_SEGMENT_LENGTH,
-    fillShape: canvas.dataset.fillShape === 'true'
+    minSegmentLength: parseFloat(canvas.dataset.minSegmentLength) ||
+      (derivedShapeType === 'contour' ? DEFAULT_CONTOUR_MIN_LENGTH : DEFAULT_MIN_SEGMENT_LENGTH),
+    fillShape: canvas.dataset.fillShape === 'true',
+    shapeType: derivedShapeType
   };
 }
 
