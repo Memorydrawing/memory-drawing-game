@@ -11,6 +11,7 @@ const DEFAULT_COVERAGE_THRESHOLD = 0.85;
 const DEFAULT_COVERAGE_SAMPLES = 24;
 const DEFAULT_MIN_SEGMENT_LENGTH = 60;
 const DEFAULT_CONTOUR_MIN_LENGTH = 180;
+const DEFAULT_ELLIPSE_SEGMENTS = 64;
 const CONTOUR_SAMPLE_POINTS = 60;
 const CONTOUR_MARGIN = 40;
 const LINE_ARROW_SIZE = 10;
@@ -199,6 +200,77 @@ function randomContourTarget() {
   });
 }
 
+function randomEllipseTarget() {
+  const minAxis = Math.max(config.minSegmentLength * 0.75, 60);
+  const padding = minAxis + 40;
+  const segments = config.ellipseSegments || DEFAULT_ELLIPSE_SEGMENTS;
+
+  for (let attempt = 0; attempt < 80; attempt++) {
+    const minX = padding;
+    const maxX = canvas.width - padding;
+    const minY = padding;
+    const maxY = canvas.height - padding;
+    if (maxX <= minX || maxY <= minY) {
+      break;
+    }
+
+    const center = {
+      x: randomInRange(minX, maxX),
+      y: randomInRange(minY, maxY)
+    };
+
+    const maxRadiusX = Math.min(center.x - 20, canvas.width - center.x - 20);
+    const maxRadiusYAvail = Math.min(center.y - 20, canvas.height - center.y - 20);
+
+    if (maxRadiusX <= minAxis || maxRadiusYAvail <= minAxis * 0.6) {
+      continue;
+    }
+
+    const radiusX = randomInRange(minAxis, maxRadiusX);
+    const minRadiusYBase = Math.max(minAxis * 0.6, 30);
+    const maxRadiusYBase = Math.min(radiusX * 1.2, maxRadiusYAvail);
+    if (maxRadiusYBase <= minRadiusYBase) {
+      continue;
+    }
+    const radiusY = randomInRange(minRadiusYBase, maxRadiusYBase);
+    const rotation = randomInRange(0, Math.PI);
+
+    const cosRot = Math.cos(rotation);
+    const sinRot = Math.sin(rotation);
+    const points = [];
+    for (let i = 0; i < segments; i++) {
+      const theta = (i / segments) * Math.PI * 2;
+      const cos = Math.cos(theta);
+      const sin = Math.sin(theta);
+      points.push({
+        x: center.x + radiusX * cos * cosRot - radiusY * sin * sinRot,
+        y: center.y + radiusX * cos * sinRot + radiusY * sin * cosRot
+      });
+    }
+
+    return buildTarget(points, true, {
+      type: 'ellipse',
+      meta: { center, radiusX, radiusY, rotation }
+    });
+  }
+
+  const center = { x: canvas.width / 2, y: canvas.height / 2 };
+  const radiusX = Math.min(canvas.width, canvas.height) / 3;
+  const radiusY = radiusX * 0.7;
+  const points = [];
+  for (let i = 0; i < segments; i++) {
+    const theta = (i / segments) * Math.PI * 2;
+    points.push({
+      x: center.x + radiusX * Math.cos(theta),
+      y: center.y + radiusY * Math.sin(theta)
+    });
+  }
+  return buildTarget(points, true, {
+    type: 'ellipse',
+    meta: { center, radiusX, radiusY, rotation: 0 }
+  });
+}
+
 function randomPolygonTarget(vertexCount) {
   const margin = 80;
   const minLen = Math.max(config.minSegmentLength, 40);
@@ -258,6 +330,9 @@ function generateTarget() {
   if (config.shapeType === 'contour') {
     return randomContourTarget();
   }
+  if (config.shapeType === 'ellipse') {
+    return randomEllipseTarget();
+  }
   if (config.shapeType === 'line' || (config.vertexCount <= 2 && !config.closed)) {
     return randomLineTarget();
   }
@@ -295,6 +370,15 @@ function drawTarget(shape = target, color = 'black') {
     ctx.stroke();
     const angle = Math.atan2(end.y - cp2.y, end.x - cp2.x);
     drawArrowhead(end, angle, color);
+  } else if (shape.type === 'ellipse' && shape.meta) {
+    const { center, radiusX, radiusY, rotation } = shape.meta;
+    ctx.beginPath();
+    ctx.ellipse(center.x, center.y, radiusX, radiusY, rotation || 0, 0, Math.PI * 2);
+    if (config?.fillShape) {
+      ctx.fillStyle = color;
+      ctx.fill();
+    }
+    ctx.stroke();
   } else {
     ctx.beginPath();
     ctx.moveTo(shape.points[0].x, shape.points[0].y);
@@ -593,6 +677,8 @@ function initConfig() {
   let closed = closedAttr !== 'false' && !(vertexCount <= 2 && closedAttr !== 'true');
   if (shapeTypeAttr === 'line' || shapeTypeAttr === 'contour') {
     closed = false;
+  } else if (shapeTypeAttr === 'ellipse') {
+    closed = true;
   }
   const derivedShapeType =
     shapeTypeAttr || (closed ? 'polygon' : vertexCount <= 2 ? 'line' : 'polyline');
@@ -607,7 +693,8 @@ function initConfig() {
     minSegmentLength: parseFloat(canvas.dataset.minSegmentLength) ||
       (derivedShapeType === 'contour' ? DEFAULT_CONTOUR_MIN_LENGTH : DEFAULT_MIN_SEGMENT_LENGTH),
     fillShape: canvas.dataset.fillShape === 'true',
-    shapeType: derivedShapeType
+    shapeType: derivedShapeType,
+    ellipseSegments: parseInt(canvas.dataset.ellipseSegments, 10) || DEFAULT_ELLIPSE_SEGMENTS
   };
 }
 
