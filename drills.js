@@ -115,7 +115,7 @@ function init() {
   const subjectGroups = {
     Points: ['Points'],
     Lines: ['Lines'],
-    Shapes: ['Shapes', 'Angles'],
+    Shapes: ['Shapes', 'Angles', 'Ellipses', 'Ellipse'],
     Values: ['Values'],
     Colors: ['Colors']
   };
