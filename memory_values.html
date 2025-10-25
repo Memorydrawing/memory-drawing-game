@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Memory Values - Memory Shape Drawing Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="practice-screen">
+    <button id="backBtn">← Back</button>
+    <h2>Memory Values</h2>
+    <button id="startBtn">Start</button>
+    <canvas
+      id="valueCanvas"
+      class="value-drill-canvas"
+      width="500"
+      height="500"
+      data-score-key="memory_values"
+    ></canvas>
+    <div id="strikes" class="strikes">
+      <input type="checkbox" class="strike" disabled>
+      <input type="checkbox" class="strike" disabled>
+      <input type="checkbox" class="strike" disabled>
+    </div>
+    <input
+      type="range"
+      id="valueSlider"
+      class="value-slider"
+      min="0"
+      max="100"
+      step="1"
+      value="50"
+      disabled
+      aria-label="Match the value"
+    />
+    <p class="score" id="result"></p>
+  </div>
+  <script src="back.js"></script>
+  <script type="module" src="memory_values.js"></script>
+  <script src="leaderboard.js"></script>
+</body>
+</html>

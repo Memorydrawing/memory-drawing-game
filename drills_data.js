@@ -141,6 +141,15 @@ export const drills = [
     tags: ['Experimental']
   },
   {
+    name: 'Memory Values',
+    url: 'memory_values.html',
+    description: 'Memorize a grayscale square and match its value with the slider.',
+    category: 'Memorization',
+    subject: 'Values',
+    difficulty: 'Beginner',
+    scoreKey: 'memory_values'
+  },
+  {
     name: 'Large Points',
     url: 'dexterity_point_drill_large.html',
     description: 'Point drill with larger targets for easier accuracy.',
