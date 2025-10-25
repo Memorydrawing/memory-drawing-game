@@ -1,8 +1,8 @@
-# Shape Trainer
+# Artist Trainer
 
 by Sawyer Wall
 
-Shape Trainer is a small browser game where you try to memorize and recreate randomly generated shapes.
+Artist Trainer is a small browser game where you try to memorize and recreate randomly generated shapes.
 
 ## Running the Game
 
