@@ -71,7 +71,7 @@ function setSliderEnabled(enabled) {
   slider.classList.toggle('value-slider-disabled', !enabled);
 }
 
-function startRound({ reuseTarget = false } = {}) {
+function startRound({ reuseTarget = false, repeatReason = null } = {}) {
   if (!playing) return;
   if (roundTimeout) {
     clearTimeout(roundTimeout);
@@ -86,7 +86,11 @@ function startRound({ reuseTarget = false } = {}) {
   slider.value = '50';
   showTarget();
   if (reuseTarget) {
-    result.textContent = 'Try again with the same value.';
+    if (repeatReason === 'grace') {
+      result.textContent = 'Close! Try the same value again.';
+    } else {
+      result.textContent = 'Strike! Try the same value again.';
+    }
   } else {
     result.textContent = totals.rounds === 0
       ? 'Adjust the slider to match the square\'s value.'
@@ -131,11 +135,12 @@ function gradeAttempt(playerValue) {
   if (diff <= GREEN_THRESHOLD) {
     grade = 'green';
     message = `Perfect match! Difference: ${diffPct.toFixed(1)}%.`;
+    strikes = 0;
     stats.green++;
     totals.perfect++;
   } else if (diff <= ORANGE_THRESHOLD) {
     grade = 'orange';
-    message = `Close! Difference: ${diffPct.toFixed(1)}%.`;
+    message = `Close! Difference: ${diffPct.toFixed(1)}%. No strike—try the same value again.`;
     stats.yellow++;
     totals.close++;
   } else {
@@ -163,7 +168,10 @@ function evaluate(playerValue) {
     return;
   }
   roundTimeout = setTimeout(() => {
-    startRound({ reuseTarget: grade === 'red' });
+    startRound({
+      reuseTarget: grade !== 'green',
+      repeatReason: grade === 'orange' ? 'grace' : grade === 'red' ? 'strike' : null
+    });
   }, ROUND_PAUSE);
 }
 
