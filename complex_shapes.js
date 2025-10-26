@@ -32,6 +32,14 @@ function gradeDistance(d) {
   return 'red';
 }
 
+function formatEndMessage(finalScore, accuracyPct, speed, stats, highScore) {
+  const bestPart = typeof highScore === 'number' ? ` (Best: ${highScore})` : '';
+  return (
+    `Struck out! Final score ${finalScore}${bestPart} | Accuracy: ${accuracyPct.toFixed(1)}% | ` +
+    `Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`
+  );
+}
+
 function sampleLine(p0, p1) {
   if (polyline.length === 0) polyline.push(p0);
   for (let t = 0.05; t <= 1; t += 0.05) {
@@ -230,9 +238,9 @@ function endGame() {
   if (window.leaderboard) {
     window.leaderboard.handleScore(scoreKey, finalScore, accuracyPct, speed);
     const high = window.leaderboard.getHighScore(scoreKey);
-    result.textContent = `Struck out! Final score ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
+    result.textContent = formatEndMessage(finalScore, accuracyPct, speed, stats, high);
   } else {
-    result.textContent = `Struck out! Final score ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
+    result.textContent = formatEndMessage(finalScore, accuracyPct, speed, stats);
   }
 }
 
