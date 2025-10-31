@@ -150,6 +150,15 @@ export const drills = [
     scoreKey: 'memory_values'
   },
   {
+    name: 'Memory Colors',
+    url: 'memory_color.html',
+    description: 'Memorize a color square and match its value, hue, and chroma.',
+    category: 'Memorization',
+    subject: 'Color',
+    difficulty: 'Adept',
+    scoreKey: 'memory_color'
+  },
+  {
     name: 'Large Points',
     url: 'dexterity_point_drill_large.html',
     description: 'Point drill with larger targets for easier accuracy.',
