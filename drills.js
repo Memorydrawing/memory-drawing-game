@@ -117,7 +117,7 @@ function init() {
     Lines: ['Lines'],
     Shapes: ['Shapes', 'Angles', 'Ellipses', 'Ellipse'],
     Values: ['Values'],
-    Colors: ['Colors']
+    Colors: ['Colors', 'Color']
   };
 
   const selectSubject = subject => {
