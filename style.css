@@ -96,7 +96,8 @@ canvas {
   -webkit-tap-highlight-color: transparent;
 }
 
-canvas.value-drill-canvas {
+canvas.value-drill-canvas,
+canvas.color-drill-canvas {
   background: #808080;
   border: none;
 }
@@ -159,6 +160,108 @@ canvas.value-drill-canvas {
   background: transparent;
   border: none;
   color: transparent;
+}
+
+.slider-group {
+  width: min(90vmin, 500px);
+  margin: 12px auto 0;
+}
+
+.slider-label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 600;
+  color: #333;
+  text-align: left;
+}
+
+.slider-group .value-slider,
+.slider-group .color-slider,
+.slider-group .color-value-slider {
+  margin: 0;
+}
+
+.color-slider,
+.color-value-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  display: block;
+  height: 14px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  background: linear-gradient(to right, #888, #888);
+}
+
+.color-slider::-webkit-slider-thumb,
+.color-value-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #f4f4f4;
+  border: 2px solid #333;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+}
+
+.color-slider::-moz-range-thumb,
+.color-value-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #f4f4f4;
+  border: 2px solid #333;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+}
+
+.color-slider::-moz-range-track,
+.color-value-slider::-moz-range-track {
+  background: transparent;
+  border: none;
+}
+
+.color-slider::-ms-thumb,
+.color-value-slider::-ms-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #f4f4f4;
+  border: 2px solid #333;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+}
+
+.color-slider::-ms-track,
+.color-value-slider::-ms-track {
+  background: transparent;
+  border: none;
+  color: transparent;
+}
+
+.confirm-button {
+  margin-top: 20px;
+  padding: 10px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  background-color: #1e88e5;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.confirm-button:disabled {
+  background-color: #90caf9;
+  cursor: not-allowed;
+}
+
+.confirm-button:not(:disabled):hover,
+.confirm-button:not(:disabled):focus-visible {
+  background-color: #1565c0;
 }
 
 .value-slider-disabled {
