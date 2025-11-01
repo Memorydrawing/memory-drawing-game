@@ -25,6 +25,16 @@ const ROUND_PAUSE = 1200;
 const MUNSELL_VALUE_MAX = 10;
 const MUNSELL_HUE_MAX = 100;
 const MUNSELL_CHROMA_MAX = 16;
+const VALUE_STEP = 0.5;
+const VALUE_LEVELS = Array.from({ length: MUNSELL_VALUE_MAX / VALUE_STEP + 1 }, (_, i) => VALUE_STEP * i);
+const TARGET_VALUE_LEVELS = VALUE_LEVELS.filter(
+  (level) => level >= VALUE_STEP && level <= MUNSELL_VALUE_MAX - VALUE_STEP
+);
+const CHROMA_STEP = 0.5;
+const CHROMA_LEVELS = Array.from({ length: MUNSELL_CHROMA_MAX / CHROMA_STEP + 1 }, (_, i) => CHROMA_STEP * i);
+const TARGET_CHROMA_LEVELS = CHROMA_LEVELS.filter((level) => level >= 2 && level <= MUNSELL_CHROMA_MAX - 2);
+const HUE_STEP = 0.5;
+const HUE_LEVELS = Array.from({ length: MUNSELL_HUE_MAX / HUE_STEP }, (_, i) => HUE_STEP * i);
 
 let playing = false;
 let roundActive = false;
@@ -34,6 +44,10 @@ let roundTimeout = null;
 let startTime = 0;
 let stats = { green: 0, yellow: 0, red: 0 };
 let totals = { rounds: 0, close: 0, perfect: 0 };
+
+function pickRandom(levels) {
+  return levels[Math.floor(Math.random() * levels.length)];
+}
 
 function normalizeHue(step) {
   return ((step % MUNSELL_HUE_MAX) + MUNSELL_HUE_MAX) % MUNSELL_HUE_MAX;
@@ -103,9 +117,9 @@ function setControlsEnabled(enabled) {
 }
 
 function randomTargetColor() {
-  const hue = Math.random() * MUNSELL_HUE_MAX;
-  const chroma = 2 + Math.random() * (MUNSELL_CHROMA_MAX - 2); // keep within usable range
-  const value = 1 + Math.random() * (MUNSELL_VALUE_MAX - 2); // avoid extremes for better visibility
+  const hue = pickRandom(HUE_LEVELS);
+  const chroma = pickRandom(TARGET_CHROMA_LEVELS);
+  const value = pickRandom(TARGET_VALUE_LEVELS);
   return { hue, chroma, value };
 }
 
