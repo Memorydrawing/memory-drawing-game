@@ -22,6 +22,9 @@ const PREVIEW_SIZE = 160;
 const GREEN_THRESHOLD = 0.02;
 const ORANGE_THRESHOLD = 0.06;
 const ROUND_PAUSE = 1200;
+const MUNSELL_VALUE_MAX = 10;
+const MUNSELL_HUE_MAX = 100;
+const MUNSELL_CHROMA_MAX = 16;
 
 let playing = false;
 let roundActive = false;
@@ -32,29 +35,32 @@ let startTime = 0;
 let stats = { green: 0, yellow: 0, red: 0 };
 let totals = { rounds: 0, close: 0, perfect: 0 };
 
-function normalizeHue(deg) {
-  return ((deg % 360) + 360) % 360;
+function normalizeHue(step) {
+  return ((step % MUNSELL_HUE_MAX) + MUNSELL_HUE_MAX) % MUNSELL_HUE_MAX;
 }
 
 function componentsToColor({ hue, chroma, value }) {
-  const hueDeg = Math.round(normalizeHue(hue));
-  const saturationPct = Math.max(0, Math.min(100, chroma));
-  const lightnessPct = Math.max(0, Math.min(100, value));
+  const hueDeg = (normalizeHue(hue) / MUNSELL_HUE_MAX) * 360;
+  const saturationPct = Math.max(0, Math.min(100, (chroma / MUNSELL_CHROMA_MAX) * 100));
+  const lightnessPct = Math.max(0, Math.min(100, (value / MUNSELL_VALUE_MAX) * 100));
   return `hsl(${hueDeg}deg, ${saturationPct}%, ${lightnessPct}%)`;
 }
 
 function updateSliderBackgrounds(hue, chroma, value) {
+  const lightnessPct = Math.max(0, Math.min(100, (value / MUNSELL_VALUE_MAX) * 100));
   const hueGradient = 'linear-gradient(to right, ' +
-    Array.from({ length: 7 }, (_, i) => {
-      const deg = (i / 6) * 360;
-      return `hsl(${deg}deg, 100%, ${value}%) ${(i / 6) * 100}%`;
+    Array.from({ length: 11 }, (_, i) => {
+      const deg = (i / 10) * 360;
+      return `hsl(${deg}deg, 100%, ${lightnessPct}%) ${(i / 10) * 100}%`;
     }).join(', ') + ')';
   hueSlider.style.background = hueGradient;
 
-  const chromaGradient = `linear-gradient(to right, hsl(${hue}deg, 0%, ${value}%), hsl(${hue}deg, 100%, ${value}%))`;
+  const hueDeg = (normalizeHue(hue) / MUNSELL_HUE_MAX) * 360;
+  const chromaGradient = `linear-gradient(to right, hsl(${hueDeg}deg, 0%, ${lightnessPct}%), hsl(${hueDeg}deg, 100%, ${lightnessPct}%))`;
   chromaSlider.style.background = chromaGradient;
 
-  const valueGradient = `linear-gradient(to right, hsl(${hue}deg, ${chroma}%, 0%), hsl(${hue}deg, ${chroma}%, 100%))`;
+  const saturationPct = Math.max(0, Math.min(100, (chroma / MUNSELL_CHROMA_MAX) * 100));
+  const valueGradient = `linear-gradient(to right, hsl(${hueDeg}deg, ${saturationPct}%, 0%), hsl(${hueDeg}deg, ${saturationPct}%, 100%))`;
   valueSlider.style.background = valueGradient;
 }
 
@@ -97,9 +103,9 @@ function setControlsEnabled(enabled) {
 }
 
 function randomTargetColor() {
-  const hue = Math.random() * 360;
-  const chroma = 20 + Math.random() * 80; // keep within usable range
-  const value = 25 + Math.random() * 50; // avoid extremes for better visibility
+  const hue = Math.random() * MUNSELL_HUE_MAX;
+  const chroma = 2 + Math.random() * (MUNSELL_CHROMA_MAX - 2); // keep within usable range
+  const value = 1 + Math.random() * (MUNSELL_VALUE_MAX - 2); // avoid extremes for better visibility
   return { hue, chroma, value };
 }
 
@@ -112,20 +118,23 @@ function getPlayerColor() {
 }
 
 function colorDifference(player, target) {
-  const valueDiff = Math.abs(player.value - target.value) / 100;
-  const chromaDiff = Math.abs(player.chroma - target.chroma) / 100;
-  const hueDiffDegrees = Math.abs(player.hue - target.hue);
-  const hueDiff = Math.min(hueDiffDegrees, 360 - hueDiffDegrees) / 180;
-  const combined = Math.sqrt(valueDiff ** 2 + chromaDiff ** 2 + hueDiff ** 2) / Math.sqrt(3);
-  return { combined, valueDiff, chromaDiff, hueDiff };
+  const valueSteps = Math.abs(player.value - target.value);
+  const chromaSteps = Math.abs(player.chroma - target.chroma);
+  const valueDiff = valueSteps / MUNSELL_VALUE_MAX;
+  const chromaDiff = chromaSteps / MUNSELL_CHROMA_MAX;
+  const hueDiffRaw = Math.abs(player.hue - target.hue);
+  const hueSteps = Math.min(hueDiffRaw, MUNSELL_HUE_MAX - hueDiffRaw);
+  const hueDiffNormalized = hueSteps / (MUNSELL_HUE_MAX / 2);
+  const combined = Math.sqrt(valueDiff ** 2 + chromaDiff ** 2 + hueDiffNormalized ** 2) / Math.sqrt(3);
+  return { combined, valueDiff, chromaDiff, hueDiffNormalized, valueSteps, chromaSteps, hueSteps };
 }
 
 function setResultMessage(diffInfo) {
   const diffPct = (diffInfo.combined * 100).toFixed(1);
   const valuePct = (diffInfo.valueDiff * 100).toFixed(1);
   const chromaPct = (diffInfo.chromaDiff * 100).toFixed(1);
-  const hueDeg = (diffInfo.hueDiff * 180).toFixed(1);
-  return `Overall difference: ${diffPct}%. Value: ${valuePct}%. Chroma: ${chromaPct}%. Hue: ${hueDeg}°.`;
+  const huePct = (diffInfo.hueDiffNormalized * 100).toFixed(1);
+  return `Overall difference: ${diffPct}%. Value: Δ${diffInfo.valueSteps.toFixed(1)} V (${valuePct}%). Chroma: Δ${diffInfo.chromaSteps.toFixed(1)} C (${chromaPct}%). Hue: Δ${diffInfo.hueSteps.toFixed(1)} hue steps (${huePct}% of the circle).`;
 }
 
 function gradeAttempt(playerComponents) {
@@ -190,9 +199,9 @@ function startRound({ reuseTarget = false, repeatReason = null } = {}) {
 
   roundActive = true;
   setControlsEnabled(true);
-  valueSlider.value = '50';
-  hueSlider.value = '180';
-  chromaSlider.value = '50';
+  valueSlider.value = '5';
+  hueSlider.value = '50';
+  chromaSlider.value = '8';
   updateSliderBackgrounds(Number(hueSlider.value), Number(chromaSlider.value), Number(valueSlider.value));
   showTarget();
 
@@ -204,8 +213,8 @@ function startRound({ reuseTarget = false, repeatReason = null } = {}) {
     }
   } else {
     result.textContent = totals.rounds === 0
-      ? 'Memorize the color, then adjust the sliders and confirm your match.'
-      : 'Ready for the next color. Fine tune the sliders, then confirm.';
+      ? 'Memorize the color, then adjust the Munsell sliders and confirm your match.'
+      : 'Ready for the next color. Fine tune the Munsell sliders, then confirm.';
   }
 }
 

@@ -16,6 +16,7 @@ const MAX_STRIKES = 3;
 const TARGET_SIZE = 220;
 const PLAYER_SIZE = 160;
 const PREVIEW_SIZE = 160;
+const MUNSELL_VALUE_MAX = 10;
 const GREEN_THRESHOLD = 0.02; // 2% difference or less counts as perfect.
 const ORANGE_THRESHOLD = 0.06; // Up to 6% difference earns a close (orange) grade.
 const ROUND_PAUSE = 1200;
@@ -31,8 +32,8 @@ let stats = { green: 0, yellow: 0, red: 0 };
 let totals = { rounds: 0, close: 0, perfect: 0 };
 
 function valueToColor(value) {
-  const clamped = Math.min(1, Math.max(0, value));
-  const shade = Math.round(clamped * 255);
+  const ratio = Math.min(1, Math.max(0, value / MUNSELL_VALUE_MAX));
+  const shade = Math.round(ratio * 255);
   return `rgb(${shade}, ${shade}, ${shade})`;
 }
 
@@ -78,12 +79,12 @@ function startRound({ reuseTarget = false, repeatReason = null } = {}) {
     roundTimeout = null;
   }
   if (!reuseTarget) {
-    targetValue = Math.random();
+    targetValue = 0.5 + Math.random() * 9; // Focus on the perceptually useful V0.5–V9.5 range.
   }
   roundActive = true;
   isAdjusting = false;
   setSliderEnabled(true);
-  slider.value = '50';
+  slider.value = '5';
   showTarget();
   if (reuseTarget) {
     if (repeatReason === 'grace') {
@@ -93,8 +94,8 @@ function startRound({ reuseTarget = false, repeatReason = null } = {}) {
     }
   } else {
     result.textContent = totals.rounds === 0
-      ? 'Adjust the slider to match the square\'s value.'
-      : 'Ready for the next square. Match the value again!';
+      ? 'Adjust the slider to match the square\'s Munsell value.'
+      : 'Ready for the next swatch. Match the Munsell value again!';
   }
 }
 
@@ -127,20 +128,21 @@ function endGame() {
 }
 
 function gradeAttempt(playerValue) {
-  const diff = Math.abs(playerValue - targetValue);
-  const diffPct = diff * 100;
+  const diffValue = Math.abs(playerValue - targetValue);
+  const diffNormalized = diffValue / MUNSELL_VALUE_MAX;
+  const diffPct = diffNormalized * 100;
   let grade = 'red';
-  let message = `Off by ${diffPct.toFixed(1)}% — Strike ${Math.min(strikes + 1, MAX_STRIKES)} of ${MAX_STRIKES}.`;
+  let message = `Off by ${diffValue.toFixed(1)} V (${diffPct.toFixed(1)}% of the value scale) — Strike ${Math.min(strikes + 1, MAX_STRIKES)} of ${MAX_STRIKES}.`;
 
-  if (diff <= GREEN_THRESHOLD) {
+  if (diffNormalized <= GREEN_THRESHOLD) {
     grade = 'green';
-    message = `Perfect match! Difference: ${diffPct.toFixed(1)}%.`;
+    message = `Perfect match! Δ${diffValue.toFixed(1)} V (${diffPct.toFixed(1)}%).`;
     strikes = 0;
     stats.green++;
     totals.perfect++;
-  } else if (diff <= ORANGE_THRESHOLD) {
+  } else if (diffNormalized <= ORANGE_THRESHOLD) {
     grade = 'orange';
-    message = `Close! Difference: ${diffPct.toFixed(1)}%. No strike—try the same value again.`;
+    message = `Close! Δ${diffValue.toFixed(1)} V (${diffPct.toFixed(1)}%). No strike—try the same value again.`;
     stats.yellow++;
     totals.close++;
   } else {
@@ -178,14 +180,14 @@ function evaluate(playerValue) {
 function handleSliderPointerDown() {
   if (!playing || !roundActive) return;
   isAdjusting = true;
-  showPreview(Number(slider.value) / 100);
+  showPreview(Number(slider.value));
   document.addEventListener('pointerup', handleSliderPointerUp);
 }
 
 function handleSliderPointerUp() {
   document.removeEventListener('pointerup', handleSliderPointerUp);
   if (!playing || !isAdjusting) return;
-  const value = Number(slider.value) / 100;
+  const value = Number(slider.value);
   evaluate(value);
 }
 
@@ -194,13 +196,13 @@ function handleSliderInput() {
   if (!isAdjusting) {
     isAdjusting = true;
   }
-  showPreview(Number(slider.value) / 100);
+  showPreview(Number(slider.value));
 }
 
 function handleSliderChange() {
   if (!playing || !roundActive) return;
   if (isAdjusting) return; // pointerup already handled evaluation.
-  const value = Number(slider.value) / 100;
+  const value = Number(slider.value);
   evaluate(value);
 }
 
