@@ -17,7 +17,7 @@ const TARGET_SIZE = 220;
 const PLAYER_SIZE = 160;
 const PREVIEW_SIZE = 160;
 const MUNSELL_VALUE_MAX = 10;
-const MUNSELL_VALUE_STEP = 1;
+const MUNSELL_VALUE_STEP = 0.5;
 const TARGET_VALUE_LEVELS = Array.from({ length: (MUNSELL_VALUE_MAX / MUNSELL_VALUE_STEP) - 1 }, (_, i) =>
   MUNSELL_VALUE_STEP * (i + 1)
 ); // 1 through 9
