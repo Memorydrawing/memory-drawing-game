@@ -10,6 +10,10 @@
   <div class="practice-screen">
     <button id="backBtn">← Back</button>
     <h2>Memory Values</h2>
+    <p class="exercise-context">
+      Match the target swatch using the Munsell value scale (V). Memorize the lightness, then slide to the
+      corresponding value step.
+    </p>
     <button id="startBtn">Start</button>
     <canvas
       id="valueCanvas"
@@ -23,17 +27,33 @@
       <input type="checkbox" class="strike" disabled>
       <input type="checkbox" class="strike" disabled>
     </div>
-    <input
-      type="range"
-      id="valueSlider"
-      class="value-slider"
-      min="0"
-      max="100"
-      step="1"
-      value="50"
-      disabled
-      aria-label="Match the value"
-    />
+    <div class="value-slider-wrapper">
+      <input
+        type="range"
+        id="valueSlider"
+        class="value-slider"
+        min="0"
+        max="10"
+        step="0.1"
+        value="5"
+        list="valueTicks"
+        disabled
+        aria-label="Match the Munsell value"
+      />
+      <datalist id="valueTicks">
+        <option value="0" label="V0"></option>
+        <option value="2" label="V2"></option>
+        <option value="4" label="V4"></option>
+        <option value="6" label="V6"></option>
+        <option value="8" label="V8"></option>
+        <option value="10" label="V10"></option>
+      </datalist>
+      <div class="slider-indicators" aria-hidden="true">
+        <span>V 0 (Black)</span>
+        <span>V 5 (Middle gray)</span>
+        <span>V 10 (White)</span>
+      </div>
+    </div>
     <p class="score" id="result"></p>
   </div>
   <script src="back.js"></script>

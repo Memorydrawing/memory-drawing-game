@@ -10,6 +10,10 @@
   <div class="practice-screen">
     <button id="backBtn">← Back</button>
     <h2>Memory Colors</h2>
+    <p class="exercise-context">
+      Calibrate your perception using the Munsell system. Study the swatch, then match its Value (V), Hue (H), and
+      Chroma (C) using the sliders below.
+    </p>
     <button id="startBtn">Start</button>
     <canvas
       id="colorCanvas"
@@ -24,46 +28,99 @@
       <input type="checkbox" class="strike" disabled>
     </div>
     <div class="slider-group">
-      <label class="slider-label" for="valueSlider">Value</label>
+      <label class="slider-label" for="valueSlider">Munsell Value (V)</label>
       <input
         type="range"
         id="valueSlider"
         class="value-slider color-value-slider"
         min="0"
-        max="100"
-        step="1"
-        value="50"
+        max="10"
+        step="0.1"
+        value="5"
+        list="valueTicksColor"
         disabled
-        aria-label="Match the value"
+        aria-label="Match the Munsell value"
       />
+      <datalist id="valueTicksColor">
+        <option value="0" label="V0"></option>
+        <option value="2" label="V2"></option>
+        <option value="4" label="V4"></option>
+        <option value="6" label="V6"></option>
+        <option value="8" label="V8"></option>
+        <option value="10" label="V10"></option>
+      </datalist>
+      <div class="slider-indicators" aria-hidden="true">
+        <span>V 0</span>
+        <span>V 5</span>
+        <span>V 10</span>
+      </div>
     </div>
     <div class="slider-group">
-      <label class="slider-label" for="hueSlider">Hue</label>
+      <label class="slider-label" for="hueSlider">Munsell Hue (H)</label>
       <input
         type="range"
         id="hueSlider"
         class="color-slider hue-slider"
         min="0"
-        max="360"
-        step="1"
-        value="180"
+        max="100"
+        step="0.5"
+        value="50"
+        list="hueTicks"
         disabled
-        aria-label="Match the hue"
+        aria-label="Match the Munsell hue"
       />
+      <datalist id="hueTicks">
+        <option value="0" label="10R"></option>
+        <option value="10" label="10YR"></option>
+        <option value="20" label="10Y"></option>
+        <option value="30" label="10GY"></option>
+        <option value="40" label="10G"></option>
+        <option value="50" label="10BG"></option>
+        <option value="60" label="10B"></option>
+        <option value="70" label="10PB"></option>
+        <option value="80" label="10P"></option>
+        <option value="90" label="10RP"></option>
+        <option value="100" label="10R"></option>
+      </datalist>
+      <div class="slider-indicators slider-indicators--hue" aria-hidden="true">
+        <span>10R</span>
+        <span>10YR</span>
+        <span>10Y</span>
+        <span>10GY</span>
+        <span>10G</span>
+        <span>10BG</span>
+        <span>10B</span>
+        <span>10PB</span>
+        <span>10P</span>
+        <span>10RP</span>
+      </div>
     </div>
     <div class="slider-group">
-      <label class="slider-label" for="chromaSlider">Chroma</label>
+      <label class="slider-label" for="chromaSlider">Munsell Chroma (C)</label>
       <input
         type="range"
         id="chromaSlider"
         class="color-slider chroma-slider"
         min="0"
-        max="100"
-        step="1"
-        value="50"
+        max="16"
+        step="0.5"
+        value="8"
+        list="chromaTicks"
         disabled
-        aria-label="Match the chroma"
+        aria-label="Match the Munsell chroma"
       />
+      <datalist id="chromaTicks">
+        <option value="0" label="C0"></option>
+        <option value="4" label="C4"></option>
+        <option value="8" label="C8"></option>
+        <option value="12" label="C12"></option>
+        <option value="16" label="C16"></option>
+      </datalist>
+      <div class="slider-indicators" aria-hidden="true">
+        <span>C 0 (neutral)</span>
+        <span>C 8</span>
+        <span>C 16</span>
+      </div>
     </div>
     <button id="confirmBtn" class="confirm-button" disabled>Confirm Match</button>
     <p class="score" id="result"></p>
