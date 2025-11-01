@@ -17,10 +17,10 @@ const TARGET_SIZE = 220;
 const PLAYER_SIZE = 160;
 const PREVIEW_SIZE = 160;
 const MUNSELL_VALUE_MAX = 10;
-const MUNSELL_VALUE_STEP = 0.5;
+const MUNSELL_VALUE_STEP = 1;
 const TARGET_VALUE_LEVELS = Array.from({ length: (MUNSELL_VALUE_MAX / MUNSELL_VALUE_STEP) - 1 }, (_, i) =>
   MUNSELL_VALUE_STEP * (i + 1)
-); // 0.5 through 9.5
+); // 1 through 9
 const GREEN_THRESHOLD = 0.02; // 2% difference or less counts as perfect.
 const ORANGE_THRESHOLD = 0.06; // Up to 6% difference earns a close (orange) grade.
 const ROUND_PAUSE = 1200;
