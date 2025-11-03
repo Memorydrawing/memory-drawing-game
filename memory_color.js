@@ -167,7 +167,7 @@ function gradeAttempt(playerComponents) {
     totals.perfect++;
   } else if (diff <= ORANGE_THRESHOLD) {
     grade = 'orange';
-    message = `Close! ${setResultMessage(diffInfo)} Try the same color again.`;
+    message = `Close! ${setResultMessage(diffInfo)} No strike—try the same color again.`;
     stats.yellow++;
     totals.close++;
   } else {
@@ -223,7 +223,7 @@ function startRound({ reuseTarget = false, repeatReason = null } = {}) {
 
   if (reuseTarget) {
     if (repeatReason === 'grace') {
-      result.textContent = 'Close! Try the same color again.';
+      result.textContent = 'Close! No strike—try the same color again.';
     } else {
       result.textContent = 'Strike! Try the same color again.';
     }
