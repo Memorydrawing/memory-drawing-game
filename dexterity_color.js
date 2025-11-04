@@ -21,7 +21,7 @@ const MUNSELL_VALUE_MAX = 10;
 const MUNSELL_HUE_MAX = 100;
 const MUNSELL_CHROMA_MAX = 16;
 const VALUE_STEP = 0.5;
-const CHROMA_STEP = 0.5;
+const CHROMA_STEP = 4;
 const HUE_STEP = 5;
 const TARGET_VALUE_LEVELS = Array.from(
   { length: (MUNSELL_VALUE_MAX / VALUE_STEP) - 1 },

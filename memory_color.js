@@ -30,7 +30,7 @@ const VALUE_LEVELS = Array.from({ length: MUNSELL_VALUE_MAX / VALUE_STEP + 1 }, 
 const TARGET_VALUE_LEVELS = VALUE_LEVELS.filter(
   (level) => level >= VALUE_STEP && level <= MUNSELL_VALUE_MAX - VALUE_STEP
 );
-const CHROMA_STEP = 0.5;
+const CHROMA_STEP = 4;
 const CHROMA_LEVELS = Array.from({ length: MUNSELL_CHROMA_MAX / CHROMA_STEP + 1 }, (_, i) => CHROMA_STEP * i);
 const TARGET_CHROMA_LEVELS = CHROMA_LEVELS.filter(
   (level) => level >= CHROMA_STEP && level <= MUNSELL_CHROMA_MAX - CHROMA_STEP
