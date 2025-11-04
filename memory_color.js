@@ -159,7 +159,13 @@ function gradeAttempt(playerComponents) {
   let grade = 'red';
   let message = `${setResultMessage(diffInfo)} Strike ${Math.min(strikes + 1, MAX_STRIKES)} of ${MAX_STRIKES}.`;
 
-  if (diff <= GREEN_THRESHOLD) {
+  if (diffInfo.valueSteps === 0 && diffInfo.chromaSteps === 0) {
+    grade = 'green';
+    message = `Value and chroma match exactly! ${setResultMessage(diffInfo)}`;
+    strikes = 0;
+    stats.green++;
+    totals.perfect++;
+  } else if (diff <= GREEN_THRESHOLD) {
     grade = 'green';
     message = `Perfect match! ${setResultMessage(diffInfo)}`;
     strikes = 0;
