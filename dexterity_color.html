@@ -31,7 +31,7 @@
         class="color-slider value-slider"
         min="0"
         max="10"
-        step="0.5"
+        step="4"
         value="5"
         list="valueTicks"
         disabled
@@ -58,30 +58,41 @@
         class="color-slider hue-slider"
         min="0"
         max="100"
-        step="10"
+        step="5"
         value="50"
         list="hueTicks"
         disabled
         aria-label="Match the Munsell hue"
       />
       <datalist id="hueTicks">
-        <option value="0" label="0"></option>
-        <option value="10" label="10"></option>
-        <option value="20" label="20"></option>
-        <option value="30" label="30"></option>
-        <option value="40" label="40"></option>
-        <option value="50" label="50"></option>
-        <option value="60" label="60"></option>
-        <option value="70" label="70"></option>
-        <option value="80" label="80"></option>
-        <option value="90" label="90"></option>
+        <option value="0" label="10R"></option>
+        <option value="5" label="5YR"></option>
+        <option value="10" label="10YR"></option>
+        <option value="15" label="5Y"></option>
+        <option value="20" label="10Y"></option>
+        <option value="25" label="5GY"></option>
+        <option value="30" label="10GY"></option>
+        <option value="35" label="5G"></option>
+        <option value="40" label="10G"></option>
+        <option value="45" label="5BG"></option>
+        <option value="50" label="10BG"></option>
+        <option value="55" label="5B"></option>
+        <option value="60" label="10B"></option>
+        <option value="65" label="5PB"></option>
+        <option value="70" label="10PB"></option>
+        <option value="75" label="5P"></option>
+        <option value="80" label="10P"></option>
+        <option value="85" label="5RP"></option>
+        <option value="90" label="10RP"></option>
+        <option value="95" label="5R"></option>
+        <option value="100" label="10R"></option>
       </datalist>
-      <div class="slider-indicators" aria-hidden="true">
-        <span>Red</span>
-        <span>Yellow</span>
-        <span>Green</span>
-        <span>Blue</span>
-        <span>Red</span>
+      <div class="slider-indicators slider-indicators--hue" aria-hidden="true">
+        <span>R</span>
+        <span>Y</span>
+        <span>G</span>
+        <span>B</span>
+        <span>R</span>
       </div>
     </div>
     <div class="slider-group">

@@ -35,7 +35,7 @@ const CHROMA_LEVELS = Array.from({ length: MUNSELL_CHROMA_MAX / CHROMA_STEP + 1 
 const TARGET_CHROMA_LEVELS = CHROMA_LEVELS.filter(
   (level) => level >= CHROMA_STEP && level <= MUNSELL_CHROMA_MAX - CHROMA_STEP
 );
-const HUE_STEP = 10;
+const HUE_STEP = 5;
 const HUE_LEVELS = Array.from({ length: MUNSELL_HUE_MAX / HUE_STEP }, (_, i) => HUE_STEP * i);
 
 let playing = false;
@@ -64,10 +64,11 @@ function componentsToColor({ hue, chroma, value }) {
 
 function updateSliderBackgrounds(hue, chroma, value) {
   const lightnessPct = Math.max(0, Math.min(100, (value / MUNSELL_VALUE_MAX) * 100));
+  const hueSegments = MUNSELL_HUE_MAX / HUE_STEP;
   const hueGradient = 'linear-gradient(to right, ' +
-    Array.from({ length: 11 }, (_, i) => {
-      const deg = (i / 10) * 360;
-      return `hsl(${deg}deg, 100%, ${lightnessPct}%) ${(i / 10) * 100}%`;
+    Array.from({ length: hueSegments + 1 }, (_, i) => {
+      const deg = (i / hueSegments) * 360;
+      return `hsl(${deg}deg, 100%, ${lightnessPct}%) ${(i / hueSegments) * 100}%`;
     }).join(', ') + ')';
   hueSlider.style.background = hueGradient;
 
