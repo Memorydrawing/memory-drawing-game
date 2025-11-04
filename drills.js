@@ -116,12 +116,18 @@ function init() {
     Points: ['Points'],
     Lines: ['Lines'],
     Shapes: ['Shapes', 'Angles', 'Ellipses', 'Ellipse'],
-    Values: ['Values'],
     Colors: ['Colors', 'Color']
   };
 
+  const legacySubjectMap = {
+    Values: 'Colors'
+  };
+
+  const getSubjectKey = subject => subjectGroups[subject] ? subject : legacySubjectMap[subject] || 'Points';
+
   const selectSubject = subject => {
-    const allowedSubjects = subjectGroups[subject] || subjectGroups.Points;
+    const subjectKey = getSubjectKey(subject);
+    const allowedSubjects = subjectGroups[subjectKey] || subjectGroups.Points;
     items.forEach(item => {
       const itemSubject = item.dataset.subject;
       item.style.display = allowedSubjects.includes(itemSubject) ? '' : 'none';
@@ -147,14 +153,15 @@ function init() {
   const params = new URLSearchParams(window.location.search);
   const defaultSubject = params.get('subject');
 
-  const normalizedSubject = subjectGroups[defaultSubject] ? defaultSubject : 'Points';
+  const normalizedSubject = getSubjectKey(defaultSubject || 'Points');
 
   const setActiveButton = subject => {
+    const subjectKey = getSubjectKey(subject);
     buttons.forEach(button => {
-      const isActive = button.dataset.subject === subject;
+      const isActive = button.dataset.subject === subjectKey;
       button.classList.toggle('active', isActive);
     });
-    selectSubject(subject);
+    selectSubject(subjectKey);
   };
 
   buttons.forEach(button => {
