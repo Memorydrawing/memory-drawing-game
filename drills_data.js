@@ -196,6 +196,24 @@ export const drills = [
     tags: ['expert', 'dexterity', 'points']
   },
   {
+    name: 'Value Match',
+    url: 'dexterity_values.html',
+    description: 'Rapidly match grayscale swatches with the Munsell value slider.',
+    category: 'Dexterity',
+    subject: 'Values',
+    difficulty: 'Beginner',
+    scoreKey: 'dexterity_values'
+  },
+  {
+    name: 'Color Match',
+    url: 'dexterity_color.html',
+    description: 'Quickly dial in hue, value, and chroma to hit target colors.',
+    category: 'Dexterity',
+    subject: 'Color',
+    difficulty: 'Adept',
+    scoreKey: 'dexterity_color'
+  },
+  {
     name: 'Lines',
     url: 'dexterity_lines.html',
     description: 'Practice tracing lines of different lengths and directions.',

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Dexterity Values - Memory Shape Drawing Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="practice-screen">
+    <button id="backBtn">← Back</button>
+    <h2>Dexterity Values</h2>
+    <p class="exercise-context">
+      Keep the target swatch in view and quickly dial in the matching Munsell value.
+      Click the button when you believe your slider matches the target to score a hit.
+    </p>
+    <button id="startBtn">Start</button>
+    <p class="timer" id="timer">60.00</p>
+    <canvas
+      id="valueCanvas"
+      class="value-drill-canvas"
+      width="500"
+      height="500"
+      data-score-key="dexterity_values"
+    ></canvas>
+    <div class="value-slider-wrapper">
+      <input
+        type="range"
+        id="valueSlider"
+        class="value-slider"
+        min="0"
+        max="10"
+        step="0.5"
+        value="5"
+        list="valueTicks"
+        disabled
+        aria-label="Match the Munsell value"
+      />
+      <datalist id="valueTicks">
+        <option value="0" label="0"></option>
+        <option value="0.5" label="0.5"></option>
+        <option value="1" label="1"></option>
+        <option value="1.5" label="1.5"></option>
+        <option value="2" label="2"></option>
+        <option value="2.5" label="2.5"></option>
+        <option value="3" label="3"></option>
+        <option value="3.5" label="3.5"></option>
+        <option value="4" label="4"></option>
+        <option value="4.5" label="4.5"></option>
+        <option value="5" label="5"></option>
+        <option value="5.5" label="5.5"></option>
+        <option value="6" label="6"></option>
+        <option value="6.5" label="6.5"></option>
+        <option value="7" label="7"></option>
+        <option value="7.5" label="7.5"></option>
+        <option value="8" label="8"></option>
+        <option value="8.5" label="8.5"></option>
+        <option value="9" label="9"></option>
+        <option value="9.5" label="9.5"></option>
+        <option value="10" label="10"></option>
+      </datalist>
+      <div class="slider-indicators" aria-hidden="true">
+        <span>0</span>
+        <span>1</span>
+        <span>2</span>
+        <span>3</span>
+        <span>4</span>
+        <span>5</span>
+        <span>6</span>
+        <span>7</span>
+        <span>8</span>
+        <span>9</span>
+        <span>10</span>
+      </div>
+    </div>
+    <button id="confirmBtn" class="confirm-button" disabled>Click When Matched</button>
+    <p class="score" id="result"></p>
+  </div>
+  <script src="back.js"></script>
+  <script type="module" src="dexterity_values.js"></script>
+  <script src="leaderboard.js"></script>
+</body>
+</html>
