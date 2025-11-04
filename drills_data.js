@@ -145,7 +145,7 @@ export const drills = [
     url: 'memory_values.html',
     description: 'Memorize a grayscale square and match its value with the slider.',
     category: 'Memorization',
-    subject: 'Values',
+    subject: 'Color',
     difficulty: 'Beginner',
     scoreKey: 'memory_values'
   },
