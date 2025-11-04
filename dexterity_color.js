@@ -21,8 +21,8 @@ const MUNSELL_VALUE_MAX = 10;
 const MUNSELL_HUE_MAX = 100;
 const MUNSELL_CHROMA_MAX = 16;
 const VALUE_STEP = 0.5;
-const CHROMA_STEP = 4;
-const HUE_STEP = 10;
+const CHROMA_STEP = 0.5;
+const HUE_STEP = 5;
 const TARGET_VALUE_LEVELS = Array.from(
   { length: (MUNSELL_VALUE_MAX / VALUE_STEP) - 1 },
   (_, i) => VALUE_STEP * (i + 1)
@@ -73,10 +73,11 @@ function randomTargetColor() {
 
 function updateSliderBackgrounds(hue, chroma, value) {
   const lightnessPct = Math.max(0, Math.min(100, (value / MUNSELL_VALUE_MAX) * 100));
+  const hueSegments = MUNSELL_HUE_MAX / HUE_STEP;
   const hueGradient = 'linear-gradient(to right, ' +
-    Array.from({ length: 11 }, (_, i) => {
-      const deg = (i / 10) * 360;
-      return `hsl(${deg}deg, 100%, ${lightnessPct}%) ${(i / 10) * 100}%`;
+    Array.from({ length: hueSegments + 1 }, (_, i) => {
+      const deg = (i / hueSegments) * 360;
+      return `hsl(${deg}deg, 100%, ${lightnessPct}%) ${(i / hueSegments) * 100}%`;
     }).join(', ') + ')';
   hueSlider.style.background = hueGradient;
 
