@@ -606,10 +606,15 @@ function gradeAttempt() {
   let grade = 'red';
   if (total > 0) {
     const offRatio = offLineDist / total;
-    const coverageValues = target.segments.map(seg => segmentCoverage(seg));
-    const coverageOk = coverageValues.every(value => value >= config.coverageThreshold);
+    const totalCoveredLength = target.segments.reduce(
+      (sum, seg) => sum + segmentCoverage(seg) * seg.length,
+      0
+    );
+    const totalLength = target.totalLength || 0;
+    const coverageRatio = totalLength > 0 ? totalCoveredLength / totalLength : 0;
+    const coverageOk = coverageRatio >= config.coverageThreshold;
     const graceCoverageThreshold = Math.max(0, config.coverageThreshold - config.graceCoverageBuffer);
-    const coverageGrace = coverageValues.every(value => value >= graceCoverageThreshold);
+    const coverageGrace = coverageRatio >= graceCoverageThreshold;
     const success = coverageOk && offRatio <= config.offRatioLimit;
     const nearMiss =
       !success &&
