@@ -11,7 +11,11 @@
     <button id="backBtn">← Back</button>
     <h2>Triangles Dexterity</h2>
     <button id="startBtn">Start</button>
-    <p class="timer" id="timer">Strikes: 0 / 3</p>
+    <div class="timer strikes" id="strikes" role="img" aria-label="Strikes: 0 of 3">
+      <div class="strike-box" aria-hidden="true"></div>
+      <div class="strike-box" aria-hidden="true"></div>
+      <div class="strike-box" aria-hidden="true"></div>
+    </div>
     <canvas
       id="gameCanvas"
       width="500"

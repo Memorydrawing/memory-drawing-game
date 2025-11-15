@@ -4,7 +4,7 @@ import { calculateScore } from './src/scoring.js';
 import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
 import { createStrikeCounter } from './src/strike-counter.js';
 
-let canvas, ctx, startBtn, result, timerDisplay;
+let canvas, ctx, startBtn, result, strikeContainer;
 let playing = false;
 let targets = [];
 let scoreKey = 'dexterity_contours';
@@ -125,7 +125,7 @@ function startGame() {
   startTime = Date.now();
   result.textContent = '';
   startBtn.disabled = true;
-  strikeCounter = createStrikeCounter(timerDisplay, MAX_STRIKES);
+  strikeCounter = createStrikeCounter(strikeContainer, MAX_STRIKES);
   targets = [randomCurve(), randomCurve()];
   drawTargets();
 }
@@ -293,7 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
   startBtn = document.getElementById('startBtn');
   overlayStartButton(canvas, startBtn);
   result = document.getElementById('result');
-  timerDisplay = document.getElementById('timer');
+  strikeContainer = document.getElementById('strikes');
   scoreKey = canvas.dataset.scoreKey || scoreKey;
 
   canvas.addEventListener('pointerdown', pointerDown);

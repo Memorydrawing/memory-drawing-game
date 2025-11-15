@@ -25,7 +25,7 @@ const DESATURATED_COLORS = {
 const DEFAULT_GRACE_OFF_RATIO_BUFFER = 0.1;
 const DEFAULT_GRACE_COVERAGE_BUFFER = 0.1;
 
-let canvas, ctx, startBtn, result, strikeElems;
+let canvas, ctx, startBtn, result, strikeElems, strikeContainer;
 let playing = false;
 let drawing = false;
 let target = null;
@@ -503,10 +503,14 @@ function resetDrawingState() {
 }
 
 function updateStrikes() {
-  if (!strikeElems || strikeElems.length === 0) return;
+  if (!strikeContainer) return;
+  if (!strikeElems || strikeElems.length === 0) {
+    strikeElems = Array.from(strikeContainer.querySelectorAll('.strike-box'));
+  }
   strikeElems.forEach((el, idx) => {
-    el.checked = idx < strikes;
+    el.classList.toggle('filled', idx < strikes);
   });
+  strikeContainer.setAttribute('aria-label', `Strikes: ${Math.min(strikes, MAX_STRIKES)} of ${MAX_STRIKES}`);
 }
 
 function drawAttemptPath(path, desaturated = false) {
@@ -784,7 +788,8 @@ function setup() {
   ctx = canvas.getContext('2d');
   startBtn = document.getElementById('startBtn');
   result = document.getElementById('result');
-  strikeElems = Array.from(document.querySelectorAll('#strikes .strike'));
+  strikeContainer = document.getElementById('strikes');
+  strikeElems = strikeContainer ? Array.from(strikeContainer.querySelectorAll('.strike-box')) : [];
   overlayStartButton(canvas, startBtn);
   scoreKey = canvas.dataset.scoreKey || scoreKey;
   initConfig();

@@ -5,7 +5,7 @@ import { calculateScore } from './src/scoring.js';
 import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
 import { createStrikeCounter } from './src/strike-counter.js';
 
-let canvas, ctx, startBtn, result, timerDisplay;
+let canvas, ctx, startBtn, result, strikeContainer;
 let playing = false;
 let drawing = false;
 let shapes = [];
@@ -223,7 +223,7 @@ function startGame() {
   startScoreboard(canvas);
   result.textContent = 'Trace both shapes carefully. They will only disappear after a clean outline.';
   startBtn.disabled = true;
-  strikeCounter = createStrikeCounter(timerDisplay, MAX_STRIKES);
+  strikeCounter = createStrikeCounter(strikeContainer, MAX_STRIKES);
   startTime = Date.now();
   shapes = [];
   ensureShapeCount();
@@ -358,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
   startBtn = document.getElementById('startBtn');
   overlayStartButton(canvas, startBtn);
   result = document.getElementById('result');
-  timerDisplay = document.getElementById('timer');
+  strikeContainer = document.getElementById('strikes');
   scoreKey = canvas.dataset.scoreKey || scoreKey;
 
   canvas.addEventListener('pointerdown', pointerDown);
