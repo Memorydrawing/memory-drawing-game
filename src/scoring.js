@@ -1,8 +1,7 @@
 export function calculateScore(stats, durationMs) {
   const green = stats.green || 0;
-  const yellow = stats.yellow || 0;
   const red = stats.red || 0;
-  const total = green + yellow + red;
+  const total = green + red;
   const completed = green;
   const accuracy = total ? green / total : 0;
   const accuracyPct = accuracy * 100;

@@ -95,11 +95,6 @@ export function playSound(audioCtx, grade) {
     gain.gain.setValueAtTime(1, now);
     gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
     duration = 0.1;
-  } else if (grade === 'yellow') {
-    osc.frequency.setValueAtTime(400, now);
-    gain.gain.setValueAtTime(0.6, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-    duration = 0.15;
   } else {
     osc.frequency.setValueAtTime(200, now);
     osc.frequency.linearRampToValueAtTime(100, now + 0.3);
