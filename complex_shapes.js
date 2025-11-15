@@ -116,7 +116,7 @@ function curveIntersects(points) {
 }
 
 function generateComplexShape() {
-  const sides = 2 + Math.floor(Math.random() * 2); // up to 3 sides
+  const sides = 3 + Math.floor(Math.random() * 2); // triangles or quads
   // Bias toward larger shapes by weighting 'medium' and 'big' sizes
   const sizes = ['small', 'medium', 'medium', 'big', 'big'];
   const size = sizes[Math.floor(Math.random() * sizes.length)];
