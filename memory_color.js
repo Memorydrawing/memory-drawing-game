@@ -21,7 +21,7 @@ const TARGET_SIZE = 220;
 const PLAYER_SIZE = 160;
 const PREVIEW_SIZE = 160;
 const GREEN_THRESHOLD = 0.02;
-const ORANGE_THRESHOLD = 0.06;
+const CLOSE_THRESHOLD = 0.06;
 const ROUND_PAUSE = 1200;
 const MUNSELL_VALUE_MAX = 10;
 const MUNSELL_HUE_MAX = 100;
@@ -45,7 +45,7 @@ let targetColor = null;
 let strikes = 0;
 let roundTimeout = null;
 let startTime = 0;
-let stats = { green: 0, yellow: 0, red: 0 };
+let stats = { green: 0, red: 0 };
 let totals = { rounds: 0, close: 0, perfect: 0 };
 
 function pickRandom(levels) {
@@ -165,6 +165,7 @@ function gradeAttempt(playerComponents) {
   const diff = diffInfo.combined;
   let grade = 'red';
   let message = `${setResultMessage(diffInfo)} Strike ${Math.min(strikes + 1, MAX_STRIKES)} of ${MAX_STRIKES}.`;
+  let close = false;
 
   if (diffInfo.valueSteps === 0 && diffInfo.chromaSteps === 0) {
     grade = 'green';
@@ -178,10 +179,9 @@ function gradeAttempt(playerComponents) {
     strikes = 0;
     stats.green++;
     totals.perfect++;
-  } else if (diff <= ORANGE_THRESHOLD) {
-    grade = 'orange';
+  } else if (diff <= CLOSE_THRESHOLD) {
+    close = true;
     message = `Close! ${setResultMessage(diffInfo)} No strike—try the same color again.`;
-    stats.yellow++;
     totals.close++;
   } else {
     stats.red++;
@@ -190,10 +190,10 @@ function gradeAttempt(playerComponents) {
 
   totals.rounds++;
   updateStrikesUI();
-  playSound(audioCtx, grade === 'orange' ? 'yellow' : grade);
-  updateScoreboard(grade === 'orange' ? 'orange' : grade);
+  playSound(audioCtx, grade);
+  updateScoreboard(grade === 'green' ? 'green' : 'red');
   result.textContent = message;
-  return grade;
+  return close ? 'close' : grade;
 }
 
 function evaluatePlayer() {
@@ -210,7 +210,7 @@ function evaluatePlayer() {
   roundTimeout = setTimeout(() => {
     startRound({
       reuseTarget: grade !== 'green',
-      repeatReason: grade === 'orange' ? 'grace' : grade === 'red' ? 'strike' : null
+      repeatReason: grade === 'close' ? 'grace' : grade === 'red' ? 'strike' : null
     });
   }, ROUND_PAUSE);
 }
@@ -288,7 +288,7 @@ function startGame() {
   playing = true;
   roundActive = false;
   strikes = 0;
-  stats = { green: 0, yellow: 0, red: 0 };
+  stats = { green: 0, red: 0 };
   totals = { rounds: 0, close: 0, perfect: 0 };
   startTime = Date.now();
   updateStrikesUI();

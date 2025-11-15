@@ -18,8 +18,7 @@ const LINE_ARROW_SIZE = 10;
 const MAX_STRIKES = 3;
 const DESATURATED_COLORS = {
   green: '#6ca96c',
-  red: '#b06c6c',
-  yellow: '#bfa76c'
+  red: '#b06c6c'
 };
 
 const DEFAULT_GRACE_OFF_RATIO_BUFFER = 0.1;
@@ -30,7 +29,7 @@ let playing = false;
 let drawing = false;
 let target = null;
 let scoreKey = 'memory_shape';
-let stats = { green: 0, yellow: 0, red: 0 };
+let stats = { green: 0, red: 0 };
 let sessionStart = 0;
 let strikes = 0;
 let showingFeedback = false;
@@ -552,7 +551,7 @@ function startGame() {
     clearTimeout(feedbackTimeout);
     feedbackTimeout = null;
   }
-  stats = { green: 0, yellow: 0, red: 0 };
+  stats = { green: 0, red: 0 };
   strikes = 0;
   startScoreboard(canvas);
   sessionStart = Date.now();
@@ -574,16 +573,16 @@ function endGame() {
   clearCanvas(ctx);
   const elapsed = sessionStart ? Date.now() - sessionStart : 0;
   const { score: finalScore, accuracyPct, speed } = calculateScore(
-    { green: stats.green, yellow: stats.yellow, red: stats.red },
+    { green: stats.green, red: stats.red },
     elapsed
   );
   const prefix = strikes >= MAX_STRIKES ? 'Struck out! ' : '';
   if (window.leaderboard) {
     window.leaderboard.updateLeaderboard(scoreKey, finalScore);
     const high = window.leaderboard.getHighScore(scoreKey);
-    result.textContent = `${prefix}Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
+    result.textContent = `${prefix}Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
   } else {
-    result.textContent = `${prefix}Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
+    result.textContent = `${prefix}Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
   }
   strikes = Math.min(strikes, MAX_STRIKES);
   updateStrikes();
@@ -655,6 +654,7 @@ function pointerMove(e) {
 function gradeAttempt() {
   const total = onLineDist + offLineDist;
   let grade = 'red';
+  let nearMiss = false;
   const contourMode = config.shapeType === 'contour';
   if (total > 0) {
     const offRatio = offLineDist / total;
@@ -668,7 +668,7 @@ function gradeAttempt() {
     const graceCoverageThreshold = Math.max(0, config.coverageThreshold - config.graceCoverageBuffer);
     const coverageGrace = coverageRatio >= graceCoverageThreshold;
     const success = coverageOk && offRatio <= config.offRatioLimit;
-    const nearMiss =
+    nearMiss =
       !contourMode &&
       !success &&
       coverageGrace &&
@@ -676,19 +676,18 @@ function gradeAttempt() {
     if (success) {
       grade = 'green';
     } else if (nearMiss) {
-      grade = 'yellow';
+      grade = 'close';
     }
   }
 
-  playSound(audioCtx, grade);
+  playSound(audioCtx, grade === 'close' ? 'red' : grade);
   if (grade === 'green') {
     stats.green += 1;
     updateScoreboard('green');
-  } else if (grade === 'yellow') {
-    stats.yellow += 1;
-    updateScoreboard('orange');
   } else {
-    stats.red += 1;
+    if (grade === 'red') {
+      stats.red += 1;
+    }
     updateScoreboard('red');
   }
   return grade;
@@ -709,11 +708,11 @@ function finishAttempt(e) {
 
   const grade = gradeAttempt();
   const success = grade === 'green';
-  const nearMiss = grade === 'yellow';
+  const nearMiss = grade === 'close';
   const attemptPath = currentPath.map(segment => ({
     start: { x: segment.start.x, y: segment.start.y },
     end: { x: segment.end.x, y: segment.end.y },
-    color: nearMiss ? 'yellow' : segment.color
+    color: segment.color
   }));
   if (success) {
     strikes = 0;

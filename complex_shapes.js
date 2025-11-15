@@ -19,7 +19,7 @@ let strikes = 0;
 let shapesCompleted = 0;
 let totalAttempts = 0;
 let scoreKey = 'complex_shapes';
-let stats = { green: 0, yellow: 0, red: 0 };
+let stats = { green: 0, red: 0 };
 let startTime = 0;
 
 const SHOW_COLOR_TIME = 500;
@@ -27,16 +27,14 @@ const NEW_SHAPE_DELAY = 1000;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function gradeDistance(d) {
-  if (d <= 4) return 'green';
-  if (d <= 8) return 'yellow';
-  return 'red';
+  return d <= 4 ? 'green' : 'red';
 }
 
 function formatEndMessage(finalScore, accuracyPct, speed, stats, highScore) {
   const bestPart = typeof highScore === 'number' ? ` (Best: ${highScore})` : '';
   return (
     `Struck out! Final score ${finalScore}${bestPart} | Accuracy: ${accuracyPct.toFixed(1)}% | ` +
-    `Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`
+    `Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`
   );
 }
 
@@ -195,7 +193,7 @@ function drawComplexShape(show = true) {
   if (playerShape.length > 1) {
     for (let i = 1; i < playerShape.length; i++) {
       const grade = segmentGrades[i - 1];
-      const color = grade === 'yellow' ? 'orange' : grade;
+      const color = grade;
       ctx.beginPath();
       ctx.moveTo(playerShape[i - 1].x, playerShape[i - 1].y);
       ctx.lineTo(playerShape[i].x, playerShape[i].y);
@@ -268,7 +266,7 @@ function startGame() {
   strikes = 0;
   shapesCompleted = 0;
   totalAttempts = 0;
-  stats = { green: 0, yellow: 0, red: 0 };
+  stats = { green: 0, red: 0 };
   startTime = Date.now();
   scoreKey = canvas.dataset.scoreKey || scoreKey;
   updateStrikes();
@@ -299,7 +297,7 @@ function pointerMove(e) {
   ctx.beginPath();
   ctx.moveTo(prev.x, prev.y);
   ctx.lineTo(pos.x, pos.y);
-  ctx.strokeStyle = grade === 'yellow' ? 'orange' : grade;
+  ctx.strokeStyle = grade;
   ctx.lineWidth = 1.5;
   ctx.stroke();
   totalSamples++;
@@ -311,13 +309,12 @@ function pointerUp() {
   isDrawing = false;
   state = 'waiting';
   const accuracy = evaluateDrawing();
-  const grade = accuracy >= 0.92 ? 'green' : accuracy >= 0.85 ? 'yellow' : 'red';
+  const grade = accuracy >= 0.92 ? 'green' : accuracy >= 0.85 ? 'close' : 'red';
   const hadRed = segmentGrades.includes('red');
-  playSound(audioCtx, grade);
+  playSound(audioCtx, grade === 'green' ? 'green' : 'red');
   if (grade === 'green') stats.green++;
-  else if (grade === 'yellow') stats.yellow++;
-  else stats.red++;
-  updateScoreboard(grade);
+  else if (grade === 'red') stats.red++;
+  updateScoreboard(grade === 'green' ? 'green' : 'red');
   attemptCount++;
 
   if (hadRed) {

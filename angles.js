@@ -12,7 +12,7 @@ const step = parseInt(new URLSearchParams(window.location.search).get('step')) |
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 let startTime = 0;
 let scoreKey = `angles_${step}`;
-let stats = { green: 0, yellow: 0, red: 0 };
+let stats = { green: 0, red: 0 };
 canvas.dataset.scoreKey = scoreKey;
 
 let rotation = 0;
@@ -60,13 +60,13 @@ function startGame() {
   currentAngle = null;
   correct = 0;
   total = 0;
-  stats = { green: 0, yellow: 0, red: 0 };
+  stats = { green: 0, red: 0 };
   result.textContent = '';
   optionsContainer.querySelectorAll('input').forEach(inp => {
     inp.disabled = false;
     inp.checked = false;
     const parent = inp.parentElement;
-    parent.classList.remove('correct', 'incorrect', 'close');
+    parent.classList.remove('correct', 'incorrect');
   });
   startBtn.disabled = true;
   playing = true;
@@ -104,7 +104,7 @@ function showSelection(angle, grade) {
   const x = centerX + length * Math.cos(rotation + angle * Math.PI / 180);
   const y = centerY + length * Math.sin(rotation + angle * Math.PI / 180);
   ctx.save();
-  ctx.strokeStyle = grade === 'green' ? 'green' : grade === 'yellow' ? 'orange' : 'red';
+  ctx.strokeStyle = grade === 'green' ? 'green' : 'red';
   ctx.lineWidth = 4;
   ctx.beginPath();
   ctx.moveTo(centerX, centerY);
@@ -120,7 +120,7 @@ function onSelect(e) {
   e.target.disabled = true;
   const label = e.target.parentElement;
   const diff = Math.abs(selected - currentAngle);
-  let grade;
+  let grade = 'red';
   if (diff === 0) {
     grade = 'green';
     label.classList.add('correct');
@@ -140,17 +140,10 @@ function onSelect(e) {
       playing = true;
     }
     return;
-  } else if (diff === step) {
-    grade = 'yellow';
-    label.classList.add('close');
-    stats.yellow++;
-    updateScoreboard('orange');
-  } else {
-    grade = 'red';
-    label.classList.add('incorrect');
-    stats.red++;
-    updateScoreboard('red');
   }
+  label.classList.add('incorrect');
+  stats.red++;
+  updateScoreboard('red');
   total++;
   playSound(audioCtx, grade);
   showSelection(selected, grade);

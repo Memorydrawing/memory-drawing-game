@@ -44,8 +44,7 @@ function drawTarget() {
 
 function showPoints(pos, prevTarget, grade) {
   feedbackCtx.save();
-  const color = grade === 'yellow' ? 'orange' : grade;
-  feedbackCtx.fillStyle = color;
+  feedbackCtx.fillStyle = grade;
   feedbackCtx.beginPath();
   feedbackCtx.arc(pos.x, pos.y, 5, 0, Math.PI * 2);
   feedbackCtx.fill();
@@ -70,15 +69,12 @@ function pointerDown(e) {
   if (d <= 5) {
     grade = 'green';
     stats.green++;
-  } else if (d <= 10) {
-    grade = 'yellow';
-    stats.yellow++;
   } else {
     stats.red++;
   }
   const prevTarget = target;
   playSound(audioCtx, grade);
-  updateScoreboard(grade === 'yellow' ? 'orange' : grade);
+  updateScoreboard(grade);
   const exhausted = grade === 'red' && strikeCounter ? strikeCounter.registerFailure() : false;
   if (grade === 'green' && strikeCounter) {
     strikeCounter.registerSuccess();
@@ -96,7 +92,7 @@ function startGame() {
   hideStartButton(startBtn);
   audioCtx.resume();
   startScoreboard(canvas);
-  stats = { totalErr: 0, totalPoints: 0, green: 0, yellow: 0, red: 0 };
+  stats = { totalErr: 0, totalPoints: 0, green: 0, red: 0 };
   playing = true;
   awaitingClick = false;
   result.textContent = '';
@@ -121,9 +117,9 @@ function endGame(reason = 'complete') {
   if (window.leaderboard) {
     window.leaderboard.updateLeaderboard(scoreKey, score);
     const high = window.leaderboard.getHighScore(scoreKey);
-    result.textContent = `${prefix}Score: ${score} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Avg error: ${avg.toFixed(1)} px | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
+    result.textContent = `${prefix}Score: ${score} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Avg error: ${avg.toFixed(1)} px | Green: ${stats.green} Red: ${stats.red}`;
   } else {
-    result.textContent = `${prefix}Score: ${score} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Avg error: ${avg.toFixed(1)} px | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
+    result.textContent = `${prefix}Score: ${score} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Avg error: ${avg.toFixed(1)} px | Green: ${stats.green} Red: ${stats.red}`;
   }
   startBtn.disabled = false;
   startBtn.style.display = '';

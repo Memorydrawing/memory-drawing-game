@@ -23,7 +23,7 @@ const TARGET_VALUE_LEVELS = Array.from({ length: (MUNSELL_VALUE_MAX / MUNSELL_VA
   MUNSELL_VALUE_STEP * (i + 1)
 ); // 1 through 9
 const GREEN_THRESHOLD = 0.02; // 2% difference or less counts as perfect.
-const ORANGE_THRESHOLD = 0.06; // Up to 6% difference earns a close (orange) grade.
+const CLOSE_THRESHOLD = 0.06; // Up to 6% difference earns a close grade with a retry.
 const ROUND_PAUSE = 1200;
 
 let playing = false;
@@ -33,7 +33,7 @@ let targetValue = 0;
 let strikes = 0;
 let roundTimeout = null;
 let startTime = 0;
-let stats = { green: 0, yellow: 0, red: 0 };
+let stats = { green: 0, red: 0 };
 let totals = { rounds: 0, close: 0, perfect: 0 };
 
 function valueToColor(value) {
@@ -143,6 +143,7 @@ function gradeAttempt(playerValue) {
   const diffPct = diffNormalized * 100;
   let grade = 'red';
   let message = `Off by ${diffValue.toFixed(1)} V (${diffPct.toFixed(1)}% of the value scale) — Strike ${Math.min(strikes + 1, MAX_STRIKES)} of ${MAX_STRIKES}.`;
+  let close = false;
 
   if (diffNormalized <= GREEN_THRESHOLD) {
     grade = 'green';
@@ -150,10 +151,9 @@ function gradeAttempt(playerValue) {
     strikes = 0;
     stats.green++;
     totals.perfect++;
-  } else if (diffNormalized <= ORANGE_THRESHOLD) {
-    grade = 'orange';
+  } else if (diffNormalized <= CLOSE_THRESHOLD) {
+    close = true;
     message = `Close! Δ${diffValue.toFixed(1)} V (${diffPct.toFixed(1)}%). No strike—try the same value again.`;
-    stats.yellow++;
     totals.close++;
   } else {
     stats.red++;
@@ -162,10 +162,10 @@ function gradeAttempt(playerValue) {
 
   totals.rounds++;
   updateStrikesUI();
-  playSound(audioCtx, grade === 'orange' ? 'yellow' : grade);
-  updateScoreboard(grade === 'orange' ? 'orange' : grade);
+  playSound(audioCtx, grade);
+  updateScoreboard(grade === 'green' ? 'green' : 'red');
   result.textContent = message;
-  return grade;
+  return close ? 'close' : grade;
 }
 
 function evaluate(playerValue) {
@@ -182,7 +182,7 @@ function evaluate(playerValue) {
   roundTimeout = setTimeout(() => {
     startRound({
       reuseTarget: grade !== 'green',
-      repeatReason: grade === 'orange' ? 'grace' : grade === 'red' ? 'strike' : null
+      repeatReason: grade === 'close' ? 'grace' : grade === 'red' ? 'strike' : null
     });
   }, ROUND_PAUSE);
 }
@@ -222,7 +222,7 @@ function startGame() {
   playing = true;
   roundActive = false;
   strikes = 0;
-  stats = { green: 0, yellow: 0, red: 0 };
+  stats = { green: 0, red: 0 };
   totals = { rounds: 0, close: 0, perfect: 0 };
   startTime = Date.now();
   updateStrikesUI();

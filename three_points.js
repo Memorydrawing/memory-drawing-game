@@ -15,7 +15,7 @@ let shapesCompleted = 0;
 let totalAttempts = 0;
 let scoreKey = 'three_points';
 let attemptHasRed = false;
-let stats = { green: 0, yellow: 0, red: 0 };
+let stats = { green: 0, red: 0 };
 let startTime = 0;
 
 const MAX_STRIKES = 3;
@@ -46,8 +46,7 @@ function generateTriangle() {
 
 function drawGuesses() {
   guesses.forEach(g => {
-    const color = g.grade === 'yellow' ? 'orange' : g.grade;
-    ctx.fillStyle = color;
+    ctx.fillStyle = g.grade;
     ctx.beginPath();
     ctx.arc(g.x, g.y, 5, 0, Math.PI * 2);
     ctx.fill();
@@ -68,9 +67,7 @@ function drawTriangle(show = true) {
 }
 
 function gradeDistance(d) {
-  if (d <= 5) return 'green';
-  if (d <= 10) return 'yellow';
-  return 'red';
+  return d <= 5 ? 'green' : 'red';
 }
 
 function nearestVertex(pos) {
@@ -105,9 +102,9 @@ function endGame() {
   if (window.leaderboard) {
     window.leaderboard.updateLeaderboard(scoreKey, finalScore);
     const high = window.leaderboard.getHighScore(scoreKey);
-    result.textContent = `Struck out! Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
+    result.textContent = `Struck out! Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
   } else {
-    result.textContent = `Struck out! Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
+    result.textContent = `Struck out! Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
   }
 }
 
@@ -153,7 +150,6 @@ function pointerDown(e) {
     guesses.push({ x: pos.x, y: pos.y, grade });
     if (grade === 'red') attemptHasRed = true;
     if (grade === 'green') stats.green++;
-    else if (grade === 'yellow') stats.yellow++;
     else stats.red++;
     updateScoreboard(grade);
     playSound(audioCtx, grade);
@@ -167,7 +163,6 @@ function pointerDown(e) {
     guesses.push({ x: pos.x, y: pos.y, grade });
     if (grade === 'red') attemptHasRed = true;
     if (grade === 'green') stats.green++;
-    else if (grade === 'yellow') stats.yellow++;
     else stats.red++;
     updateScoreboard(grade);
     playSound(audioCtx, grade);
@@ -198,7 +193,7 @@ function startGame() {
   strikes = 0;
   shapesCompleted = 0;
   totalAttempts = 0;
-  stats = { green: 0, yellow: 0, red: 0 };
+  stats = { green: 0, red: 0 };
   startTime = Date.now();
   scoreKey = canvas.dataset.scoreKey || scoreKey;
   updateStrikes();

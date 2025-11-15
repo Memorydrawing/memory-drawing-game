@@ -11,7 +11,7 @@ let drawing = false;
 let shapes = [];
 let activeShapeIndex = -1;
 let playerShape = [];
-let stats = { green: 0, yellow: 0, red: 0 };
+let stats = { green: 0, red: 0 };
 let startTime = 0;
 let scoreKey = 'dexterity_complex_shapes';
 let correctSamples = 0;
@@ -23,9 +23,7 @@ const SAMPLE_STEP = 0.05;
 const MAX_STRIKES = 3;
 
 function gradeDistance(d) {
-  if (d <= 4) return 'green';
-  if (d <= 8) return 'yellow';
-  return 'red';
+  return d <= 4 ? 'green' : 'red';
 }
 
 function sampleLine(polyline, p0, p1) {
@@ -219,7 +217,7 @@ function startGame() {
   hideStartButton(startBtn);
   audioCtx.resume();
   playing = true;
-  stats = { green: 0, yellow: 0, red: 0 };
+  stats = { green: 0, red: 0 };
   startScoreboard(canvas);
   result.textContent = 'Trace both shapes carefully. They will only disappear after a clean outline.';
   startBtn.disabled = true;
@@ -288,7 +286,7 @@ function pointerMove(e) {
   ctx.beginPath();
   ctx.moveTo(prev.x, prev.y);
   ctx.lineTo(pos.x, pos.y);
-  ctx.strokeStyle = grade === 'yellow' ? 'orange' : grade;
+  ctx.strokeStyle = grade;
   ctx.lineWidth = 1.5;
   ctx.stroke();
   totalSamples++;
@@ -306,10 +304,14 @@ function pointerUp(e) {
 
   const shape = shapes[activeShapeIndex];
   const accuracy = shape ? evaluateDrawing(shape) : 0;
-  const grade = accuracy >= 0.9 ? 'green' : accuracy >= 0.8 ? 'yellow' : 'red';
-  stats[grade] += 1;
-  updateScoreboard(grade);
-  playSound(audioCtx, grade === 'yellow' ? 'yellow' : grade);
+  const grade = accuracy >= 0.9 ? 'green' : accuracy >= 0.8 ? 'close' : 'red';
+  if (grade === 'green') {
+    stats.green += 1;
+  } else if (grade === 'red') {
+    stats.red += 1;
+  }
+  updateScoreboard(grade === 'green' ? 'green' : 'red');
+  playSound(audioCtx, grade === 'green' ? 'green' : 'red');
 
   if (grade === 'green') {
     if (strikeCounter) {
@@ -324,7 +326,7 @@ function pointerUp(e) {
   if (result) {
     if (grade === 'green' && shape) {
       result.textContent = 'Great trace! Keep clearing the remaining shapes.';
-    } else if (grade === 'yellow') {
+    } else if (grade === 'close') {
       result.textContent = 'Close! Trace the full outline without drifting to clear it.';
     } else {
       result.textContent = 'Try again. Start on the shape and stay on its edge to clear it.';

@@ -14,11 +14,10 @@ function drawDots() {
   const y = center.y;
   dots = [
     { x: center.x - offset, y, grade: 'green' },
-    { x: center.x, y, grade: 'yellow' },
     { x: center.x + offset, y, grade: 'red' }
   ];
   dots.forEach(d => {
-    ctx.fillStyle = d.grade === 'yellow' ? 'orange' : d.grade;
+    ctx.fillStyle = d.grade;
     ctx.beginPath();
     ctx.arc(d.x, d.y, DOT_RADIUS, 0, Math.PI * 2);
     ctx.fill();
@@ -37,12 +36,8 @@ function handleTap(e) {
     if (Math.hypot(pos.x - d.x, pos.y - d.y) <= DOT_RADIUS) {
       audioCtx.resume();
       playSound(audioCtx, d.grade);
-      message = d.grade === 'green'
-        ? 'Accurate'
-        : d.grade === 'yellow'
-        ? 'Semi-accurate'
-        : 'Inaccurate';
-      messageColor = d.grade === 'yellow' ? 'orange' : d.grade;
+      message = d.grade === 'green' ? 'Accurate' : 'Inaccurate';
+      messageColor = d.grade;
       drawDots();
       break;
     }
