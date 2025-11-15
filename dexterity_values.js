@@ -8,7 +8,7 @@ const canvas = document.getElementById('valueCanvas');
 const slider = document.getElementById('valueSlider');
 const confirmBtn = document.getElementById('confirmBtn');
 const startBtn = document.getElementById('startBtn');
-const timerDisplay = document.getElementById('timer');
+const strikeContainer = document.getElementById('strikes');
 const result = document.getElementById('result');
 
 const ctx = canvas.getContext('2d');
@@ -87,7 +87,7 @@ function startGame() {
   setControlsEnabled(true);
   drawState();
   startTime = Date.now();
-  strikeCounter = createStrikeCounter(timerDisplay, MAX_STRIKES);
+  strikeCounter = createStrikeCounter(strikeContainer, MAX_STRIKES);
 }
 
 function endGame(reason = 'complete') {

@@ -9,7 +9,7 @@ const hueSlider = document.getElementById('hueSlider');
 const chromaSlider = document.getElementById('chromaSlider');
 const confirmBtn = document.getElementById('confirmBtn');
 const startBtn = document.getElementById('startBtn');
-const timerDisplay = document.getElementById('timer');
+const strikeContainer = document.getElementById('strikes');
 const result = document.getElementById('result');
 
 const ctx = canvas.getContext('2d');
@@ -46,7 +46,14 @@ let scoreKey = canvas.dataset.scoreKey || 'dexterity_color';
 let startTime = 0;
 
 function updateStrikeDisplay() {
-  timerDisplay.textContent = `Strikes: ${Math.min(stats.red, MAX_STRIKES)} / ${MAX_STRIKES}`;
+  if (!strikeContainer) return;
+  const strikes = Math.min(stats.red, MAX_STRIKES);
+  const boxes = Array.from(strikeContainer.querySelectorAll('.strike-box'));
+  if (boxes.length === 0) return;
+  boxes.forEach((box, index) => {
+    box.classList.toggle('filled', index < strikes);
+  });
+  strikeContainer.setAttribute('aria-label', `Strikes: ${strikes} of ${MAX_STRIKES}`);
 }
 
 function normalizeHue(step) {

@@ -13,7 +13,7 @@ const TOLERANCE = 4;
 let canvas;
 let ctx;
 let startBtn;
-let timerDisplay;
+let strikeContainer;
 let liveScoreEl;
 let resultEl;
 let scoreKey = 'snake';
@@ -326,7 +326,7 @@ function startGame() {
   resetPlayerPath();
   resultEl.textContent = '';
   render();
-  strikeCounter = createStrikeCounter(timerDisplay, MAX_STRIKES);
+  strikeCounter = createStrikeCounter(strikeContainer, MAX_STRIKES);
   startBtn.disabled = true;
   animationId = requestAnimationFrame(animate);
 }
@@ -355,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!canvas) return;
   ctx = canvas.getContext('2d');
   startBtn = document.getElementById('startBtn');
-  timerDisplay = document.getElementById('timer');
+  strikeContainer = document.getElementById('strikes');
   liveScoreEl = document.getElementById('liveScore');
   resultEl = document.getElementById('result');
   scoreKey = canvas.dataset.scoreKey || scoreKey;

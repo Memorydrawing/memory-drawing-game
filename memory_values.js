@@ -7,7 +7,8 @@ const canvas = document.getElementById('valueCanvas');
 const slider = document.getElementById('valueSlider');
 const startBtn = document.getElementById('startBtn');
 const result = document.getElementById('result');
-const strikeElems = Array.from(document.querySelectorAll('#strikes .strike'));
+const strikeContainer = document.getElementById('strikes');
+let strikeElems = strikeContainer ? Array.from(strikeContainer.querySelectorAll('.strike-box')) : [];
 
 const ctx = canvas.getContext('2d');
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -66,9 +67,14 @@ function showComparison(playerValue) {
 }
 
 function updateStrikesUI() {
+  if (!strikeContainer) return;
+  if (!strikeElems.length) {
+    strikeElems = Array.from(strikeContainer.querySelectorAll('.strike-box'));
+  }
   strikeElems.forEach((el, idx) => {
-    el.checked = idx < strikes;
+    el.classList.toggle('filled', idx < strikes);
   });
+  strikeContainer.setAttribute('aria-label', `Strikes: ${Math.min(strikes, MAX_STRIKES)} of ${MAX_STRIKES}`);
 }
 
 function setSliderEnabled(enabled) {

@@ -4,7 +4,7 @@ import { calculateScore } from './src/scoring.js';
 import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
 import { createStrikeCounter } from './src/strike-counter.js';
 
-let canvas, ctx, startBtn, result, timerDisplay;
+let canvas, ctx, startBtn, result, strikeContainer;
 let playing = false;
 let targets = [];
 let targetRadius = 5;
@@ -44,7 +44,7 @@ function startGame() {
   startScoreboard(canvas);
   result.textContent = '';
   startBtn.disabled = true;
-  strikeCounter = createStrikeCounter(timerDisplay, MAX_STRIKES);
+  strikeCounter = createStrikeCounter(strikeContainer, MAX_STRIKES);
   targets = [randomTarget(), randomTarget()];
   drawTargets();
   startTime = Date.now();
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // detection delay on touch devices.
   preventDoubleTapZoom(canvas);
   result = document.getElementById('result');
-  timerDisplay = document.getElementById('timer');
+  strikeContainer = document.getElementById('strikes');
   targetRadius = Number(canvas.dataset.radius) || targetRadius;
   gradingTolerance = Number(canvas.dataset.tolerance) || targetRadius;
   scoreKey = canvas.dataset.scoreKey || scoreKey;

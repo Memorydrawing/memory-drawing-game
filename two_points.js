@@ -3,7 +3,7 @@ import { overlayStartButton, hideStartButton } from './src/start-button.js';
 import { calculateScore } from './src/scoring.js';
 import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
 
-let canvas, ctx, startBtn, result, strikeElems;
+let canvas, ctx, startBtn, result, strikeElems, strikeContainer;
 let playing = false;
 let state = 'idle';
 let vertices = [];
@@ -79,9 +79,14 @@ function nearestVertex(pos) {
 }
 
 function updateStrikes() {
+  if (!strikeContainer) return;
+  if (!strikeElems || strikeElems.length === 0) {
+    strikeElems = Array.from(strikeContainer.querySelectorAll('.strike-box'));
+  }
   strikeElems.forEach((el, idx) => {
-    el.checked = idx < strikes;
+    el.classList.toggle('filled', idx < strikes);
   });
+  strikeContainer.setAttribute('aria-label', `Strikes: ${Math.min(strikes, MAX_STRIKES)} of ${MAX_STRIKES}`);
 }
 
 function endGame() {
@@ -204,7 +209,8 @@ document.addEventListener('DOMContentLoaded', () => {
   startBtn = document.getElementById('startBtn');
   overlayStartButton(canvas, startBtn);
   result = document.getElementById('result');
-  strikeElems = Array.from(document.querySelectorAll('#strikes .strike'));
+  strikeContainer = document.getElementById('strikes');
+  strikeElems = strikeContainer ? Array.from(strikeContainer.querySelectorAll('.strike-box')) : [];
   canvas.addEventListener('pointerdown', pointerDown);
   startBtn.addEventListener('click', startGame);
 });

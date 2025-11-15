@@ -11,7 +11,7 @@ const DEFAULT_COVERAGE_THRESHOLD = 0.85;
 const DEFAULT_COVERAGE_SAMPLES = 24;
 const DEFAULT_MIN_SEGMENT_LENGTH = 60;
 
-let canvas, ctx, startBtn, result, timerDisplay;
+let canvas, ctx, startBtn, result, strikeContainer;
 let playing = false;
 let drawing = false;
 let target = null;
@@ -235,7 +235,7 @@ function startGame() {
   startScoreboard(canvas);
   result.textContent = '';
   startBtn.disabled = true;
-  strikeCounter = createStrikeCounter(timerDisplay, MAX_STRIKES);
+  strikeCounter = createStrikeCounter(strikeContainer, MAX_STRIKES);
   startTime = Date.now();
   target = generateTarget();
   resetCoverage();
@@ -363,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
   startBtn = document.getElementById('startBtn');
   overlayStartButton(canvas, startBtn);
   result = document.getElementById('result');
-  timerDisplay = document.getElementById('timer');
+  strikeContainer = document.getElementById('strikes');
   scoreKey = canvas.dataset.scoreKey || scoreKey;
   initConfig();
 

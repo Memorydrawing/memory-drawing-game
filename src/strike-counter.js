@@ -1,33 +1,59 @@
 const DEFAULT_MAX_STRIKES = 3;
 
-function formatLabel(strikes, maxStrikes) {
-  return `Strikes: ${Math.min(strikes, maxStrikes)} / ${maxStrikes}`;
-}
+function ensureStrikeBoxes(container, maxStrikes) {
+  if (!container) return [];
 
-export function createStrikeCounter(displayElement, maxStrikes = DEFAULT_MAX_STRIKES) {
-  let strikes = 0;
-
-  function updateDisplay() {
-    if (displayElement) {
-      displayElement.textContent = formatLabel(strikes, maxStrikes);
-    }
+  let boxes = Array.from(container.querySelectorAll('.strike-box'));
+  if (boxes.length === maxStrikes) {
+    return boxes;
   }
 
-  updateDisplay();
+  container.innerHTML = '';
+  boxes = [];
+  for (let i = 0; i < maxStrikes; i += 1) {
+    const box = document.createElement('div');
+    box.className = 'strike-box';
+    box.setAttribute('aria-hidden', 'true');
+    container.appendChild(box);
+    boxes.push(box);
+  }
+
+  return boxes;
+}
+
+function updateAccessibility(container, strikes, maxStrikes) {
+  if (!container) return;
+  container.setAttribute('role', 'img');
+  container.setAttribute('aria-live', 'polite');
+  container.setAttribute('aria-label', `Strikes: ${strikes} of ${maxStrikes}`);
+}
+
+export function createStrikeCounter(containerElement, maxStrikes = DEFAULT_MAX_STRIKES) {
+  let strikes = 0;
+  const boxes = ensureStrikeBoxes(containerElement, maxStrikes);
+
+  function render() {
+    boxes.forEach((box, index) => {
+      box.classList.toggle('filled', index < strikes);
+    });
+    updateAccessibility(containerElement, strikes, maxStrikes);
+  }
+
+  render();
 
   return {
     registerSuccess() {
       strikes = 0;
-      updateDisplay();
+      render();
     },
     registerFailure() {
       strikes = Math.min(maxStrikes, strikes + 1);
-      updateDisplay();
+      render();
       return strikes >= maxStrikes;
     },
     reset() {
       strikes = 0;
-      updateDisplay();
+      render();
     },
     getStrikes() {
       return strikes;

@@ -4,7 +4,7 @@ import { calculateScore } from './src/scoring.js';
 import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
 import { createStrikeCounter } from './src/strike-counter.js';
 
-let canvas, ctx, feedbackCanvas, feedbackCtx, startBtn, result, timerDisplay;
+let canvas, ctx, feedbackCanvas, feedbackCtx, startBtn, result, strikeContainer;
 
 let scoreKey = 'point_drill_05';
 
@@ -102,7 +102,7 @@ function startGame() {
   result.textContent = '';
   startBtn.disabled = true;
   startTime = Date.now();
-  strikeCounter = createStrikeCounter(timerDisplay, MAX_STRIKES);
+  strikeCounter = createStrikeCounter(strikeContainer, MAX_STRIKES);
   drawTarget();
 }
 
@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
   feedbackCtx = feedbackCanvas.getContext('2d');
   startBtn = document.getElementById('startBtn');
   result = document.getElementById('result');
-  timerDisplay = document.getElementById('timer');
+  strikeContainer = document.getElementById('strikes');
   scoreKey = canvas.dataset.scoreKey || scoreKey;
   wrapper.appendChild(startBtn);
   startBtn.style.position = 'absolute';
