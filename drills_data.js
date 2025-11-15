@@ -131,16 +131,6 @@ export const drills = [
     scoreKey: 'point_drill_01'
   },
   {
-    name: 'Point Sequence 0.5 sec Look',
-    url: 'point_sequence_05.html',
-    description: 'Memorize an expanding sequence of points after a 0.5 second preview.',
-    category: 'Memorization',
-    subject: 'Points',
-    difficulty: 'Adept',
-    scoreKey: 'point_sequence_05',
-    tags: ['Experimental']
-  },
-  {
     name: 'Memory Values',
     url: 'memory_values.html',
     description: 'Memorize a grayscale square and match its value with the slider.',
