@@ -11,12 +11,6 @@ export const scenarioData = {
     difficulty: 'Beginner',
     subject: 'Angles'
   },
-  "Inch Drill": {
-    url: 'inch_warmup.html',
-    description: 'Draw a 1-inch line from a given starting arrow.',
-    difficulty: 'Beginner',
-    subject: 'Lines'
-  },
   "Point Drill 0.5 sec Look": {
     url: 'point_drill_05.html',
     description: 'Memorize a point after a 0.5 second preview and tap its location.',
