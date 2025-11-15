@@ -131,7 +131,7 @@ function drawTarget(shape = target) {
     ctx.closePath();
   }
   if (config.fillShape && shape.closed) {
-    ctx.fillStyle = '#333';
+    ctx.fillStyle = '#000';
     ctx.fill();
   } else {
     ctx.lineWidth = LINE_WIDTH;
