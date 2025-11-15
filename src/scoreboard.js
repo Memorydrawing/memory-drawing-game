@@ -1,6 +1,6 @@
 import { calculateScore } from './scoring.js';
 
-let stats = { green: 0, yellow: 0, red: 0 };
+let stats = { green: 0, red: 0 };
 let startTime = 0;
 let scoreEl = null;
 let boardEl = null;
@@ -20,7 +20,7 @@ export function startScoreboard(canvas) {
   }
   scoreEl = boardEl.querySelector('.score-value');
   scoreEl.textContent = '0';
-  stats = { green: 0, yellow: 0, red: 0 };
+  stats = { green: 0, red: 0 };
   startTime = Date.now();
   lastScore = 0;
   if (animFrame) cancelAnimationFrame(animFrame);
@@ -30,7 +30,6 @@ export function startScoreboard(canvas) {
 export function updateScoreboard(color) {
   if (!scoreEl) return;
   if (color === 'green') stats.green++;
-  else if (color === 'yellow' || color === 'orange') stats.yellow++;
   else stats.red++;
   const elapsed = Date.now() - startTime;
   const { score } = calculateScore(stats, elapsed);

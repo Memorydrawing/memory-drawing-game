@@ -202,17 +202,13 @@ function gradePoint(p) {
     const d = Math.hypot(p.x - q.x, p.y - q.y);
     return d < min ? d : min;
   }, Infinity);
-  let color = 'red';
-  let sound = 'red';
-  if (dist <= 5) { color = 'green'; sound = 'green'; }
-  else if (dist <= 10) { color = 'orange'; sound = 'yellow'; }
+  const color = dist <= 5 ? 'green' : 'red';
+  const sound = color;
   return { color, sound, dist };
 }
 
 function gradeDistance(d) {
-  if (d <= 5) return 'green';
-  if (d <= 10) return 'yellow';
-  return 'red';
+  return d <= 5 ? 'green' : 'red';
 }
 
 function drawDots() {
@@ -262,9 +258,7 @@ function evaluateFreehand() {
     const p = playerShape[i];
     const d = distanceToPolygon(p, originalShape);
     totalDist += d;
-    let color = "red";
-    if (d <= 5) color = "green";
-    else if (d <= 10) color = "orange";
+    const color = d <= 5 ? "green" : "red";
     playerShape[i].color = color;
     playerShape[i].dist = d;
     ctx.beginPath();
