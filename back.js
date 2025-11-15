@@ -99,8 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'dexterity_point_drill_small.html': { label: 'Drills', target: 'drills.html' },
     'point_drill_01.html': { label: 'Drills', target: 'drills.html' },
     'point_drill_025.html': { label: 'Drills', target: 'drills.html' },
-    'point_drill_05.html': { label: 'Drills', target: 'drills.html' },
-    'inch_warmup.html': { label: 'Drills', target: 'drills.html' }
+    'point_drill_05.html': { label: 'Drills', target: 'drills.html' }
   };
 
   const page = window.location.pathname.split('/').pop();
