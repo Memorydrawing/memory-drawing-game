@@ -651,6 +651,7 @@ function pointerMove(e) {
 function gradeAttempt() {
   const total = onLineDist + offLineDist;
   let grade = 'red';
+  const contourMode = config.shapeType === 'contour';
   if (total > 0) {
     const offRatio = offLineDist / total;
     const totalCoveredLength = target.segments.reduce(
@@ -664,6 +665,7 @@ function gradeAttempt() {
     const coverageGrace = coverageRatio >= graceCoverageThreshold;
     const success = coverageOk && offRatio <= config.offRatioLimit;
     const nearMiss =
+      !contourMode &&
       !success &&
       coverageGrace &&
       offRatio <= config.offRatioLimit + config.graceOffRatioBuffer;
