@@ -115,7 +115,7 @@ function startGame() {
   result.textContent = '';
   startBtn.disabled = true;
   strikeCounter = createStrikeCounter(strikeContainer, MAX_STRIKES);
-  targets = [randomEllipse(), randomEllipse()];
+  targets = [randomEllipse()];
   drawTargets();
 }
 

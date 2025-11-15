@@ -126,7 +126,7 @@ function startGame() {
   result.textContent = '';
   startBtn.disabled = true;
   strikeCounter = createStrikeCounter(strikeContainer, MAX_STRIKES);
-  targets = [randomCurve(), randomCurve()];
+  targets = [randomCurve()];
   drawTargets();
 }
 
