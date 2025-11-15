@@ -87,7 +87,7 @@ function curveIntersects(polyline, points) {
 }
 
 function generateComplexShape() {
-  const sides = 2 + Math.floor(Math.random() * 2);
+  const sides = 3 + Math.floor(Math.random() * 2);
   const sizes = ['small', 'medium', 'medium', 'big', 'big'];
   const size = sizes[Math.floor(Math.random() * sizes.length)];
   const verts = generateShape(sides, canvas.width, canvas.height, size);
