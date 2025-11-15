@@ -432,16 +432,58 @@ function projectPointToSegments(point, shape) {
   return { dist: bestDist, idx: bestIdx, t: bestT };
 }
 
-function markCoverage(segmentIndex, t) {
+function markSegmentRange(segmentIndex, startT, endT) {
   const seg = target?.segments[segmentIndex];
   if (!seg) return;
   const bins = seg.coverage;
   const count = bins.length;
   if (!count) return;
-  const position = Math.max(0, Math.min(count - 1, Math.floor(t * count)));
-  bins[position] = true;
-  if (t * count - position > 0.5 && position + 1 < count) {
-    bins[position + 1] = true;
+
+  const lowT = Math.min(startT, endT);
+  const highT = Math.max(startT, endT);
+  let start = Math.floor(clamp(lowT, 0, 1) * count);
+  let end = Math.floor(clamp(highT, 0, 1) * count);
+  start = Math.max(0, Math.min(count - 1, start));
+  end = Math.max(0, Math.min(count - 1, end));
+
+  for (let i = start; i <= end; i++) {
+    bins[i] = true;
+  }
+
+  const fractionalEnd = clamp(highT, 0, 1) * count - end;
+  if (fractionalEnd > 0.5 && end + 1 < count) {
+    bins[end + 1] = true;
+  }
+}
+
+function markCoverageRange(prevProjection, projection) {
+  if (!target || !prevProjection || !projection) return;
+  const prevIdx = prevProjection.idx;
+  const nextIdx = projection.idx;
+  if (prevIdx === -1 && nextIdx === -1) return;
+
+  if (prevIdx === nextIdx) {
+    if (prevIdx !== -1) {
+      markSegmentRange(prevIdx, prevProjection.t, projection.t);
+    }
+    return;
+  }
+
+  if (prevIdx !== -1) {
+    markSegmentRange(prevIdx, prevProjection.t, prevIdx < nextIdx ? 1 : 0);
+  }
+
+  if (nextIdx !== -1) {
+    markSegmentRange(nextIdx, nextIdx > prevIdx ? 0 : 1, projection.t);
+  }
+
+  if (prevIdx === -1 || nextIdx === -1) {
+    return;
+  }
+
+  const step = prevIdx < nextIdx ? 1 : -1;
+  for (let i = prevIdx + step; i !== nextIdx; i += step) {
+    markSegmentRange(i, 0, 1);
   }
 }
 
@@ -584,11 +626,16 @@ function pointerMove(e) {
   if (onShape) {
     ctx.strokeStyle = 'green';
     onLineDist += segmentLen;
-    if (lastProjection.dist <= config.tolerance) {
-      markCoverage(lastProjection.idx, lastProjection.t);
+    const lastWithin = lastProjection.dist <= config.tolerance;
+    const currentWithin = projection.dist <= config.tolerance;
+    if (lastWithin) {
+      markSegmentRange(lastProjection.idx, lastProjection.t, lastProjection.t);
     }
-    if (projection.dist <= config.tolerance) {
-      markCoverage(projection.idx, projection.t);
+    if (currentWithin) {
+      markSegmentRange(projection.idx, projection.t, projection.t);
+    }
+    if (lastWithin && currentWithin) {
+      markCoverageRange(lastProjection, projection);
     }
   } else {
     ctx.strokeStyle = 'red';
