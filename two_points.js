@@ -18,6 +18,7 @@ let attemptHasRed = false;
 let stats = { green: 0, yellow: 0, red: 0 };
 let startTime = 0;
 
+const MAX_STRIKES = 3;
 const SHOW_COLOR_TIME = 500;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
