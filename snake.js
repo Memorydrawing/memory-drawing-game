@@ -1,6 +1,6 @@
 import { getCanvasPos, clearCanvas } from './src/utils.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
-import { startCountdown } from './src/countdown.js';
+import { createStrikeCounter } from './src/strike-counter.js';
 
 const SNAKE_LENGTH = 420;
 const SNAKE_SPEED = 95; // pixels per second
@@ -20,8 +20,6 @@ let scoreKey = 'snake';
 
 let playing = false;
 let animationId = null;
-let stopTimer = null;
-let gameTimer = null;
 let lastTimestamp = null;
 
 let snakePoints = [];
@@ -35,6 +33,11 @@ let lastPointerPos = null;
 let playerSegments = [];
 let playerLength = 0;
 let score = 0;
+let strikeCounter = null;
+let strokeHadMiss = false;
+let strokeHadMovement = false;
+
+const MAX_STRIKES = 3;
 
 function initSnake() {
   snakePoints = [];
@@ -251,6 +254,8 @@ function pointerDown(e) {
   if (!playing) return;
   drawing = true;
   lastPointerPos = getCanvasPos(canvas, e);
+  strokeHadMiss = false;
+  strokeHadMovement = false;
   if (canvas.setPointerCapture) {
     canvas.setPointerCapture(e.pointerId);
   }
@@ -262,6 +267,7 @@ function pointerMove(e) {
   const segmentLength = Math.hypot(pos.x - lastPointerPos.x, pos.y - lastPointerPos.y);
   if (segmentLength === 0) return;
 
+  strokeHadMovement = true;
   const midpoint = {
     x: (pos.x + lastPointerPos.x) / 2,
     y: (pos.y + lastPointerPos.y) / 2
@@ -271,6 +277,8 @@ function pointerMove(e) {
   if (color === 'green') {
     score += segmentLength;
     updateLiveScore();
+  } else {
+    strokeHadMiss = true;
   }
   addPlayerSegment(lastPointerPos, pos, color);
   lastPointerPos = pos;
@@ -289,6 +297,17 @@ function pointerUp(e) {
     }
   }
   lastPointerPos = null;
+
+  if (!strokeHadMovement || !strikeCounter) {
+    return;
+  }
+  if (strokeHadMiss) {
+    if (strikeCounter.registerFailure()) {
+      endGame('strikes');
+    }
+  } else {
+    strikeCounter.registerSuccess();
+  }
 }
 
 function resetPlayerPath() {
@@ -307,31 +326,25 @@ function startGame() {
   resetPlayerPath();
   resultEl.textContent = '';
   render();
-  if (stopTimer) stopTimer();
-  stopTimer = startCountdown(timerDisplay, 60000);
-  if (gameTimer) clearTimeout(gameTimer);
-  gameTimer = setTimeout(endGame, 60000);
+  strikeCounter = createStrikeCounter(timerDisplay, MAX_STRIKES);
   startBtn.disabled = true;
   animationId = requestAnimationFrame(animate);
 }
 
-function endGame() {
+function endGame(reason = 'complete') {
   if (!playing) return;
   playing = false;
   if (animationId) cancelAnimationFrame(animationId);
   animationId = null;
-  if (stopTimer) stopTimer();
-  stopTimer = null;
-  if (gameTimer) clearTimeout(gameTimer);
-  gameTimer = null;
   render();
   const finalScore = Math.round(score);
+  const prefix = reason === 'strikes' ? 'Out of strikes! ' : '';
   if (window.leaderboard) {
     window.leaderboard.updateLeaderboard(scoreKey, finalScore);
     const high = window.leaderboard.getHighScore(scoreKey);
-    resultEl.textContent = `Score: ${finalScore} (Best: ${high})`;
+    resultEl.textContent = `${prefix}Score: ${finalScore} (Best: ${high})`;
   } else {
-    resultEl.textContent = `Score: ${finalScore}`;
+    resultEl.textContent = `${prefix}Score: ${finalScore}`;
   }
   startBtn.style.display = '';
   startBtn.disabled = false;

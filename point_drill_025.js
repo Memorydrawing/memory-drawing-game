@@ -1,8 +1,8 @@
 import { getCanvasPos, clearCanvas, playSound, preventDoubleTapZoom } from './src/utils.js';
 import { hideStartButton } from './src/start-button.js';
-import { startCountdown } from './src/countdown.js';
 import { calculateScore } from './src/scoring.js';
 import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
+import { createStrikeCounter } from './src/strike-counter.js';
 
 let canvas, ctx, feedbackCanvas, feedbackCtx, startBtn, result, timerDisplay;
 
@@ -11,15 +11,14 @@ let scoreKey = 'point_drill_025';
 let playing = false;
 let awaitingClick = false;
 let target = null;
-let endTime = 0;
-let gameTimer = null;
 let stats = null;
-let stopTimer = null;
 let startTime = 0;
 let hideTargetTimeout = null;
+let strikeCounter = null;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 const RESULT_DISPLAY_TIME = 300;
+const MAX_STRIKES = 3;
 
 function drawTarget() {
   const margin = 20;
@@ -80,12 +79,16 @@ function pointerDown(e) {
   const prevTarget = target;
   playSound(audioCtx, grade);
   updateScoreboard(grade === 'yellow' ? 'orange' : grade);
-  if (Date.now() < endTime) {
+  const exhausted = grade === 'red' && strikeCounter ? strikeCounter.registerFailure() : false;
+  if (grade === 'green' && strikeCounter) {
+    strikeCounter.registerSuccess();
+  }
+  if (!exhausted) {
     drawTarget();
   }
   showPoints(pos, prevTarget, grade);
-  if (Date.now() >= endTime) {
-    setTimeout(endGame, RESULT_DISPLAY_TIME);
+  if (exhausted) {
+    setTimeout(() => endGame('strikes'), RESULT_DISPLAY_TIME);
   }
 }
 
@@ -99,32 +102,31 @@ function startGame() {
   result.textContent = '';
   startBtn.disabled = true;
   startTime = Date.now();
-  endTime = startTime + 60000;
-  stopTimer = startCountdown(timerDisplay, 60000);
-  gameTimer = setTimeout(endGame, 60000);
+  strikeCounter = createStrikeCounter(timerDisplay, MAX_STRIKES);
   drawTarget();
 }
 
-function endGame() {
+function endGame(reason = 'complete') {
   if (!playing) return;
   playing = false;
-  clearTimeout(gameTimer);
   if (hideTargetTimeout) {
     clearTimeout(hideTargetTimeout);
     hideTargetTimeout = null;
   }
-  if (stopTimer) stopTimer();
   clearCanvas(ctx);
   const avg = stats.totalPoints ? stats.totalErr / stats.totalPoints : 0;
   const elapsed = Date.now() - startTime;
   const { score, accuracyPct, speed } = calculateScore(stats, elapsed);
+  const prefix = reason === 'strikes' ? 'Out of strikes! ' : '';
   if (window.leaderboard) {
     window.leaderboard.updateLeaderboard(scoreKey, score);
     const high = window.leaderboard.getHighScore(scoreKey);
-    result.textContent = `Score: ${score} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Avg error: ${avg.toFixed(1)} px | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
+    result.textContent = `${prefix}Score: ${score} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Avg error: ${avg.toFixed(1)} px | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
   } else {
-    result.textContent = `Score: ${score} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Avg error: ${avg.toFixed(1)} px | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
+    result.textContent = `${prefix}Score: ${score} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Avg error: ${avg.toFixed(1)} px | Green: ${stats.green} Yellow: ${stats.yellow} Red: ${stats.red}`;
   }
+  startBtn.disabled = false;
+  startBtn.style.display = '';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
