@@ -27,7 +27,7 @@ const LABEL_OFFSET = 16;
 
 let playing = false;
 let targetValue = 5;
-let stats = { green: 0, yellow: 0, red: 0 };
+let stats = { green: 0, red: 0 };
 let scoreKey = canvas.dataset.scoreKey || 'dexterity_values';
 let startTime = 0;
 let strikeCounter = null;
@@ -78,7 +78,7 @@ function startGame() {
   hideStartButton(startBtn);
   audioCtx.resume();
   playing = true;
-  stats = { green: 0, yellow: 0, red: 0 };
+  stats = { green: 0, red: 0 };
   startScoreboard(canvas);
   startBtn.disabled = true;
   result.textContent = '';
@@ -97,7 +97,7 @@ function endGame(reason = 'complete') {
   clearCanvas(ctx);
   const elapsed = Date.now() - startTime;
   const { score: finalScore, accuracyPct, speed } = calculateScore(
-    { green: stats.green, yellow: 0, red: stats.red },
+    { green: stats.green, red: stats.red },
     elapsed
   );
   const prefix = reason === 'strikes' ? 'Out of strikes! ' : '';

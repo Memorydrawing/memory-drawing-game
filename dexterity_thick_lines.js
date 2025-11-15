@@ -8,7 +8,7 @@ let canvas, ctx, startBtn, result, strikeContainer;
 let playing = false;
 let targets = [];
 let scoreKey = 'dexterity_thick_lines';
-let stats = { green: 0, yellow: 0, red: 0 };
+let stats = { green: 0, red: 0 };
 let startTime = 0;
 let strikeCounter = null;
 
@@ -73,7 +73,7 @@ function startGame() {
   hideStartButton(startBtn);
   audioCtx.resume();
   playing = true;
-  stats = { green: 0, yellow: 0, red: 0 };
+  stats = { green: 0, red: 0 };
   startScoreboard(canvas);
   startTime = Date.now();
   result.textContent = '';
@@ -89,7 +89,7 @@ function endGame(reason = 'complete') {
   clearCanvas(ctx);
   const elapsed = Date.now() - startTime;
   const { score: finalScore, accuracyPct, speed } = calculateScore(
-    { green: stats.green, yellow: 0, red: stats.red },
+    { green: stats.green, red: stats.red },
     elapsed
   );
   const prefix = reason === 'strikes' ? 'Out of strikes! ' : '';
