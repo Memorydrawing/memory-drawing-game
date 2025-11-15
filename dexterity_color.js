@@ -1,6 +1,5 @@
 import { clearCanvas, playSound } from './src/utils.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
-import { startCountdown } from './src/countdown.js';
 import { calculateScore } from './src/scoring.js';
 import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
 
@@ -16,7 +15,7 @@ const result = document.getElementById('result');
 const ctx = canvas.getContext('2d');
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-const GAME_DURATION_MS = 60000;
+const MAX_STRIKES = 3;
 const MUNSELL_VALUE_MAX = 10;
 const MUNSELL_HUE_MAX = 100;
 const MUNSELL_CHROMA_MAX = 16;
@@ -44,9 +43,11 @@ let playing = false;
 let targetColor = null;
 let stats = { green: 0, yellow: 0, red: 0 };
 let scoreKey = canvas.dataset.scoreKey || 'dexterity_color';
-let gameTimer = null;
-let stopTimer = null;
 let startTime = 0;
+
+function updateStrikeDisplay() {
+  timerDisplay.textContent = `Strikes: ${Math.min(stats.red, MAX_STRIKES)} / ${MAX_STRIKES}`;
+}
 
 function normalizeHue(step) {
   return ((step % MUNSELL_HUE_MAX) + MUNSELL_HUE_MAX) % MUNSELL_HUE_MAX;
@@ -171,32 +172,32 @@ function startGame() {
   setControlsEnabled(true);
   prepareNextTarget();
   startTime = Date.now();
-  stopTimer = startCountdown(timerDisplay, GAME_DURATION_MS);
-  gameTimer = setTimeout(endGame, GAME_DURATION_MS);
+  updateStrikeDisplay();
 }
 
-function endGame() {
+function endGame(reason = 'complete') {
   if (!playing) return;
   playing = false;
   setControlsEnabled(false);
-  clearTimeout(gameTimer);
-  gameTimer = null;
-  if (stopTimer) {
-    stopTimer();
-    stopTimer = null;
-  }
   clearCanvas(ctx);
   const elapsed = Date.now() - startTime;
   const { score: finalScore, accuracyPct, speed } = calculateScore(
     { green: stats.green, yellow: 0, red: stats.red },
     elapsed
   );
+  updateStrikeDisplay();
+  const prefix =
+    reason === 'strikes'
+      ? 'Out of strikes! '
+      : reason === 'visibility'
+        ? 'Session ended while the tab was hidden. '
+        : '';
   if (window.leaderboard) {
     window.leaderboard.updateLeaderboard(scoreKey, finalScore);
     const high = window.leaderboard.getHighScore(scoreKey);
-    result.textContent = `Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
+    result.textContent = `${prefix}Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
   } else {
-    result.textContent = `Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
+    result.textContent = `${prefix}Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
   }
   startBtn.disabled = false;
   startBtn.style.display = '';
@@ -222,7 +223,14 @@ function handleConfirm() {
     stats.red++;
     updateScoreboard('red');
     playSound(audioCtx, 'red');
-    result.textContent = `Off target. ${formatDifferenceMessage(diffInfo)} Adjust and click again.`;
+    if (stats.red >= MAX_STRIKES) {
+      result.textContent = `Off target. ${formatDifferenceMessage(diffInfo)}`;
+      updateStrikeDisplay();
+      endGame('strikes');
+      return;
+    }
+    result.textContent = `Off target. ${formatDifferenceMessage(diffInfo)} Strikes remaining: ${MAX_STRIKES - stats.red}. Adjust and click again.`;
+    updateStrikeDisplay();
     drawState(playerColor);
   }
 }
@@ -231,6 +239,7 @@ overlayStartButton(canvas, startBtn);
 setControlsEnabled(false);
 resetPlayerControls();
 clearCanvas(ctx);
+updateStrikeDisplay();
 
 [valueSlider, hueSlider, chromaSlider].forEach((slider) => {
   slider.addEventListener('input', handleSliderInput);
@@ -240,6 +249,6 @@ startBtn.addEventListener('click', startGame);
 
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden' && playing) {
-    endGame();
+    endGame('visibility');
   }
 });
