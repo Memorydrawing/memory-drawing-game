@@ -121,7 +121,6 @@ function drawTarget(shape = target) {
   if (!shape || shape.points.length === 0) return;
   clearCanvas(ctx);
   ctx.save();
-  ctx.lineWidth = LINE_WIDTH;
   ctx.beginPath();
   ctx.moveTo(shape.points[0].x, shape.points[0].y);
   for (let i = 1; i < shape.points.length; i++) {
@@ -131,11 +130,13 @@ function drawTarget(shape = target) {
     ctx.closePath();
   }
   if (config.fillShape && shape.closed) {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+    ctx.fillStyle = '#333';
     ctx.fill();
+  } else {
+    ctx.lineWidth = LINE_WIDTH;
+    ctx.strokeStyle = '#444';
+    ctx.stroke();
   }
-  ctx.strokeStyle = '#444';
-  ctx.stroke();
   ctx.restore();
 }
 
@@ -317,9 +318,11 @@ function pointerUp(e) {
     // ignore
   }
 
-  gradeAttempt();
+  const success = gradeAttempt();
   if (playing) {
-    target = generateTarget();
+    if (success) {
+      target = generateTarget();
+    }
     resetCoverage();
     drawTarget();
   }
