@@ -79,7 +79,7 @@ function startGame() {
   result.textContent = '';
   startBtn.disabled = true;
   strikeCounter = createStrikeCounter(strikeContainer, MAX_STRIKES);
-  targets = [randomLine(), randomLine()];
+  targets = [randomLine()];
   drawTargets();
 }
 
