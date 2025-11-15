@@ -1,8 +1,8 @@
 import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
-import { startCountdown } from './src/countdown.js';
 import { calculateScore } from './src/scoring.js';
 import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
+import { createStrikeCounter } from './src/strike-counter.js';
 
 const LINE_WIDTH = 2;
 const DEFAULT_TOLERANCE = 6;
@@ -18,14 +18,15 @@ let target = null;
 let scoreKey = 'dexterity_polygon';
 let stats = { green: 0, yellow: 0, red: 0 };
 let startTime = 0;
-let gameTimer = null;
-let stopTimer = null;
 let config = null;
 let lastPos = null;
 let onLineDist = 0;
 let offLineDist = 0;
+let strikeCounter = null;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+const MAX_STRIKES = 3;
 
 function randomInRange(min, max) {
   return Math.random() * (max - min) + min;
@@ -234,33 +235,33 @@ function startGame() {
   startScoreboard(canvas);
   result.textContent = '';
   startBtn.disabled = true;
+  strikeCounter = createStrikeCounter(timerDisplay, MAX_STRIKES);
   startTime = Date.now();
   target = generateTarget();
   resetCoverage();
   drawTarget();
-  stopTimer = startCountdown(timerDisplay, 60000);
-  gameTimer = setTimeout(endGame, 60000);
 }
 
-function endGame() {
+function endGame(reason = 'complete') {
   if (!playing) return;
   playing = false;
-  clearTimeout(gameTimer);
-  if (stopTimer) stopTimer();
   clearCanvas(ctx);
   const elapsed = Date.now() - startTime;
   const { score: finalScore, accuracyPct, speed } = calculateScore(
     { green: stats.green, yellow: stats.yellow, red: stats.red },
     elapsed
   );
+  const prefix = reason === 'strikes' ? 'Out of strikes! ' : '';
   if (window.leaderboard) {
     window.leaderboard.updateLeaderboard(scoreKey, finalScore);
     const high = window.leaderboard.getHighScore(scoreKey);
-    result.textContent = `Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
+    result.textContent = `${prefix}Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
   } else {
-    result.textContent = `Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
+    result.textContent = `${prefix}Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
   }
   resetDrawingState();
+  startBtn.disabled = false;
+  startBtn.style.display = '';
 }
 
 function pointerDown(e) {
@@ -319,6 +320,14 @@ function pointerUp(e) {
   }
 
   const success = gradeAttempt();
+  if (success) {
+    if (strikeCounter) {
+      strikeCounter.registerSuccess();
+    }
+  } else if (strikeCounter && strikeCounter.registerFailure()) {
+    endGame('strikes');
+  }
+
   if (playing) {
     if (success) {
       target = generateTarget();

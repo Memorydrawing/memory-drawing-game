@@ -1,19 +1,20 @@
 import { getCanvasPos, clearCanvas, playSound, preventDoubleTapZoom } from './src/utils.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
-import { startCountdown } from './src/countdown.js';
 import { calculateScore } from './src/scoring.js';
 import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
+import { createStrikeCounter } from './src/strike-counter.js';
 
 let canvas, ctx, startBtn, result, timerDisplay;
 let playing = false;
 let targets = [];
-let gameTimer = null;
 let targetRadius = 5;
 let gradingTolerance = 5;
 let scoreKey = 'dexterity_point_drill';
-let stopTimer = null;
 let stats = null;
 let startTime = 0;
+let strikeCounter = null;
+
+const MAX_STRIKES = 3;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -43,31 +44,31 @@ function startGame() {
   startScoreboard(canvas);
   result.textContent = '';
   startBtn.disabled = true;
+  strikeCounter = createStrikeCounter(timerDisplay, MAX_STRIKES);
   targets = [randomTarget(), randomTarget()];
   drawTargets();
   startTime = Date.now();
-  stopTimer = startCountdown(timerDisplay, 60000);
-  gameTimer = setTimeout(endGame, 60000);
 }
 
-function endGame() {
+function endGame(reason = 'complete') {
   if (!playing) return;
   playing = false;
-  clearTimeout(gameTimer);
-  if (stopTimer) stopTimer();
   clearCanvas(ctx);
   const elapsed = Date.now() - startTime;
   const { score: finalScore, accuracyPct, speed } = calculateScore(
     { green: stats.green, yellow: 0, red: stats.red },
     elapsed
   );
+  const prefix = reason === 'strikes' ? 'Out of strikes! ' : '';
   if (window.leaderboard) {
     window.leaderboard.updateLeaderboard(scoreKey, finalScore);
     const high = window.leaderboard.getHighScore(scoreKey);
-    result.textContent = `Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
+    result.textContent = `${prefix}Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
   } else {
-    result.textContent = `Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
+    result.textContent = `${prefix}Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
   }
+  startBtn.disabled = false;
+  startBtn.style.display = '';
 }
 
 function pointerDown(e) {
@@ -82,6 +83,9 @@ function pointerDown(e) {
       updateScoreboard('green');
       hit = true;
       setTimeout(() => playSound(audioCtx, 'green'), 0);
+      if (strikeCounter) {
+        strikeCounter.registerSuccess();
+      }
       targets[i] = randomTarget();
       drawTargets();
       break;
@@ -91,6 +95,10 @@ function pointerDown(e) {
     stats.red++;
     setTimeout(() => playSound(audioCtx, 'red'), 0);
     updateScoreboard('red');
+    if (strikeCounter && strikeCounter.registerFailure()) {
+      endGame('strikes');
+      return;
+    }
   }
 }
 

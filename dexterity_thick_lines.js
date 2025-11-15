@@ -1,17 +1,16 @@
 import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
-import { startCountdown } from './src/countdown.js';
 import { calculateScore } from './src/scoring.js';
 import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
+import { createStrikeCounter } from './src/strike-counter.js';
 
 let canvas, ctx, startBtn, result, timerDisplay;
 let playing = false;
 let targets = [];
-let gameTimer = null;
 let scoreKey = 'dexterity_thick_lines';
-let stopTimer = null;
 let stats = { green: 0, yellow: 0, red: 0 };
 let startTime = 0;
+let strikeCounter = null;
 
 let drawing = false;
 let activeTarget = null;
@@ -26,6 +25,8 @@ const maxOffSegmentRatio = 0.1;
 const LINE_WIDTH = (8 / 3);
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+const MAX_STRIKES = 3;
 
 function randomLine() {
   const margin = 20;
@@ -77,30 +78,30 @@ function startGame() {
   startTime = Date.now();
   result.textContent = '';
   startBtn.disabled = true;
+  strikeCounter = createStrikeCounter(timerDisplay, MAX_STRIKES);
   targets = [randomLine(), randomLine()];
   drawTargets();
-  stopTimer = startCountdown(timerDisplay, 60000);
-  gameTimer = setTimeout(endGame, 60000);
 }
 
-function endGame() {
+function endGame(reason = 'complete') {
   if (!playing) return;
   playing = false;
-  clearTimeout(gameTimer);
-  if (stopTimer) stopTimer();
   clearCanvas(ctx);
   const elapsed = Date.now() - startTime;
   const { score: finalScore, accuracyPct, speed } = calculateScore(
     { green: stats.green, yellow: 0, red: stats.red },
     elapsed
   );
+  const prefix = reason === 'strikes' ? 'Out of strikes! ' : '';
   if (window.leaderboard) {
     window.leaderboard.updateLeaderboard(scoreKey, finalScore);
     const high = window.leaderboard.getHighScore(scoreKey);
-    result.textContent = `Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
+    result.textContent = `${prefix}Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
   } else {
-    result.textContent = `Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
+    result.textContent = `${prefix}Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
   }
+  startBtn.disabled = false;
+  startBtn.style.display = '';
 }
 
 function projectPointToSegment(p, seg) {
@@ -197,12 +198,18 @@ function pointerUp(e) {
       playSound(audioCtx, 'green');
       stats.green += 1;
       updateScoreboard('green');
+      if (strikeCounter) {
+        strikeCounter.registerSuccess();
+      }
       targets[activeTarget] = randomLine();
       drawTargets();
     } else {
       playSound(audioCtx, 'red');
       stats.red += 1;
       updateScoreboard('red');
+      if (strikeCounter && strikeCounter.registerFailure()) {
+        endGame('strikes');
+      }
     }
   }
   activeTarget = null;

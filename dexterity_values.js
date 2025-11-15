@@ -1,8 +1,8 @@
 import { clearCanvas, playSound } from './src/utils.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
-import { startCountdown } from './src/countdown.js';
 import { calculateScore } from './src/scoring.js';
 import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
+import { createStrikeCounter } from './src/strike-counter.js';
 
 const canvas = document.getElementById('valueCanvas');
 const slider = document.getElementById('valueSlider');
@@ -14,7 +14,6 @@ const result = document.getElementById('result');
 const ctx = canvas.getContext('2d');
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-const GAME_DURATION_MS = 60000;
 const MUNSELL_VALUE_MAX = 10;
 const MUNSELL_VALUE_STEP = 0.5;
 const TARGET_VALUE_LEVELS = Array.from(
@@ -30,9 +29,10 @@ let playing = false;
 let targetValue = 5;
 let stats = { green: 0, yellow: 0, red: 0 };
 let scoreKey = canvas.dataset.scoreKey || 'dexterity_values';
-let gameTimer = null;
-let stopTimer = null;
 let startTime = 0;
+let strikeCounter = null;
+
+const MAX_STRIKES = 3;
 
 function valueToColor(value) {
   const ratio = Math.min(1, Math.max(0, value / MUNSELL_VALUE_MAX));
@@ -87,32 +87,26 @@ function startGame() {
   setControlsEnabled(true);
   drawState();
   startTime = Date.now();
-  stopTimer = startCountdown(timerDisplay, GAME_DURATION_MS);
-  gameTimer = setTimeout(endGame, GAME_DURATION_MS);
+  strikeCounter = createStrikeCounter(timerDisplay, MAX_STRIKES);
 }
 
-function endGame() {
+function endGame(reason = 'complete') {
   if (!playing) return;
   playing = false;
   setControlsEnabled(false);
-  clearTimeout(gameTimer);
-  gameTimer = null;
-  if (stopTimer) {
-    stopTimer();
-    stopTimer = null;
-  }
   clearCanvas(ctx);
   const elapsed = Date.now() - startTime;
   const { score: finalScore, accuracyPct, speed } = calculateScore(
     { green: stats.green, yellow: 0, red: stats.red },
     elapsed
   );
+  const prefix = reason === 'strikes' ? 'Out of strikes! ' : '';
   if (window.leaderboard) {
     window.leaderboard.updateLeaderboard(scoreKey, finalScore);
     const high = window.leaderboard.getHighScore(scoreKey);
-    result.textContent = `Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
+    result.textContent = `${prefix}Score: ${finalScore} (Best: ${high}) | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
   } else {
-    result.textContent = `Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
+    result.textContent = `${prefix}Score: ${finalScore} | Accuracy: ${accuracyPct.toFixed(1)}% | Speed: ${speed.toFixed(2)}/s | Green: ${stats.green} Red: ${stats.red}`;
   }
   startBtn.disabled = false;
   startBtn.style.display = '';
@@ -138,11 +132,21 @@ function handleConfirm() {
     targetValue = randomTargetValue();
     resetPlayerState();
     drawState();
+    if (strikeCounter) {
+      strikeCounter.registerSuccess();
+    }
   } else {
     stats.red++;
     updateScoreboard('red');
     playSound(audioCtx, 'red');
-    result.textContent = `Off by ${diffSteps.toFixed(1)} V (${diffPct}%). Adjust and click again.`;
+    const exhausted = strikeCounter ? strikeCounter.registerFailure() : false;
+    const strikesRemaining = strikeCounter ? Math.max(0, MAX_STRIKES - strikeCounter.getStrikes()) : MAX_STRIKES;
+    result.textContent = exhausted
+      ? `Off by ${diffSteps.toFixed(1)} V (${diffPct}%).`
+      : `Off by ${diffSteps.toFixed(1)} V (${diffPct}%). Strikes remaining: ${strikesRemaining}. Adjust and click again.`;
+    if (exhausted) {
+      endGame('strikes');
+    }
   }
 }
 

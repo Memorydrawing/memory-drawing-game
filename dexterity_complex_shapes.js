@@ -1,9 +1,9 @@
 import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 import { generateShape, distancePointToSegment } from './geometry.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
-import { startCountdown } from './src/countdown.js';
 import { calculateScore } from './src/scoring.js';
 import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
+import { createStrikeCounter } from './src/strike-counter.js';
 
 let canvas, ctx, startBtn, result, timerDisplay;
 let playing = false;
@@ -14,13 +14,13 @@ let playerShape = [];
 let stats = { green: 0, yellow: 0, red: 0 };
 let startTime = 0;
 let scoreKey = 'dexterity_complex_shapes';
-let gameTimer = null;
-let stopTimer = null;
 let correctSamples = 0;
 let totalSamples = 0;
+let strikeCounter = null;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 const SAMPLE_STEP = 0.05;
+const MAX_STRIKES = 3;
 
 function gradeDistance(d) {
   if (d <= 4) return 'green';
@@ -223,30 +223,39 @@ function startGame() {
   startScoreboard(canvas);
   result.textContent = 'Trace both shapes carefully. They will only disappear after a clean outline.';
   startBtn.disabled = true;
+  strikeCounter = createStrikeCounter(timerDisplay, MAX_STRIKES);
   startTime = Date.now();
   shapes = [];
   ensureShapeCount();
   drawShapes();
-  stopTimer = startCountdown(timerDisplay, 60000);
-  gameTimer = setTimeout(endGame, 60000);
 }
 
-function endGame() {
+function endGame(reason = 'complete') {
   if (!playing) return;
   playing = false;
-  clearTimeout(gameTimer);
-  if (stopTimer) stopTimer();
   clearCanvas(ctx);
   const elapsed = Date.now() - startTime;
   const { score: finalScore } = calculateScore(stats, elapsed);
   if (window.leaderboard) {
     window.leaderboard.updateLeaderboard(scoreKey, finalScore);
     const high = window.leaderboard.getHighScore(scoreKey);
-    result.textContent = `Score: ${finalScore} (Best: ${high}). Time's up—press Start to tackle more shapes.`;
+    const prefix = reason === 'strikes' ? 'Out of strikes! ' : '';
+    const suffix =
+      reason === 'strikes'
+        ? 'Press Start to tackle more shapes.'
+        : "Time's up—press Start to tackle more shapes.";
+    result.textContent = `${prefix}Score: ${finalScore} (Best: ${high}). ${suffix}`;
   } else {
-    result.textContent = `Score: ${finalScore}. Time's up—press Start to tackle more shapes.`;
+    const prefix = reason === 'strikes' ? 'Out of strikes! ' : '';
+    const suffix =
+      reason === 'strikes'
+        ? 'Press Start to tackle more shapes.'
+        : "Time's up—press Start to tackle more shapes.";
+    result.textContent = `${prefix}Score: ${finalScore}. ${suffix}`;
   }
   resetDrawing();
+  startBtn.disabled = false;
+  startBtn.style.display = '';
 }
 
 function pointerDown(e) {
@@ -301,6 +310,16 @@ function pointerUp(e) {
   stats[grade] += 1;
   updateScoreboard(grade);
   playSound(audioCtx, grade === 'yellow' ? 'yellow' : grade);
+
+  if (grade === 'green') {
+    if (strikeCounter) {
+      strikeCounter.registerSuccess();
+    }
+  } else if (grade === 'red') {
+    if (strikeCounter && strikeCounter.registerFailure()) {
+      endGame('strikes');
+    }
+  }
 
   if (result) {
     if (grade === 'green' && shape) {
