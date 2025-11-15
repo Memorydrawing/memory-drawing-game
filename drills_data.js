@@ -267,14 +267,5 @@ export const drills = [
     subject: 'Shapes',
     difficulty: 'Expert',
     scoreKey: 'dexterity_complex_shapes'
-  },
-  {
-    name: 'Inch Drill',
-    url: 'inch_warmup.html',
-    description: 'Draw one-inch strokes by feel to warm up your freehand accuracy.',
-    category: 'Dexterity',
-    subject: 'Lines',
-    difficulty: 'Beginner',
-    tags: ['Experimental']
   }
 ];
