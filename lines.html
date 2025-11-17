@@ -11,6 +11,11 @@
     <button id="backBtn">← Back</button>
     <h2>Lines</h2>
     <button id="startBtn">Start</button>
+    <div id="strikes" class="timer strikes" role="img" aria-label="Strikes: 0 of 3">
+      <div class="strike-box" aria-hidden="true"></div>
+      <div class="strike-box" aria-hidden="true"></div>
+      <div class="strike-box" aria-hidden="true"></div>
+    </div>
     <canvas
       id="gameCanvas"
       width="500"
@@ -26,11 +31,6 @@
       data-tolerance="4"
       data-line-width="2"
     ></canvas>
-    <div id="strikes" class="timer strikes" role="img" aria-label="Strikes: 0 of 3">
-      <div class="strike-box" aria-hidden="true"></div>
-      <div class="strike-box" aria-hidden="true"></div>
-      <div class="strike-box" aria-hidden="true"></div>
-    </div>
     <p class="score" id="result"></p>
   </div>
   <script src="back.js"></script>
