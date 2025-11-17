@@ -15,6 +15,11 @@
       corresponding value step.
     </p>
     <button id="startBtn">Start</button>
+    <div id="strikes" class="timer strikes" role="img" aria-label="Strikes: 0 of 3">
+      <div class="strike-box" aria-hidden="true"></div>
+      <div class="strike-box" aria-hidden="true"></div>
+      <div class="strike-box" aria-hidden="true"></div>
+    </div>
     <canvas
       id="valueCanvas"
       class="value-drill-canvas"
@@ -22,11 +27,6 @@
       height="500"
       data-score-key="memory_values"
     ></canvas>
-    <div id="strikes" class="timer strikes" role="img" aria-label="Strikes: 0 of 3">
-      <div class="strike-box" aria-hidden="true"></div>
-      <div class="strike-box" aria-hidden="true"></div>
-      <div class="strike-box" aria-hidden="true"></div>
-    </div>
     <div class="value-slider-wrapper">
       <input
         type="range"
