@@ -228,9 +228,12 @@ function startRound({ reuseTarget = false, repeatReason = null } = {}) {
 
   roundActive = true;
   setControlsEnabled(true);
-  valueSlider.value = '5';
-  hueSlider.value = '50';
-  chromaSlider.value = '8';
+  if (!reuseTarget) {
+    valueSlider.value = '5';
+    hueSlider.value = '50';
+    chromaSlider.value = '8';
+  }
+
   updateSliderBackgrounds(Number(hueSlider.value), Number(chromaSlider.value), Number(valueSlider.value));
   showTarget();
 
