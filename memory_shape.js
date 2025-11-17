@@ -3,7 +3,7 @@ import { overlayStartButton, hideStartButton } from './src/start-button.js';
 import { calculateScore } from './src/scoring.js';
 import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
 
-const LINE_WIDTH = 2;
+const DEFAULT_LINE_WIDTH = 2;
 const DEFAULT_TOLERANCE = 6;
 const DEFAULT_OFF_RATIO = 0.25;
 const DEFAULT_PREVIEW_DELAY = 600;
@@ -38,6 +38,13 @@ let lastPos = null;
 let onLineDist = 0;
 let offLineDist = 0;
 let config = null;
+
+function getLineWidth() {
+  if (config && Number.isFinite(config.lineWidth)) {
+    return config.lineWidth;
+  }
+  return DEFAULT_LINE_WIDTH;
+}
 let currentPath = [];
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -362,7 +369,7 @@ function drawArrowhead(endpoint, angle, color) {
 function drawTarget(shape = target, color = 'black') {
   if (!shape || shape.points.length === 0) return;
   ctx.save();
-  ctx.lineWidth = LINE_WIDTH;
+  ctx.lineWidth = getLineWidth();
   ctx.strokeStyle = color;
 
   if (shape.type === 'contour' && shape.meta) {
@@ -515,7 +522,7 @@ function updateStrikes() {
 function drawAttemptPath(path, desaturated = false) {
   if (!path || path.length === 0) return;
   ctx.save();
-  ctx.lineWidth = LINE_WIDTH;
+  ctx.lineWidth = getLineWidth();
   path.forEach(segment => {
     ctx.beginPath();
     ctx.moveTo(segment.start.x, segment.start.y);
@@ -624,7 +631,7 @@ function pointerMove(e) {
   ctx.beginPath();
   ctx.moveTo(lastPos.x, lastPos.y);
   ctx.lineTo(pos.x, pos.y);
-  ctx.lineWidth = LINE_WIDTH;
+  ctx.lineWidth = getLineWidth();
   const segmentColor = onShape ? 'green' : 'red';
   if (onShape) {
     ctx.strokeStyle = 'green';
@@ -763,6 +770,7 @@ function initConfig() {
     vertexCount: vertexCount > 0 ? vertexCount : 2,
     closed,
     tolerance: parseFloat(canvas.dataset.tolerance) || DEFAULT_TOLERANCE,
+    lineWidth: parseFloat(canvas.dataset.lineWidth) || DEFAULT_LINE_WIDTH,
     offRatioLimit: parseFloat(canvas.dataset.offRatio) || DEFAULT_OFF_RATIO,
     previewDelay: parseInt(canvas.dataset.previewDelay, 10) || DEFAULT_PREVIEW_DELAY,
     coverageThreshold: parseFloat(canvas.dataset.coverageThreshold) || DEFAULT_COVERAGE_THRESHOLD,
