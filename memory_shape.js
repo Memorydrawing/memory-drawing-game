@@ -722,7 +722,7 @@ function finishAttempt(e) {
     color: segment.color
   }));
   if (success) {
-    strikes = 0;
+    strikes = Math.max(0, strikes - 1);
   } else if (!nearMiss) {
     strikes = Math.min(MAX_STRIKES, strikes + 1);
   }

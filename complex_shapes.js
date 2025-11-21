@@ -338,7 +338,7 @@ function pointerUp() {
     setTimeout(() => {
       result.textContent = '';
       attemptCount = 0;
-      strikes = 0;
+      strikes = Math.max(0, strikes - 1);
       updateStrikes();
       startShape();
     }, NEW_SHAPE_DELAY);

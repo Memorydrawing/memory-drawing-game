@@ -170,13 +170,13 @@ function gradeAttempt(playerComponents) {
   if (diffInfo.valueSteps === 0 && diffInfo.chromaSteps === 0) {
     grade = 'green';
     message = `Value and chroma match exactly! ${setResultMessage(diffInfo)}`;
-    strikes = 0;
+    strikes = Math.max(0, strikes - 1);
     stats.green++;
     totals.perfect++;
   } else if (diff <= GREEN_THRESHOLD) {
     grade = 'green';
     message = `Perfect match! ${setResultMessage(diffInfo)}`;
-    strikes = 0;
+    strikes = Math.max(0, strikes - 1);
     stats.green++;
     totals.perfect++;
   } else if (diff <= CLOSE_THRESHOLD) {

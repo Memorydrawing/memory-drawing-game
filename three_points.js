@@ -118,7 +118,7 @@ function finishCycle() {
     totalAttempts += attemptCount;
     result.textContent = '';
     attemptCount = 0;
-    strikes = 0;
+    strikes = Math.max(0, strikes - 1);
     updateStrikes();
     startTriangle();
   } else {

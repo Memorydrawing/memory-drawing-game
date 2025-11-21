@@ -43,7 +43,7 @@ export function createStrikeCounter(containerElement, maxStrikes = DEFAULT_MAX_S
 
   return {
     registerSuccess() {
-      strikes = 0;
+      strikes = Math.max(0, strikes - 1);
       render();
     },
     registerFailure() {

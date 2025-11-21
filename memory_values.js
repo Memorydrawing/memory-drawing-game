@@ -148,7 +148,7 @@ function gradeAttempt(playerValue) {
   if (diffNormalized <= GREEN_THRESHOLD) {
     grade = 'green';
     message = `Perfect match! Δ${diffValue.toFixed(1)} V (${diffPct.toFixed(1)}%).`;
-    strikes = 0;
+    strikes = Math.max(0, strikes - 1);
     stats.green++;
     totals.perfect++;
   } else if (diffNormalized <= CLOSE_THRESHOLD) {
