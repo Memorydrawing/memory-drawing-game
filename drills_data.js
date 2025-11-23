@@ -204,6 +204,16 @@ export const drills = [
     scoreKey: 'dexterity_color'
   },
   {
+    name: 'SVG Shape Drill',
+    url: 'svg_shape_drill.html',
+    description: 'Trace SVG outlines for anatomy studies and mastercopy plates.',
+    category: 'Dexterity',
+    subject: 'Shapes',
+    difficulty: 'Adept',
+    scoreKey: 'svg_shape_drill',
+    tags: ['svg', 'shapes', 'anatomy']
+  },
+  {
     name: 'Lines',
     url: 'dexterity_lines.html',
     description: 'Practice tracing lines of different lengths and directions.',
