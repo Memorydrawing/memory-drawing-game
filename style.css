@@ -875,3 +875,81 @@ h2, h1 { margin: 10px 0; }
   font-size: 1em;
   cursor: pointer;
 }
+
+/* SVG shape drill layout */
+.layout-two-column {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 12px;
+  align-items: flex-start;
+}
+
+.canvas-column {
+  flex: 2 1 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.canvas-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.canvas-wrapper canvas {
+  width: 100%;
+  height: auto;
+  max-width: 960px;
+  border-radius: 12px;
+}
+
+.start-btn {
+  padding: 12px 24px;
+  font-size: 18px;
+  border-radius: 10px;
+  border: none;
+  background: #4caf50;
+  color: white;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.controls {
+  flex: 1 1 260px;
+  background: #fff;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.controls .hint {
+  color: #555;
+  font-size: 14px;
+}
+
+.shape-label {
+  text-align: center;
+  font-weight: 700;
+  font-size: 18px;
+  color: #333;
+}
+
+.result {
+  text-align: center;
+  min-height: 22px;
+  font-weight: 600;
+}
+
+.strike-container {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+@media (max-width: 900px) {
+  .controls {
+    width: 100%;
+  }
+}
