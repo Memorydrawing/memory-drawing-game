@@ -116,6 +116,7 @@ function init() {
     Points: ['Points'],
     Lines: ['Lines'],
     Shapes: ['Shapes', 'Angles', 'Ellipses', 'Ellipse'],
+    Forms: ['Forms'],
     Colors: ['Colors', 'Color']
   };
 

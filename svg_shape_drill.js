@@ -37,6 +37,8 @@ function init() {
 
 function populateCategories() {
   const categories = getCategories();
+  const params = new URLSearchParams(window.location.search);
+  const preferred = params.get('category');
   categories.forEach(({ key, label }) => {
     const option = document.createElement('option');
     option.value = key;
@@ -44,7 +46,8 @@ function populateCategories() {
     categorySelect.appendChild(option);
   });
   if (categories.length) {
-    categorySelect.value = categories[0].key;
+    const hasPreferred = preferred && categories.some(({ key }) => key === preferred);
+    categorySelect.value = hasPreferred ? preferred : categories[0].key;
   }
   categorySelect.addEventListener('change', () => {
     if (!playing) return;

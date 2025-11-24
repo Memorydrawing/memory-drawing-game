@@ -149,6 +149,96 @@ export const drills = [
     scoreKey: 'memory_color'
   },
   {
+    name: 'Eyes (SVG Memory)',
+    url: 'svg_shape_drill.html?category=eyes',
+    description: 'Memorize and trace eye contours pulled from SVG plates.',
+    category: 'Memorization',
+    subject: 'Forms',
+    difficulty: 'Adept',
+    scoreKey: 'forms_eyes'
+  },
+  {
+    name: 'Ears (SVG Memory)',
+    url: 'svg_shape_drill.html?category=ears',
+    description: 'Practice ear outlines for structural recall.',
+    category: 'Memorization',
+    subject: 'Forms',
+    difficulty: 'Adept',
+    scoreKey: 'forms_ears'
+  },
+  {
+    name: 'Noses (SVG Memory)',
+    url: 'svg_shape_drill.html?category=noses',
+    description: 'Drill nose silhouettes to strengthen form memory.',
+    category: 'Memorization',
+    subject: 'Forms',
+    difficulty: 'Adept',
+    scoreKey: 'forms_noses'
+  },
+  {
+    name: 'Lips (SVG Memory)',
+    url: 'svg_shape_drill.html?category=lips',
+    description: 'Trace lip shapes to commit proportion patterns to memory.',
+    category: 'Memorization',
+    subject: 'Forms',
+    difficulty: 'Adept',
+    scoreKey: 'forms_lips'
+  },
+  {
+    name: 'Heads (SVG Memory)',
+    url: 'svg_shape_drill.html?category=heads',
+    description: 'Study head masses and block-ins with SVG contours.',
+    category: 'Memorization',
+    subject: 'Forms',
+    difficulty: 'Adept',
+    scoreKey: 'forms_heads'
+  },
+  {
+    name: 'Torsos (SVG Memory)',
+    url: 'svg_shape_drill.html?category=torsos',
+    description: 'Reinforce torso construction through repeat tracing.',
+    category: 'Memorization',
+    subject: 'Forms',
+    difficulty: 'Adept',
+    scoreKey: 'forms_torsos'
+  },
+  {
+    name: 'Arms (SVG Memory)',
+    url: 'svg_shape_drill.html?category=arms',
+    description: 'Focus on arm rhythms and landmarks via SVG outlines.',
+    category: 'Memorization',
+    subject: 'Forms',
+    difficulty: 'Adept',
+    scoreKey: 'forms_arms'
+  },
+  {
+    name: 'Legs (SVG Memory)',
+    url: 'svg_shape_drill.html?category=legs',
+    description: 'Trace leg proportions to improve structural recall.',
+    category: 'Memorization',
+    subject: 'Forms',
+    difficulty: 'Adept',
+    scoreKey: 'forms_legs'
+  },
+  {
+    name: 'Hands (SVG Memory)',
+    url: 'svg_shape_drill.html?category=hands',
+    description: 'Practice hand silhouettes for gesture and proportion memory.',
+    category: 'Memorization',
+    subject: 'Forms',
+    difficulty: 'Adept',
+    scoreKey: 'forms_hands'
+  },
+  {
+    name: 'Feet (SVG Memory)',
+    url: 'svg_shape_drill.html?category=feet',
+    description: 'Drill foot outlines to memorize structure and balance.',
+    category: 'Memorization',
+    subject: 'Forms',
+    difficulty: 'Adept',
+    scoreKey: 'forms_feet'
+  },
+  {
     name: 'Large Points',
     url: 'dexterity_point_drill_large.html',
     description: 'Point drill with larger targets for easier accuracy.',
