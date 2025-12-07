@@ -25,6 +25,8 @@ const LINE_WIDTH = 2.5;
 const SAMPLE_POINTS = 180;
 const MARGIN = 60;
 const MIN_RADIUS = 60;
+const MIN_MINOR_RADIUS = 30;
+const MIN_ASPECT_RATIO = 0.35;
 const MAX_RADIUS = 170;
 const COVERAGE_THRESHOLD = 0.85;
 
@@ -34,8 +36,14 @@ const MAX_STRIKES = 3;
 
 function randomEllipse() {
   const rotation = Math.random() * Math.PI;
-  const radiusX = MIN_RADIUS + Math.random() * (MAX_RADIUS - MIN_RADIUS);
-  const radiusY = MIN_RADIUS + Math.random() * (MAX_RADIUS - MIN_RADIUS);
+  const majorRadius = MIN_RADIUS + Math.random() * (MAX_RADIUS - MIN_RADIUS);
+  const aspectRatio = MIN_ASPECT_RATIO + Math.random() * (1 - MIN_ASPECT_RATIO);
+  let radiusX = majorRadius;
+  let radiusY = Math.max(MIN_MINOR_RADIUS, majorRadius * aspectRatio);
+
+  if (Math.random() < 0.5) {
+    [radiusX, radiusY] = [radiusY, radiusX];
+  }
   const maxX = canvas.width - MARGIN - radiusX;
   const minX = MARGIN + radiusX;
   const maxY = canvas.height - MARGIN - radiusY;
