@@ -1,5 +1,5 @@
 const DEFAULT_TIMER_SETTINGS = {
-  initialSeconds: 60,
+  initialSeconds: 0,
   maxSeconds: 120,
   successDelta: 3,
   failureDelta: 7,
@@ -25,7 +25,12 @@ function createDisplay(container) {
   value.className = 'timer-display';
   container.appendChild(value);
 
-  return value;
+  const delta = document.createElement('div');
+  delta.className = 'timer-delta';
+  delta.addEventListener('animationend', () => delta.classList.remove('show'));
+  container.appendChild(delta);
+
+  return { value, delta };
 }
 
 export function createStrikeCounter(containerElement, settings = {}, onExpire = null) {
@@ -33,8 +38,11 @@ export function createStrikeCounter(containerElement, settings = {}, onExpire = 
   let timeLeft = timerSettings.initialSeconds;
   let intervalId = null;
   let expired = false;
+  let hasStarted = false;
 
-  const displayValue = createDisplay(containerElement);
+  const display = createDisplay(containerElement);
+  const displayValue = display?.value;
+  const deltaDisplay = display?.delta;
 
   function render() {
     if (!displayValue) return;
@@ -43,11 +51,24 @@ export function createStrikeCounter(containerElement, settings = {}, onExpire = 
     containerElement?.setAttribute('aria-label', `Time remaining: ${seconds} seconds`);
   }
 
+  function showDelta(delta) {
+    if (!deltaDisplay || delta === 0) return;
+    const formatted = Number.isInteger(delta) ? delta : delta.toFixed(1);
+    deltaDisplay.textContent = `${delta > 0 ? '+' : ''}${formatted}s`;
+    deltaDisplay.classList.remove('show');
+    deltaDisplay.classList.toggle('positive', delta > 0);
+    deltaDisplay.classList.toggle('negative', delta < 0);
+    // Force reflow to restart animation
+    void deltaDisplay.offsetWidth;
+    deltaDisplay.classList.add('show');
+  }
+
   function stopTicking() {
     if (intervalId) {
       clearInterval(intervalId);
       intervalId = null;
     }
+    hasStarted = false;
   }
 
   function triggerExpire() {
@@ -62,8 +83,11 @@ export function createStrikeCounter(containerElement, settings = {}, onExpire = 
     return true;
   }
 
-  function adjustTime(delta) {
+  function adjustTime(delta, showChange = false) {
     timeLeft = Math.min(timerSettings.maxSeconds, Math.max(0, timeLeft + delta));
+    if (showChange) {
+      showDelta(delta);
+    }
     if (timeLeft <= 0) {
       return triggerExpire();
     }
@@ -72,7 +96,9 @@ export function createStrikeCounter(containerElement, settings = {}, onExpire = 
   }
 
   function startTicking() {
+    if (intervalId || expired) return;
     stopTicking();
+    hasStarted = true;
     intervalId = setInterval(() => {
       if (adjustTime(-timerSettings.tickMs / 1000)) {
         stopTicking();
@@ -80,22 +106,31 @@ export function createStrikeCounter(containerElement, settings = {}, onExpire = 
     }, timerSettings.tickMs);
   }
 
+  function startAfterFirstInput() {
+    if (!hasStarted && !expired && timeLeft > 0) {
+      startTicking();
+    }
+  }
+
   function reset() {
     expired = false;
     timeLeft = timerSettings.initialSeconds;
+    stopTicking();
     render();
-    startTicking();
   }
 
   render();
-  startTicking();
 
   return {
     registerSuccess() {
-      return adjustTime(timerSettings.successDelta);
+      const expiredNow = adjustTime(timerSettings.successDelta, true);
+      startAfterFirstInput();
+      return expiredNow;
     },
     registerFailure() {
-      return adjustTime(-timerSettings.failureDelta);
+      const expiredNow = adjustTime(-timerSettings.failureDelta, true);
+      startAfterFirstInput();
+      return expiredNow;
     },
     reset,
     stop: stopTicking,
