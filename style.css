@@ -759,30 +759,25 @@ h2, h1 { margin: 10px 0; }
 .difficulty-expert {
   background-color: #f44336;
 }
-.strikes {
-  display: flex;
+.strikes,
+.timer {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
   gap: 8px;
   margin-top: 10px;
-}
-
-.strike-box {
-  width: 24px;
-  height: 24px;
+  padding: 6px 12px;
   border: 2px solid #333;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  font-weight: 700;
-  color: #d32f2f;
+  border-radius: 8px;
   background-color: #fff;
-  box-sizing: border-box;
+  font-weight: 700;
+  font-size: 18px;
+  color: #1b5e20;
 }
 
-.strike-box.filled::before {
-  content: '\2717';
+.timer-display {
+  min-width: 64px;
+  text-align: center;
 }
 /* Tutorial page layout */
 .tutorial-body {
