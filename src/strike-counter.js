@@ -1,62 +1,111 @@
-const DEFAULT_MAX_STRIKES = 3;
+const DEFAULT_TIMER_SETTINGS = {
+  initialSeconds: 60,
+  maxSeconds: 120,
+  successDelta: 3,
+  failureDelta: 7,
+  tickMs: 1000
+};
 
-function ensureStrikeBoxes(container, maxStrikes) {
-  if (!container) return [];
-
-  let boxes = Array.from(container.querySelectorAll('.strike-box'));
-  if (boxes.length === maxStrikes) {
-    return boxes;
-  }
-
-  container.innerHTML = '';
-  boxes = [];
-  for (let i = 0; i < maxStrikes; i += 1) {
-    const box = document.createElement('div');
-    box.className = 'strike-box';
-    box.setAttribute('aria-hidden', 'true');
-    container.appendChild(box);
-    boxes.push(box);
-  }
-
-  return boxes;
+function normalizeSettings(settings = {}) {
+  return {
+    ...DEFAULT_TIMER_SETTINGS,
+    ...settings
+  };
 }
 
-function updateAccessibility(container, strikes, maxStrikes) {
-  if (!container) return;
+function createDisplay(container) {
+  if (!container) return null;
+
+  container.classList.add('timer');
   container.setAttribute('role', 'img');
   container.setAttribute('aria-live', 'polite');
-  container.setAttribute('aria-label', `Strikes: ${strikes} of ${maxStrikes}`);
+
+  container.innerHTML = '';
+  const value = document.createElement('div');
+  value.className = 'timer-display';
+  container.appendChild(value);
+
+  return value;
 }
 
-export function createStrikeCounter(containerElement, maxStrikes = DEFAULT_MAX_STRIKES) {
-  let strikes = 0;
-  const boxes = ensureStrikeBoxes(containerElement, maxStrikes);
+export function createStrikeCounter(containerElement, settings = {}, onExpire = null) {
+  const timerSettings = normalizeSettings(settings);
+  let timeLeft = timerSettings.initialSeconds;
+  let intervalId = null;
+  let expired = false;
+
+  const displayValue = createDisplay(containerElement);
 
   function render() {
-    boxes.forEach((box, index) => {
-      box.classList.toggle('filled', index < strikes);
-    });
-    updateAccessibility(containerElement, strikes, maxStrikes);
+    if (!displayValue) return;
+    const seconds = Math.max(0, Math.ceil(timeLeft));
+    displayValue.textContent = `${seconds}s`;
+    containerElement?.setAttribute('aria-label', `Time remaining: ${seconds} seconds`);
+  }
+
+  function stopTicking() {
+    if (intervalId) {
+      clearInterval(intervalId);
+      intervalId = null;
+    }
+  }
+
+  function triggerExpire() {
+    if (expired) return true;
+    expired = true;
+    timeLeft = 0;
+    stopTicking();
+    render();
+    if (typeof onExpire === 'function') {
+      onExpire();
+    }
+    return true;
+  }
+
+  function adjustTime(delta) {
+    timeLeft = Math.min(timerSettings.maxSeconds, Math.max(0, timeLeft + delta));
+    if (timeLeft <= 0) {
+      return triggerExpire();
+    }
+    render();
+    return false;
+  }
+
+  function startTicking() {
+    stopTicking();
+    intervalId = setInterval(() => {
+      if (adjustTime(-timerSettings.tickMs / 1000)) {
+        stopTicking();
+      }
+    }, timerSettings.tickMs);
+  }
+
+  function reset() {
+    expired = false;
+    timeLeft = timerSettings.initialSeconds;
+    render();
+    startTicking();
   }
 
   render();
+  startTicking();
 
   return {
     registerSuccess() {
-      strikes = Math.max(0, strikes - 1);
-      render();
+      return adjustTime(timerSettings.successDelta);
     },
     registerFailure() {
-      strikes = Math.min(maxStrikes, strikes + 1);
-      render();
-      return strikes >= maxStrikes;
+      return adjustTime(-timerSettings.failureDelta);
     },
-    reset() {
-      strikes = 0;
-      render();
+    reset,
+    stop: stopTicking,
+    getTimeLeft() {
+      return timeLeft;
     },
-    getStrikes() {
-      return strikes;
+    isExpired() {
+      return expired;
     }
   };
 }
+
+export const DEFAULT_TIMER_CONFIG = DEFAULT_TIMER_SETTINGS;
