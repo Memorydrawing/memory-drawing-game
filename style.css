@@ -773,11 +773,50 @@ h2, h1 { margin: 10px 0; }
   font-weight: 700;
   font-size: 18px;
   color: #1b5e20;
+  position: relative;
+  overflow: visible;
 }
 
 .timer-display {
   min-width: 64px;
   text-align: center;
+}
+
+.timer-delta {
+  position: absolute;
+  right: 6px;
+  top: -18px;
+  font-size: 16px;
+  font-weight: 700;
+  opacity: 0;
+  transform: translateY(6px) scale(0.95);
+  pointer-events: none;
+}
+
+.timer-delta.positive {
+  color: #2e7d32;
+}
+
+.timer-delta.negative {
+  color: #c62828;
+}
+
+.timer-delta.show {
+  animation: timerDeltaPop 0.9s ease-out;
+}
+
+@keyframes timerDeltaPop {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.95);
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px) scale(1.02);
+  }
 }
 /* Tutorial page layout */
 .tutorial-body {
