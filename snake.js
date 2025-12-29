@@ -34,10 +34,11 @@ let playerSegments = [];
 let playerLength = 0;
 let score = 0;
 let strikeCounter = null;
-let strokeHadMiss = false;
-let strokeHadMovement = false;
+let onLineState = null;
+let onLineDistance = 0;
 
 const MAX_STRIKES = 3;
+const ON_LINE_REWARD_DISTANCE = 60;
 
 function initSnake() {
   snakePoints = [];
@@ -250,12 +251,31 @@ function updateLiveScore() {
   }
 }
 
+function applyOffLinePenalty() {
+  if (!strikeCounter) return;
+  if (strikeCounter.registerFailure()) {
+    endGame('strikes');
+  }
+}
+
+function rewardOnLineProgress(distance) {
+  if (!strikeCounter) return;
+  onLineDistance += distance;
+  while (onLineDistance >= ON_LINE_REWARD_DISTANCE) {
+    onLineDistance -= ON_LINE_REWARD_DISTANCE;
+    if (strikeCounter.registerSuccess()) {
+      endGame('strikes');
+      break;
+    }
+  }
+}
+
 function pointerDown(e) {
   if (!playing) return;
   drawing = true;
   lastPointerPos = getCanvasPos(canvas, e);
-  strokeHadMiss = false;
-  strokeHadMovement = false;
+  onLineState = null;
+  onLineDistance = 0;
   if (canvas.setPointerCapture) {
     canvas.setPointerCapture(e.pointerId);
   }
@@ -267,18 +287,29 @@ function pointerMove(e) {
   const segmentLength = Math.hypot(pos.x - lastPointerPos.x, pos.y - lastPointerPos.y);
   if (segmentLength === 0) return;
 
-  strokeHadMovement = true;
   const midpoint = {
     x: (pos.x + lastPointerPos.x) / 2,
     y: (pos.y + lastPointerPos.y) / 2
   };
   const distance = distanceToSnake(midpoint);
   const color = distance <= TOLERANCE ? 'green' : 'red';
-  if (color === 'green') {
+  const onLine = color === 'green';
+
+  if (onLineState === null) {
+    onLineState = onLine;
+  } else if (onLineState && !onLine) {
+    applyOffLinePenalty();
+    onLineState = false;
+    onLineDistance = 0;
+  } else if (!onLineState && onLine) {
+    onLineState = true;
+    onLineDistance = 0;
+  }
+
+  if (onLine) {
+    rewardOnLineProgress(segmentLength);
     score += segmentLength;
     updateLiveScore();
-  } else {
-    strokeHadMiss = true;
   }
   addPlayerSegment(lastPointerPos, pos, color);
   lastPointerPos = pos;
@@ -297,23 +328,16 @@ function pointerUp(e) {
     }
   }
   lastPointerPos = null;
-
-  if (!strokeHadMovement || !strikeCounter) {
-    return;
-  }
-  if (strokeHadMiss) {
-    if (strikeCounter.registerFailure()) {
-      endGame('strikes');
-    }
-  } else {
-    strikeCounter.registerSuccess();
-  }
+  onLineState = null;
+  onLineDistance = 0;
 }
 
 function resetPlayerPath() {
   playerSegments = [];
   playerLength = 0;
   lastPointerPos = null;
+  onLineState = null;
+  onLineDistance = 0;
   score = 0;
   updateLiveScore();
 }
