@@ -26,7 +26,7 @@ const LINE_WIDTH = 2;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-const TIMER_SETTINGS = { ...DEFAULT_TIMER_CONFIG, initialSeconds: 60, maxSeconds: 120, failureDelta: 8, successDelta: 3 };
+const TIMER_SETTINGS = { ...DEFAULT_TIMER_CONFIG, initialSeconds: 0, maxSeconds: 120, failureDelta: 8, successDelta: 3 };
 
 function randomLine() {
   const margin = 20;

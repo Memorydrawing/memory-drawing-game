@@ -18,7 +18,7 @@ let strikeCounter = null;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 const RESULT_DISPLAY_TIME = 300;
-const TIMER_SETTINGS = { ...DEFAULT_TIMER_CONFIG, initialSeconds: 45, maxSeconds: 90, successDelta: 3, failureDelta: 8 };
+const TIMER_SETTINGS = { ...DEFAULT_TIMER_CONFIG, initialSeconds: 0, maxSeconds: 90, successDelta: 3, failureDelta: 8 };
 
 function drawTarget() {
   const margin = 20;

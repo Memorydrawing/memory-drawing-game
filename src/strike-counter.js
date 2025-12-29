@@ -3,7 +3,11 @@ const DEFAULT_TIMER_SETTINGS = {
   maxSeconds: 120,
   successDelta: 3,
   failureDelta: 7,
-  tickMs: 1000
+  tickMs: 1000,
+  minRewardSeconds: 1,
+  maxRewardSeconds: 10,
+  penaltyMultiplier: 1.5,
+  penaltyBufferSeconds: 1
 };
 
 function normalizeSettings(settings = {}) {
@@ -39,6 +43,10 @@ export function createStrikeCounter(containerElement, settings = {}, onExpire = 
   let intervalId = null;
   let expired = false;
   let hasStarted = false;
+  let firstInputAt = null;
+  let calibratedSuccessDelta = timerSettings.successDelta;
+  let calibratedFailureDelta = timerSettings.failureDelta;
+  let hasCalibrated = false;
 
   const display = createDisplay(containerElement);
   const displayValue = display?.value;
@@ -95,6 +103,44 @@ export function createStrikeCounter(containerElement, settings = {}, onExpire = 
     return false;
   }
 
+  function clampReward(seconds) {
+    return Math.max(timerSettings.minRewardSeconds, Math.min(timerSettings.maxRewardSeconds, seconds));
+  }
+
+  function deriveDeltas(gapMs) {
+    const rewardSeconds = clampReward(gapMs / 1000);
+    const penaltySeconds = Math.max(
+      rewardSeconds * timerSettings.penaltyMultiplier,
+      rewardSeconds + timerSettings.penaltyBufferSeconds
+    );
+    calibratedSuccessDelta = rewardSeconds;
+    calibratedFailureDelta = penaltySeconds;
+    hasCalibrated = true;
+    adjustTime(rewardSeconds, true);
+    startAfterFirstInput();
+  }
+
+  function recordInput() {
+    const now = performance.now();
+    if (firstInputAt === null) {
+      firstInputAt = now;
+      return false;
+    }
+    if (!hasCalibrated) {
+      deriveDeltas(now - firstInputAt);
+      return true;
+    }
+    return false;
+  }
+
+  function getSuccessDelta() {
+    return hasCalibrated ? calibratedSuccessDelta : timerSettings.initialSeconds > 0 ? timerSettings.successDelta : 0;
+  }
+
+  function getFailureDelta() {
+    return hasCalibrated ? calibratedFailureDelta : timerSettings.initialSeconds > 0 ? timerSettings.failureDelta : 0;
+  }
+
   function startTicking() {
     if (intervalId || expired) return;
     stopTicking();
@@ -115,6 +161,10 @@ export function createStrikeCounter(containerElement, settings = {}, onExpire = 
   function reset() {
     expired = false;
     timeLeft = timerSettings.initialSeconds;
+    firstInputAt = null;
+    hasCalibrated = false;
+    calibratedSuccessDelta = timerSettings.successDelta;
+    calibratedFailureDelta = timerSettings.failureDelta;
     stopTicking();
     render();
   }
@@ -123,12 +173,28 @@ export function createStrikeCounter(containerElement, settings = {}, onExpire = 
 
   return {
     registerSuccess() {
-      const expiredNow = adjustTime(timerSettings.successDelta, true);
+      const awardedDuringCalibration = recordInput();
+      if (awardedDuringCalibration) {
+        return false;
+      }
+      const delta = getSuccessDelta();
+      if (delta === 0) {
+        return false;
+      }
+      const expiredNow = adjustTime(delta, true);
       startAfterFirstInput();
       return expiredNow;
     },
     registerFailure() {
-      const expiredNow = adjustTime(-timerSettings.failureDelta, true);
+      const awardedDuringCalibration = recordInput();
+      if (awardedDuringCalibration) {
+        return false;
+      }
+      const delta = getFailureDelta();
+      if (delta === 0) {
+        return false;
+      }
+      const expiredNow = adjustTime(-delta, true);
       startAfterFirstInput();
       return expiredNow;
     },

@@ -30,7 +30,7 @@ const MIN_CURVE_LEN = 200;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-const TIMER_SETTINGS = { ...DEFAULT_TIMER_CONFIG, initialSeconds: 60, maxSeconds: 120, failureDelta: 8, successDelta: 3 };
+const TIMER_SETTINGS = { ...DEFAULT_TIMER_CONFIG, initialSeconds: 0, maxSeconds: 120, failureDelta: 8, successDelta: 3 };
 
 function cubicBezier(p0, p1, p2, p3, t) {
   const mt = 1 - t;
