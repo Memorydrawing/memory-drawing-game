@@ -2,7 +2,7 @@ import { getCanvasPos, clearCanvas, playSound, preventDoubleTapZoom } from './sr
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
 import { calculateScore } from './src/scoring.js';
 import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
-import { createStrikeCounter } from './src/strike-counter.js';
+import { createStrikeCounter, DEFAULT_TIMER_CONFIG } from './src/strike-counter.js';
 
 let canvas, ctx, startBtn, result, strikeContainer;
 let playing = false;
@@ -14,7 +14,7 @@ let stats = null;
 let startTime = 0;
 let strikeCounter = null;
 
-const MAX_STRIKES = 3;
+const TIMER_SETTINGS = { ...DEFAULT_TIMER_CONFIG, initialSeconds: 0, maxSeconds: 90, successDelta: 3, failureDelta: 8 };
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -44,7 +44,10 @@ function startGame() {
   startScoreboard(canvas);
   result.textContent = '';
   startBtn.disabled = true;
-  strikeCounter = createStrikeCounter(strikeContainer, MAX_STRIKES);
+  if (strikeCounter) {
+    strikeCounter.stop();
+  }
+  strikeCounter = createStrikeCounter(strikeContainer, TIMER_SETTINGS, () => endGame('time'));
   targets = [randomTarget(), randomTarget()];
   drawTargets();
   startTime = Date.now();
@@ -53,13 +56,16 @@ function startGame() {
 function endGame(reason = 'complete') {
   if (!playing) return;
   playing = false;
+  if (strikeCounter) {
+    strikeCounter.stop();
+  }
   clearCanvas(ctx);
   const elapsed = Date.now() - startTime;
   const { score: finalScore, accuracyPct, speed } = calculateScore(
     { green: stats.green, red: stats.red },
     elapsed
   );
-  const prefix = reason === 'strikes' ? 'Out of strikes! ' : '';
+  const prefix = reason === 'time' ? "Time's up! " : '';
   if (window.leaderboard) {
     window.leaderboard.updateLeaderboard(scoreKey, finalScore);
     const high = window.leaderboard.getHighScore(scoreKey);
@@ -83,11 +89,11 @@ function pointerDown(e) {
       updateScoreboard('green');
       hit = true;
       setTimeout(() => playSound(audioCtx, 'green'), 0);
-      if (strikeCounter) {
-        strikeCounter.registerSuccess();
-      }
-      targets[i] = randomTarget();
-      drawTargets();
+    if (strikeCounter) {
+      strikeCounter.registerSuccess();
+    }
+    targets[i] = randomTarget();
+    drawTargets();
       break;
     }
   }
@@ -96,7 +102,7 @@ function pointerDown(e) {
     setTimeout(() => playSound(audioCtx, 'red'), 0);
     updateScoreboard('red');
     if (strikeCounter && strikeCounter.registerFailure()) {
-      endGame('strikes');
+      endGame('time');
       return;
     }
   }
