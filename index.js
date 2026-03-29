@@ -22,6 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('aboutBtn')?.addEventListener('click', () => {
     window.location.href = 'about.html';
   });
+  document.getElementById('canvasBtn')?.addEventListener('click', () => {
+    window.location.href = 'drawing_canvas.html';
+  });
   document.querySelectorAll('.drill-link').forEach(button => {
     button.addEventListener('click', () => {
       const subject = button.dataset.subject || 'Points';
