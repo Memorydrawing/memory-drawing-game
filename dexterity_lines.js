@@ -2,7 +2,7 @@ import { getCanvasPos, clearCanvas, playSound } from './src/utils.js';
 import { overlayStartButton, hideStartButton } from './src/start-button.js';
 import { calculateScore } from './src/scoring.js';
 import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
-import { createStrikeCounter, DEFAULT_TIMER_CONFIG } from './src/strike-counter.js';
+import { createStrikeCounter } from './src/strike-counter.js';
 
 let canvas, ctx, startBtn, result, strikeContainer;
 let playing = false;
@@ -26,7 +26,7 @@ const LINE_WIDTH = 2;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-const TIMER_SETTINGS = { ...DEFAULT_TIMER_CONFIG, initialSeconds: 0, maxSeconds: 120, failureDelta: 8, successDelta: 3 };
+const MAX_STRIKES = 3;
 
 function randomLine() {
   const margin = 20;
@@ -78,10 +78,7 @@ function startGame() {
   startTime = Date.now();
   result.textContent = '';
   startBtn.disabled = true;
-  if (strikeCounter) {
-    strikeCounter.stop();
-  }
-  strikeCounter = createStrikeCounter(strikeContainer, TIMER_SETTINGS, () => endGame('time'));
+  strikeCounter = createStrikeCounter(strikeContainer, MAX_STRIKES);
   targets = [randomLine()];
   drawTargets();
 }
@@ -89,16 +86,13 @@ function startGame() {
 function endGame(reason = 'complete') {
   if (!playing) return;
   playing = false;
-  if (strikeCounter) {
-    strikeCounter.stop();
-  }
   clearCanvas(ctx);
   const elapsed = Date.now() - startTime;
   const { score: finalScore, accuracyPct, speed } = calculateScore(
     { green: stats.green, red: stats.red },
     elapsed
   );
-  const prefix = reason === 'time' ? "Time's up! " : '';
+  const prefix = reason === 'strikes' ? 'Out of strikes! ' : '';
   if (window.leaderboard) {
     window.leaderboard.updateLeaderboard(scoreKey, finalScore);
     const high = window.leaderboard.getHighScore(scoreKey);
@@ -214,7 +208,7 @@ function pointerUp(e) {
       stats.red += 1;
       updateScoreboard('red');
       if (strikeCounter && strikeCounter.registerFailure()) {
-        endGame('time');
+        endGame('strikes');
       }
     }
   }
