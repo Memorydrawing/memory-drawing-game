@@ -2,7 +2,7 @@ import { getCanvasPos, clearCanvas, playSound, preventDoubleTapZoom } from './sr
 import { hideStartButton } from './src/start-button.js';
 import { calculateScore } from './src/scoring.js';
 import { startScoreboard, updateScoreboard } from './src/scoreboard.js';
-import { createStrikeCounter, DEFAULT_TIMER_CONFIG } from './src/strike-counter.js';
+import { createStrikeCounter } from './src/strike-counter.js';
 
 let canvas, ctx, feedbackCanvas, feedbackCtx, startBtn, result, strikeContainer;
 
@@ -18,8 +18,7 @@ let strikeCounter = null;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 const RESULT_DISPLAY_TIME = 300;
-const TIMER_SETTINGS = { ...DEFAULT_TIMER_CONFIG, initialSeconds: 0, maxSeconds: 90, successDelta: 3, failureDelta: 8 };
-
+const MAX_STRIKES = 3;
 function drawTarget() {
   const margin = 20;
   target = {
@@ -84,7 +83,7 @@ function pointerDown(e) {
   }
   showPoints(pos, prevTarget, grade);
   if (exhausted) {
-    setTimeout(() => endGame('time'), RESULT_DISPLAY_TIME);
+    setTimeout(() => endGame('strikes'), RESULT_DISPLAY_TIME);
   }
 }
 
@@ -98,10 +97,7 @@ function startGame() {
   result.textContent = '';
   startBtn.disabled = true;
   startTime = Date.now();
-  if (strikeCounter) {
-    strikeCounter.stop();
-  }
-  strikeCounter = createStrikeCounter(strikeContainer, TIMER_SETTINGS, () => endGame('time'));
+  strikeCounter = createStrikeCounter(strikeContainer, MAX_STRIKES);
   drawTarget();
 }
 
@@ -119,7 +115,7 @@ function endGame(reason = 'complete') {
   const avg = stats.totalPoints ? stats.totalErr / stats.totalPoints : 0;
   const elapsed = Date.now() - startTime;
   const { score, accuracyPct, speed } = calculateScore(stats, elapsed);
-  const prefix = reason === 'time' ? "Time's up! " : '';
+  const prefix = reason === 'strikes' ? 'Out of strikes! ' : '';
   if (window.leaderboard) {
     window.leaderboard.updateLeaderboard(scoreKey, score);
     const high = window.leaderboard.getHighScore(scoreKey);
