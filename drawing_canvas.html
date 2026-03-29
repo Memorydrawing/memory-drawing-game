@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Drawing Canvas</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --border: #d1d5db;
+      --primary: #2563eb;
+      --primary-soft: #dbeafe;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+    }
+
+    .drawing-app {
+      width: min(980px, 100%);
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .toolbar {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 0.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .tool-btn,
+    .action-btn {
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      border-radius: 0.5rem;
+      padding: 0.45rem 0.75rem;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: 120ms ease;
+    }
+
+    .tool-btn:hover,
+    .action-btn:hover {
+      border-color: #9ca3af;
+    }
+
+    .tool-btn.active {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: #0b3fa8;
+      font-weight: 600;
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .size-group {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+
+    .canvas-shell {
+      width: 100%;
+      height: min(70vh, 640px);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+      cursor: crosshair;
+      background: #fff;
+    }
+
+    @media (max-width: 680px) {
+      .size-group {
+        margin-left: 0;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="drawing-app" id="drawing-app">
+    <div class="toolbar" role="toolbar" aria-label="Drawing tools">
+      <button class="tool-btn active" data-tool="pencil" type="button">Pencil</button>
+      <button class="tool-btn" data-tool="eraser" type="button">Eraser</button>
+      <button class="action-btn" data-action="undo" type="button">Undo</button>
+      <button class="action-btn" data-action="redo" type="button">Redo</button>
+      <button class="action-btn" data-action="clear" type="button">Clear</button>
+
+      <label class="size-group" for="size-input">
+        Size
+        <input id="size-input" type="range" min="1" max="40" step="1" value="3" />
+        <output id="size-output">3px</output>
+      </label>
+    </div>
+
+    <div class="canvas-shell">
+      <canvas id="draw-canvas" aria-label="Drawing canvas"></canvas>
+    </div>
+  </div>
+
+  <script>
+    class DrawingApp {
+      constructor(root) {
+        this.root = root;
+        this.canvas = root.querySelector('#draw-canvas');
+        this.ctx = this.canvas.getContext('2d', { alpha: false });
+
+        this.toolButtons = [...root.querySelectorAll('[data-tool]')];
+        this.undoBtn = root.querySelector('[data-action="undo"]');
+        this.redoBtn = root.querySelector('[data-action="redo"]');
+        this.clearBtn = root.querySelector('[data-action="clear"]');
+        this.sizeInput = root.querySelector('#size-input');
+        this.sizeOutput = root.querySelector('#size-output');
+
+        this.activeTool = 'pencil';
+        this.brushSize = 3;
+        this.eraserSize = 10;
+
+        this.isDrawing = false;
+        this.activePointerId = null;
+        this.lastPoint = null;
+
+        this.undoStack = [];
+        this.redoStack = [];
+        this.maxHistory = 80;
+
+        this.resizeObserver = null;
+
+        this.setupCanvas();
+        this.bindUI();
+        this.bindInput();
+        this.bindResize();
+        this.pushSnapshot();
+        this.updateUIState();
+      }
+
+      setupCanvas() {
+        this.resizeCanvas(true);
+      }
+
+      bindUI() {
+        this.toolButtons.forEach((btn) => {
+          btn.addEventListener('click', () => this.setTool(btn.dataset.tool));
+        });
+
+        this.undoBtn.addEventListener('click', () => this.undo());
+        this.redoBtn.addEventListener('click', () => this.redo());
+        this.clearBtn.addEventListener('click', () => this.clearCanvas());
+
+        this.sizeInput.addEventListener('input', () => {
+          const value = Number(this.sizeInput.value);
+          if (this.activeTool === 'eraser') {
+            this.eraserSize = value;
+          } else {
+            this.brushSize = value;
+          }
+          this.sizeOutput.value = `${value}px`;
+        });
+      }
+
+      bindInput() {
+        this.canvas.addEventListener('pointerdown', (event) => this.handlePointerDown(event));
+        this.canvas.addEventListener('pointermove', (event) => this.handlePointerMove(event));
+
+        const endStroke = (event) => this.handlePointerUp(event);
+        this.canvas.addEventListener('pointerup', endStroke);
+        this.canvas.addEventListener('pointercancel', endStroke);
+        this.canvas.addEventListener('pointerleave', endStroke);
+      }
+
+      bindResize() {
+        this.resizeObserver = new ResizeObserver(() => this.resizeCanvas(false));
+        this.resizeObserver.observe(this.canvas.parentElement);
+      }
+
+      setTool(tool) {
+        this.activeTool = tool;
+
+        const size = this.activeTool === 'eraser' ? this.eraserSize : this.brushSize;
+        this.sizeInput.value = size;
+        this.sizeOutput.value = `${size}px`;
+
+        this.toolButtons.forEach((btn) => {
+          btn.classList.toggle('active', btn.dataset.tool === tool);
+        });
+      }
+
+      getPointFromEvent(event) {
+        const rect = this.canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+
+        // Clamp to keep drawing within canvas bounds.
+        return {
+          x: Math.max(0, Math.min(rect.width, x)),
+          y: Math.max(0, Math.min(rect.height, y))
+        };
+      }
+
+      applyStrokeStyle() {
+        const size = this.activeTool === 'eraser' ? this.eraserSize : this.brushSize;
+        this.ctx.lineWidth = size;
+        this.ctx.lineCap = 'round';
+        this.ctx.lineJoin = 'round';
+
+        if (this.activeTool === 'eraser') {
+          this.ctx.globalCompositeOperation = 'destination-out';
+          this.ctx.strokeStyle = 'rgba(0,0,0,1)';
+        } else {
+          this.ctx.globalCompositeOperation = 'source-over';
+          this.ctx.strokeStyle = '#000000';
+        }
+      }
+
+      handlePointerDown(event) {
+        if (event.button !== 0 && event.pointerType === 'mouse') return;
+
+        this.isDrawing = true;
+        this.activePointerId = event.pointerId;
+        this.canvas.setPointerCapture(event.pointerId);
+
+        const point = this.getPointFromEvent(event);
+        this.lastPoint = point;
+
+        this.applyStrokeStyle();
+        this.ctx.beginPath();
+        this.ctx.moveTo(point.x, point.y);
+
+        event.preventDefault();
+      }
+
+      handlePointerMove(event) {
+        if (!this.isDrawing || event.pointerId !== this.activePointerId) return;
+
+        const point = this.getPointFromEvent(event);
+        if (!this.lastPoint) {
+          this.lastPoint = point;
+          return;
+        }
+
+        // Basic smoothing with midpoint interpolation.
+        const midPoint = {
+          x: (this.lastPoint.x + point.x) / 2,
+          y: (this.lastPoint.y + point.y) / 2
+        };
+
+        this.ctx.quadraticCurveTo(this.lastPoint.x, this.lastPoint.y, midPoint.x, midPoint.y);
+        this.ctx.stroke();
+
+        this.lastPoint = point;
+        event.preventDefault();
+      }
+
+      handlePointerUp(event) {
+        if (!this.isDrawing || event.pointerId !== this.activePointerId) return;
+
+        // Ensure dot strokes render when pointer doesn't move.
+        if (this.lastPoint) {
+          this.ctx.lineTo(this.lastPoint.x, this.lastPoint.y);
+          this.ctx.stroke();
+        }
+
+        this.ctx.closePath();
+        this.isDrawing = false;
+        this.activePointerId = null;
+        this.lastPoint = null;
+
+        this.pushSnapshot();
+        this.redoStack = [];
+        this.updateUIState();
+
+        event.preventDefault();
+      }
+
+      resizeCanvas(initial = false) {
+        const rect = this.canvas.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+
+        const previous = document.createElement('canvas');
+        previous.width = this.canvas.width;
+        previous.height = this.canvas.height;
+        const prevCtx = previous.getContext('2d');
+        if (this.canvas.width && this.canvas.height) {
+          prevCtx.drawImage(this.canvas, 0, 0);
+        }
+
+        const dpr = window.devicePixelRatio || 1;
+        this.canvas.width = Math.floor(rect.width * dpr);
+        this.canvas.height = Math.floor(rect.height * dpr);
+
+        this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        this.ctx.imageSmoothingEnabled = true;
+
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.fillRect(0, 0, rect.width, rect.height);
+
+        if (!initial && previous.width && previous.height) {
+          this.ctx.drawImage(previous, 0, 0, previous.width, previous.height, 0, 0, rect.width, rect.height);
+        }
+      }
+
+      captureSnapshot() {
+        return this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+      }
+
+      restoreSnapshot(imageData) {
+        if (!imageData) return;
+        this.ctx.putImageData(imageData, 0, 0);
+      }
+
+      pushSnapshot() {
+        this.undoStack.push(this.captureSnapshot());
+        if (this.undoStack.length > this.maxHistory) {
+          this.undoStack.shift();
+        }
+      }
+
+      undo() {
+        if (this.undoStack.length <= 1) return;
+
+        const current = this.undoStack.pop();
+        this.redoStack.push(current);
+
+        const previous = this.undoStack[this.undoStack.length - 1];
+        this.restoreSnapshot(previous);
+        this.updateUIState();
+      }
+
+      redo() {
+        if (!this.redoStack.length) return;
+
+        const next = this.redoStack.pop();
+        this.undoStack.push(next);
+
+        this.restoreSnapshot(next);
+        this.updateUIState();
+      }
+
+      clearCanvas() {
+        const rect = this.canvas.getBoundingClientRect();
+
+        this.ctx.save();
+        this.ctx.setTransform(window.devicePixelRatio || 1, 0, 0, window.devicePixelRatio || 1, 0, 0);
+        this.ctx.globalCompositeOperation = 'source-over';
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.fillRect(0, 0, rect.width, rect.height);
+        this.ctx.restore();
+
+        this.pushSnapshot();
+        this.redoStack = [];
+        this.updateUIState();
+      }
+
+      updateUIState() {
+        this.undoBtn.disabled = this.undoStack.length <= 1;
+        this.redoBtn.disabled = this.redoStack.length === 0;
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const root = document.getElementById('drawing-app');
+      new DrawingApp(root);
+    });
+  </script>
+</body>
+</html>
