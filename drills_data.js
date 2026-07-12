@@ -3,7 +3,7 @@ export const drills = [
     name: 'Two Points',
     url: 'two_points.html',
     description: 'Memorize two points.',
-    category: 'Memorization',
+    category: 'Memory',
     subject: 'Points',
     difficulty: 'Beginner',
     scoreKey: 'two_points'
@@ -12,7 +12,7 @@ export const drills = [
     name: 'Three Points',
     url: 'three_points.html',
     description: 'Memorize three points.',
-    category: 'Memorization',
+    category: 'Memory',
     subject: 'Points',
     difficulty: 'Adept',
     scoreKey: 'three_points'
@@ -21,7 +21,7 @@ export const drills = [
     name: 'Four Points',
     url: 'four_points.html',
     description: 'Memorize four points.',
-    category: 'Memorization',
+    category: 'Memory',
     subject: 'Points',
     difficulty: 'Adept',
     scoreKey: 'four_points'
@@ -30,7 +30,7 @@ export const drills = [
     name: 'Lines',
     url: 'lines.html',
     description: 'Memorize a line segment and recreate it freehand.',
-    category: 'Memorization',
+    category: 'Memory',
     subject: 'Lines',
     difficulty: 'Beginner',
     scoreKey: 'memory_lines',
@@ -40,7 +40,7 @@ export const drills = [
     name: 'Contours',
     url: 'memory_contours.html',
     description: 'Memorize flowing contour curves and redraw them from memory.',
-    category: 'Memorization',
+    category: 'Memory',
     subject: 'Lines',
     difficulty: 'Expert',
     scoreKey: 'memory_contours',
@@ -50,7 +50,7 @@ export const drills = [
     name: 'Triangles',
     url: 'triangles.html',
     description: 'Memorize a triangle outline and redraw it from memory.',
-    category: 'Memorization',
+    category: 'Memory',
     subject: 'Shapes',
     difficulty: 'Adept',
     scoreKey: 'memory_triangles',
@@ -60,7 +60,7 @@ export const drills = [
     name: 'Quadrilaterals',
     url: 'quadrilaterals.html',
     description: 'Memorize a quadrilateral outline and redraw it from memory.',
-    category: 'Memorization',
+    category: 'Memory',
     subject: 'Shapes',
     difficulty: 'Expert',
     scoreKey: 'memory_quadrilaterals',
@@ -70,7 +70,7 @@ export const drills = [
     name: 'Ellipses',
     url: 'ellipses.html',
     description: 'Memorize an ellipse and redraw it from memory.',
-    category: 'Memorization',
+    category: 'Memory',
     subject: 'Shapes',
     difficulty: 'Expert',
     scoreKey: 'memory_ellipses',
@@ -80,7 +80,7 @@ export const drills = [
     name: 'Complex Shapes',
     url: 'complex_shapes.html',
     description: 'Memorize mixed curved and straight shapes.',
-    category: 'Memorization',
+    category: 'Memory',
     subject: 'Shapes',
     difficulty: 'Expert',
     scoreKey: 'complex_shapes'
@@ -89,7 +89,7 @@ export const drills = [
     name: 'Angles (5° increments)',
     url: 'angles.html',
     description: 'Guess randomly oriented angles in 5° steps.',
-    category: 'Memorization',
+    category: 'Observation',
     subject: 'Angles',
     difficulty: 'Expert',
     scoreKey: 'angles_5'
@@ -98,7 +98,7 @@ export const drills = [
     name: 'Angles (10° increments)',
     url: 'angles.html?step=10',
     description: 'Guess randomly oriented angles in 10° steps.',
-    category: 'Memorization',
+    category: 'Observation',
     subject: 'Angles',
     difficulty: 'Beginner',
     scoreKey: 'angles_10'
@@ -107,7 +107,7 @@ export const drills = [
     name: 'Point Drill 0.5 sec Look',
     url: 'point_drill_05.html',
     description: 'Memorize a point after a 0.5 second preview and tap its location.',
-    category: 'Memorization',
+    category: 'Memory',
     subject: 'Points',
     difficulty: 'Beginner',
     scoreKey: 'point_drill_05'
@@ -116,7 +116,7 @@ export const drills = [
     name: 'Point Drill 0.25 sec Look',
     url: 'point_drill_025.html',
     description: 'Memorize a point after a 0.25 second preview and tap its location.',
-    category: 'Memorization',
+    category: 'Memory',
     subject: 'Points',
     difficulty: 'Adept',
     scoreKey: 'point_drill_025'
@@ -125,7 +125,7 @@ export const drills = [
     name: 'Point Drill 0.1 sec Look',
     url: 'point_drill_01.html',
     description: 'Memorize a point after a 0.1 second preview and tap its location.',
-    category: 'Memorization',
+    category: 'Memory',
     subject: 'Points',
     difficulty: 'Expert',
     scoreKey: 'point_drill_01'
@@ -134,7 +134,7 @@ export const drills = [
     name: 'Memory Values',
     url: 'memory_values.html',
     description: 'Memorize a grayscale square and match its value with the slider.',
-    category: 'Memorization',
+    category: 'Memory',
     subject: 'Color',
     difficulty: 'Beginner',
     scoreKey: 'memory_values'
@@ -143,7 +143,7 @@ export const drills = [
     name: 'Memory Colors',
     url: 'memory_color.html',
     description: 'Memorize a color square and match its value, hue, and chroma.',
-    category: 'Memorization',
+    category: 'Memory',
     subject: 'Color',
     difficulty: 'Adept',
     scoreKey: 'memory_color'
@@ -152,7 +152,7 @@ export const drills = [
     name: 'Eyes (SVG Memory)',
     url: 'svg_shape_drill.html?category=eyes',
     description: 'Memorize and trace eye contours pulled from SVG plates.',
-    category: 'Memorization',
+    category: 'Memory',
     subject: 'Forms',
     difficulty: 'Adept',
     scoreKey: 'forms_eyes'
@@ -161,7 +161,7 @@ export const drills = [
     name: 'Ears (SVG Memory)',
     url: 'svg_shape_drill.html?category=ears',
     description: 'Practice ear outlines for structural recall.',
-    category: 'Memorization',
+    category: 'Memory',
     subject: 'Forms',
     difficulty: 'Adept',
     scoreKey: 'forms_ears'
@@ -170,7 +170,7 @@ export const drills = [
     name: 'Noses (SVG Memory)',
     url: 'svg_shape_drill.html?category=noses',
     description: 'Drill nose silhouettes to strengthen form memory.',
-    category: 'Memorization',
+    category: 'Memory',
     subject: 'Forms',
     difficulty: 'Adept',
     scoreKey: 'forms_noses'
@@ -179,7 +179,7 @@ export const drills = [
     name: 'Lips (SVG Memory)',
     url: 'svg_shape_drill.html?category=lips',
     description: 'Trace lip shapes to commit proportion patterns to memory.',
-    category: 'Memorization',
+    category: 'Memory',
     subject: 'Forms',
     difficulty: 'Adept',
     scoreKey: 'forms_lips'
@@ -188,7 +188,7 @@ export const drills = [
     name: 'Heads (SVG Memory)',
     url: 'svg_shape_drill.html?category=heads',
     description: 'Study head masses and block-ins with SVG contours.',
-    category: 'Memorization',
+    category: 'Memory',
     subject: 'Forms',
     difficulty: 'Adept',
     scoreKey: 'forms_heads'
@@ -197,7 +197,7 @@ export const drills = [
     name: 'Torsos (SVG Memory)',
     url: 'svg_shape_drill.html?category=torsos',
     description: 'Reinforce torso construction through repeat tracing.',
-    category: 'Memorization',
+    category: 'Memory',
     subject: 'Forms',
     difficulty: 'Adept',
     scoreKey: 'forms_torsos'
@@ -206,7 +206,7 @@ export const drills = [
     name: 'Arms (SVG Memory)',
     url: 'svg_shape_drill.html?category=arms',
     description: 'Focus on arm rhythms and landmarks via SVG outlines.',
-    category: 'Memorization',
+    category: 'Memory',
     subject: 'Forms',
     difficulty: 'Adept',
     scoreKey: 'forms_arms'
@@ -215,7 +215,7 @@ export const drills = [
     name: 'Legs (SVG Memory)',
     url: 'svg_shape_drill.html?category=legs',
     description: 'Trace leg proportions to improve structural recall.',
-    category: 'Memorization',
+    category: 'Memory',
     subject: 'Forms',
     difficulty: 'Adept',
     scoreKey: 'forms_legs'
@@ -224,7 +224,7 @@ export const drills = [
     name: 'Hands (SVG Memory)',
     url: 'svg_shape_drill.html?category=hands',
     description: 'Practice hand silhouettes for gesture and proportion memory.',
-    category: 'Memorization',
+    category: 'Memory',
     subject: 'Forms',
     difficulty: 'Adept',
     scoreKey: 'forms_hands'
@@ -233,10 +233,19 @@ export const drills = [
     name: 'Feet (SVG Memory)',
     url: 'svg_shape_drill.html?category=feet',
     description: 'Drill foot outlines to memorize structure and balance.',
-    category: 'Memorization',
+    category: 'Memory',
     subject: 'Forms',
     difficulty: 'Adept',
     scoreKey: 'forms_feet'
+  },
+  {
+    name: 'Observation Drawing',
+    url: 'observation.html',
+    description: 'Copy a visible reference beside your drawing canvas and compare the two directly.',
+    category: 'Observation',
+    subject: 'Shapes',
+    difficulty: 'Beginner',
+    scoreKey: 'observation'
   },
   {
     name: 'Large Points',
@@ -279,7 +288,7 @@ export const drills = [
     name: 'Value Match',
     url: 'dexterity_values.html',
     description: 'Rapidly match grayscale swatches with the Munsell value slider.',
-    category: 'Dexterity',
+    category: 'Observation',
     subject: 'Values',
     difficulty: 'Beginner',
     scoreKey: 'dexterity_values'
@@ -288,7 +297,7 @@ export const drills = [
     name: 'Color Match',
     url: 'dexterity_color.html',
     description: 'Quickly dial in hue, value, and chroma to hit target colors.',
-    category: 'Dexterity',
+    category: 'Observation',
     subject: 'Color',
     difficulty: 'Adept',
     scoreKey: 'dexterity_color'
@@ -297,7 +306,7 @@ export const drills = [
     name: 'SVG Shape Drill',
     url: 'svg_shape_drill.html',
     description: 'Trace SVG outlines for anatomy studies and mastercopy plates.',
-    category: 'Dexterity',
+    category: 'Observation',
     subject: 'Shapes',
     difficulty: 'Adept',
     scoreKey: 'svg_shape_drill',

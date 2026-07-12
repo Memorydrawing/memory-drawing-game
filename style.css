@@ -48,6 +48,10 @@ select {
   max-width: 720px;
 }
 
+.menu-grid-three {
+  max-width: 900px;
+}
+
 .menu-card {
   flex: 1 1 200px;
   max-width: 220px;
@@ -668,6 +672,16 @@ h2, h1 { margin: 10px 0; }
   color: #333;
 }
 
+.exercise-group > h3::after {
+  content: attr(data-description);
+  display: block;
+  max-width: 560px;
+  margin-top: 6px;
+  font-size: 15px;
+  font-weight: 400;
+  color: #555;
+}
+
 .exercise-list {
   display: flex;
   flex-direction: column;
@@ -764,12 +778,17 @@ h2, h1 { margin: 10px 0; }
   background-color: #607d8b;
 }
 
-.category-memorization {
+.category-memorization,
+.category-memory {
   background-color: #82B3B3;
 }
 
 .category-dexterity {
   background-color: #B382B3;
+}
+
+.category-observation {
+  background-color: #5f8dd3;
 }
 
 .difficulty-beginner {
