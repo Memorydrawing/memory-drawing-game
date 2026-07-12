@@ -9,36 +9,24 @@
 <body>
   <div class="menu-screen">
     <button id="backBtn">← Back</button>
-    <div class="drill-category-menu">
+    <div class="drill-category-menu" role="tablist" aria-label="Exercise categories">
       <div class="drill-category-item">
-        <button class="drill-category-button" data-subject="Points">Points</button>
-        <p>Practice locating and remembering precise points.</p>
+        <button class="drill-category-button" data-category="Dexterity" role="tab">Dexterity</button>
+        <p>Practice hand control, pointer accuracy, and smooth tracing.</p>
       </div>
       <div class="drill-category-item">
-        <button class="drill-category-button" data-subject="Lines">Lines</button>
-        <p>Improve your flow with tracing and line control exercises.</p>
+        <button class="drill-category-button" data-category="Observation" role="tab">Observation</button>
+        <p>Study what is visible and judge angles, colors, values, and reference shapes.</p>
       </div>
       <div class="drill-category-item">
-        <button class="drill-category-button" data-subject="Shapes">Shapes</button>
-        <p>Challenge your memory with angles, triangles, and complex shapes.</p>
-      </div>
-      <div class="drill-category-item">
-        <button class="drill-category-button" data-subject="Forms">Forms</button>
-        <p>Practice anatomy-focused SVG memory drills for each body region.</p>
-      </div>
-      <div class="drill-category-item">
-        <button class="drill-category-button" data-subject="Colors">Colors</button>
-        <p>Develop stronger color recall with hue and palette exercises.</p>
+        <button class="drill-category-button" data-category="Memory" role="tab">Memory</button>
+        <p>Memorize brief previews, then recreate points, lines, forms, colors, and shapes.</p>
       </div>
     </div>
     <div class="exercise-columns">
-      <div class="exercise-group">
-        <h3>Dexterity</h3>
-        <div id="dexterityList" class="exercise-list"></div>
-      </div>
-      <div class="exercise-group">
-        <h3>Memory</h3>
-        <div id="memoryList" class="exercise-list"></div>
+      <div class="exercise-group active-category-group">
+        <h3 id="activeCategoryTitle">Dexterity</h3>
+        <div id="exerciseList" class="exercise-list"></div>
       </div>
     </div>
   </div>

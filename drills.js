@@ -12,6 +12,26 @@ const difficultyClassMap = {
   Expert: 'difficulty-expert'
 };
 
+const categoryClassMap = {
+  Dexterity: 'category-dexterity',
+  Observation: 'category-observation',
+  Memory: 'category-memory'
+};
+
+const displayCategoryMap = {
+  Memorization: 'Memory'
+};
+
+const categoryDescriptions = {
+  Dexterity: 'Motor-control exercises for steadier hands, cleaner lines, and more accurate taps.',
+  Observation: 'Direct-looking exercises for judging visible angles, color, value, and reference shapes.',
+  Memory: 'Recall exercises that hide the prompt before you recreate the target from memory.'
+};
+
+function getDisplayCategory(category) {
+  return displayCategoryMap[category] || category || 'Dexterity';
+}
+
 function createLabelSpan(baseClass, text, extraClass) {
   const span = document.createElement('span');
   span.className = [baseClass, extraClass].filter(Boolean).join(' ');
@@ -21,8 +41,10 @@ function createLabelSpan(baseClass, text, extraClass) {
 
 function createExerciseItem(drill) {
   const item = document.createElement('div');
+  const displayCategory = getDisplayCategory(drill.category);
   item.className = 'exercise-item';
   item.dataset.link = drill.url;
+  item.dataset.category = displayCategory;
   if (drill.subject) {
     item.dataset.subject = drill.subject;
   }
@@ -35,6 +57,9 @@ function createExerciseItem(drill) {
 
   const tagContainer = document.createElement('div');
   tagContainer.className = 'tag-container';
+  tagContainer.appendChild(
+    createLabelSpan('category-label', displayCategory, categoryClassMap[displayCategory])
+  );
   if (drill.difficulty) {
     tagContainer.appendChild(
       createLabelSpan('difficulty-label', drill.difficulty, difficultyClassMap[drill.difficulty])
@@ -69,18 +94,21 @@ const difficultyOrder = {
   Expert: 2
 };
 
-function renderExerciseLists() {
-  const dexterityList = document.getElementById('dexterityList');
-  const memoryList = document.getElementById('memoryList');
+function renderExerciseList() {
+  const exerciseList = document.getElementById('exerciseList');
 
-  if (!dexterityList || !memoryList) {
+  if (!exerciseList) {
     return Array.from(document.querySelectorAll('.exercise-item'));
   }
 
-  dexterityList.innerHTML = '';
-  memoryList.innerHTML = '';
+  exerciseList.innerHTML = '';
 
   const sortedDrills = [...drills].sort((a, b) => {
+    const categoryA = getDisplayCategory(a.category);
+    const categoryB = getDisplayCategory(b.category);
+    if (categoryA !== categoryB) {
+      return categoryA.localeCompare(categoryB);
+    }
     const diffA = difficultyOrder[a.difficulty] ?? Number.POSITIVE_INFINITY;
     const diffB = difficultyOrder[b.difficulty] ?? Number.POSITIVE_INFINITY;
     if (diffA !== diffB) {
@@ -89,50 +117,32 @@ function renderExerciseLists() {
     return a.name.localeCompare(b.name);
   });
 
-  return sortedDrills
-    .map(drill => {
-      const item = createExerciseItem(drill);
-      const targetList =
-        drill.category === 'Dexterity'
-          ? dexterityList
-          : drill.category === 'Memorization'
-          ? memoryList
-          : null;
-
-      if (!targetList) {
-        return null;
-      }
-
-      targetList.appendChild(item);
-      return item;
-    })
-    .filter(Boolean);
+  return sortedDrills.map(drill => {
+    const item = createExerciseItem(drill);
+    exerciseList.appendChild(item);
+    return item;
+  });
 }
 
 function init() {
-  const items = renderExerciseLists();
+  const items = renderExerciseList();
+  const buttons = Array.from(document.querySelectorAll('.drill-category-button'));
+  const title = document.getElementById('activeCategoryTitle');
 
-  const subjectGroups = {
-    Points: ['Points'],
-    Lines: ['Lines'],
-    Shapes: ['Shapes', 'Angles', 'Ellipses', 'Ellipse'],
-    Forms: ['Forms'],
-    Colors: ['Colors', 'Color']
+  const getCategoryKey = category => {
+    const normalized = getDisplayCategory(category);
+    return categoryDescriptions[normalized] ? normalized : 'Dexterity';
   };
 
-  const legacySubjectMap = {
-    Values: 'Colors'
-  };
-
-  const getSubjectKey = subject => subjectGroups[subject] ? subject : legacySubjectMap[subject] || 'Points';
-
-  const selectSubject = subject => {
-    const subjectKey = getSubjectKey(subject);
-    const allowedSubjects = subjectGroups[subjectKey] || subjectGroups.Points;
+  const selectCategory = category => {
+    const categoryKey = getCategoryKey(category);
     items.forEach(item => {
-      const itemSubject = item.dataset.subject;
-      item.style.display = allowedSubjects.includes(itemSubject) ? '' : 'none';
+      item.style.display = item.dataset.category === categoryKey ? '' : 'none';
     });
+    if (title) {
+      title.textContent = categoryKey;
+      title.dataset.description = categoryDescriptions[categoryKey];
+    }
   };
 
   items.forEach(item => {
@@ -150,32 +160,32 @@ function init() {
     });
   });
 
-  const buttons = Array.from(document.querySelectorAll('.drill-category-button'));
   const params = new URLSearchParams(window.location.search);
-  const defaultSubject = params.get('subject');
+  const defaultCategory = params.get('category') || params.get('subject');
+  const normalizedCategory = getCategoryKey(defaultCategory || 'Dexterity');
 
-  const normalizedSubject = getSubjectKey(defaultSubject || 'Points');
-
-  const setActiveButton = subject => {
-    const subjectKey = getSubjectKey(subject);
+  const setActiveButton = category => {
+    const categoryKey = getCategoryKey(category);
     buttons.forEach(button => {
-      const isActive = button.dataset.subject === subjectKey;
+      const isActive = button.dataset.category === categoryKey;
       button.classList.toggle('active', isActive);
+      button.setAttribute('aria-selected', isActive ? 'true' : 'false');
     });
-    selectSubject(subjectKey);
+    selectCategory(categoryKey);
   };
 
   buttons.forEach(button => {
     button.addEventListener('click', () => {
-      const subject = button.dataset.subject || 'Points';
+      const category = button.dataset.category || 'Dexterity';
       const url = new URL(window.location.href);
-      url.searchParams.set('subject', subject);
+      url.searchParams.delete('subject');
+      url.searchParams.set('category', category);
       window.history.replaceState({}, '', url.toString());
-      setActiveButton(subject);
+      setActiveButton(category);
     });
   });
 
-  setActiveButton(normalizedSubject);
+  setActiveButton(normalizedCategory);
 }
 
 if (document.readyState === 'loading') {
