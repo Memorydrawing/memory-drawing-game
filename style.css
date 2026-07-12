@@ -84,6 +84,30 @@ select {
 .menu-actions button {
   margin: 0;
 }
+
+.menu-action-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.menu-action-card p {
+  max-width: 180px;
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.experimental-entry p,
+.experimental-warning {
+  color: #7a4b00;
+  font-style: italic;
+}
+
+.experimental-actions {
+  margin-bottom: 24px;
+}
 canvas {
   display: block;
   margin: 10px auto;

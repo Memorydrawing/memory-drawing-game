@@ -78,6 +78,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const PAGE_CONFIG = {
     'scenarios.html': { label: 'Main Menu', target: 'index.html' },
+    'experimental.html': { label: 'Main Menu', target: 'index.html' },
+    'tutorial.html': { label: 'Experimental', target: 'experimental.html' },
+    'drawing_canvas.html': { label: 'Experimental', target: 'experimental.html' },
     'scenario_play.html': { label: 'Scenarios', target: 'scenarios.html' },
     'scenario_player.html': { label: 'Scenarios', target: 'scenarios.html' },
     'drills.html': { label: 'Main Menu', target: 'index.html' },
