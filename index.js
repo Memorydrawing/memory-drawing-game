@@ -27,8 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.querySelectorAll('.drill-link').forEach(button => {
     button.addEventListener('click', () => {
-      const subject = button.dataset.subject || 'Points';
-      const query = new URLSearchParams({ subject }).toString();
+      const category = button.dataset.category || 'Dexterity';
+      const query = new URLSearchParams({ category }).toString();
       window.location.href = `drills.html?${query}`;
     });
   });
