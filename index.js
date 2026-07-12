@@ -13,45 +13,17 @@ document.addEventListener('DOMContentLoaded', () => {
   if (p2pEl) p2pEl.textContent = p2pBest ? `${parseFloat(p2pBest).toFixed(1)} px` : 'N/A';
   if (freeEl) freeEl.textContent = freehandBest ? `${parseFloat(freehandBest).toFixed(1)} px` : 'N/A';
 
-  document.getElementById('tutorialBtn')?.addEventListener('click', () => {
-    window.location.href = 'tutorial.html';
-  });
   document.getElementById('scenariosBtn')?.addEventListener('click', () => {
     window.location.href = 'scenarios.html';
+  });
+  document.getElementById('experimentalBtn')?.addEventListener('click', () => {
+    window.location.href = 'experimental.html';
   });
   document.getElementById('aboutBtn')?.addEventListener('click', () => {
     window.location.href = 'about.html';
   });
-  document.getElementById('canvasBtn')?.addEventListener('click', () => {
-    window.location.href = 'drawing_canvas.html';
-  });
   document.querySelectorAll('.drill-link').forEach(button => {
     button.addEventListener('click', () => {
-      const subject = button.dataset.subject || 'Points';
-      const query = new URLSearchParams({ subject }).toString();
-      window.location.href = `drills.html?${query}`;
-    });
-  });
-  document.getElementById('resetScoresBtn')?.addEventListener('click', () => {
-    if (!confirm('Reset all high scores?')) return;
-    try {
-      const remove = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (
-          key &&
-          (key.startsWith('leaderboard_') ||
-           key.startsWith('scenarioScore_') ||
-           key === 'p2pBest' ||
-           key === 'freehandBest')
-        ) {
-          remove.push(key);
-        }
-      }
-      remove.forEach(k => localStorage.removeItem(k));
-    } catch {
-      // Ignore errors if localStorage is unavailable
-    }
     const p2pEl = document.getElementById('p2pBest');
     const freeEl = document.getElementById('freehandBest');
     if (p2pEl) p2pEl.textContent = 'N/A';
