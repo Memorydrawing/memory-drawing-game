@@ -64,3 +64,25 @@ test('loose model imports continue to pass through unchanged', async () => {
   const files = [{name: 'a.obj'}];
   expect(await prepareModelFiles(files)).toBe(files);
 });
+
+test('finds an OBJ through three ZIP levels, matching the Venus download structure', async () => {
+  const deepest = zipSync({'retopo_2.obj': strToU8(obj)});
+  const inner = zipSync({'source/retopo_2.zip': deepest, 'textures/normal.jpg': strToU8('image')});
+  const outer = archive({'source/venus.zip': inner, 'textures/normal.jpeg': 'image'});
+  const files = await prepareModelFiles([outer]);
+  const candidates = modelFiles(files);
+  expect(candidates).toHaveLength(1);
+  expect(filePath(candidates[0])).toBe('source/venus/source/retopo_2/retopo_2.obj');
+  const {model} = await loadModel(files);
+  expect(new Box3().setFromObject(model).isEmpty()).toBe(false);
+  disposeModel(model);
+});
+
+test('limits recursive archives and preserves models from multiple nested ZIPs', async () => {
+  const inner = zipSync({'model.obj': strToU8(obj)});
+  const files = await prepareModelFiles([archive({'one.zip': inner, 'two.zip': inner})]);
+  expect(modelFiles(files).map(filePath)).toEqual(['one/model.obj', 'two/model.obj']);
+  let nested = inner;
+  for (let i = 0; i < 10; i++) nested = zipSync({'inner.zip': nested});
+  await expect(prepareModelFiles([new File([nested], 'deep.zip')])).rejects.toThrow('too many levels');
+});

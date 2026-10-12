@@ -33,7 +33,8 @@ It opens directly from `viewport3d.html`, with no server or CDN required.
 ### 3D Viewport experiment
 
 - Upload a ZIP directly, or one GLB, glTF, OBJ, or STL model. ZIP files are
-  unpacked locally, including nested folders and glTF companion files. If an
+  unpacked locally, including ZIPs inside other ZIPs, nested folders, and glTF
+  companion files. If an
   archive contains several models, a dropdown lets you choose one. Standard,
   unencrypted ZIPs up to 100 MB (250 MB of extracted model files) are supported.
   For loose glTF files, select their `.bin` and texture
