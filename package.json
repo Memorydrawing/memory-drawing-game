@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "build:quick-sketch": "esbuild quick_sketch.js --bundle --format=iife --target=es2020 --minify --legal-comments=external --outfile=quick_sketch.bundle.js",
     "build:3d": "esbuild viewport3d.js --bundle --format=iife --target=es2020 --minify --legal-comments=external --outfile=viewport3d.bundle.js"
   },
   "devDependencies": {

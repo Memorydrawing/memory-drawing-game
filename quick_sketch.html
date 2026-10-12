@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Quick-sketch - Artist Trainer</title>
+  <link rel="stylesheet" href="style.css?v=quick-sketch-1">
+  <link rel="stylesheet" href="quick_sketch.css?v=1">
+</head>
+<body>
+  <main class="practice-screen quick-sketch-screen">
+    <button id="backBtn" type="button">← Experimental</button>
+    <h2>Quick-sketch</h2>
+    <ol class="quick-sketch-phases" aria-label="Session phases">
+      <li id="setupStep" aria-current="step">Setup</li><li id="activeStep">Active</li><li>Review</li>
+    </ol>
+    <form id="quickSketchSetup" class="quick-sketch-box">
+      <fieldset>
+        <legend>Time</legend>
+        <label for="sketchTime">Seconds per pose</label>
+        <input id="sketchTime" name="time" type="number" min="1" max="3600" step="1" value="60" required inputmode="numeric">
+        <p>How long the reference stays still before changing.</p>
+      </fieldset>
+      <fieldset>
+        <legend>Intervals</legend>
+        <label for="sketchIntervals">Number of pose changes</label>
+        <input id="sketchIntervals" name="intervals" type="number" min="1" max="1000" step="1" value="10" required inputmode="numeric">
+        <p>How many times the reference randomizes into a new pose.</p>
+      </fieldset>
+      <fieldset>
+        <legend>Reference</legend>
+        <label for="sketchReference">Reference collection</label>
+        <select id="sketchReference" name="reference">
+          <option value="basic-forms">Basic 3D forms</option>
+          <option value="bargue" disabled>Bargue plates — coming soon</option>
+          <option value="model-library" disabled>3D model library — coming soon</option>
+          <option value="upload">Add your own 3D model</option>
+        </select>
+        <div id="sketchUpload" hidden>
+          <button id="sketchUploadBtn" type="button">Choose model or ZIP</button>
+          <input id="sketchFiles" type="file" multiple accept=".zip,application/zip,application/x-zip-compressed,.glb,.gltf,.obj,.stl,.bin,.png,.jpg,.jpeg,.webp" hidden>
+          <label id="sketchModelLabel" for="sketchModel" hidden>Model inside ZIP / selected files</label>
+          <select id="sketchModel" hidden></select>
+          <p>ZIP, GLB, glTF, OBJ, or STL. Include companion files with loose glTF models. Files stay on your device for this session.</p>
+        </div>
+        <p id="sketchReferenceStatus" role="status" aria-live="polite">Simple 3D forms for a quick study. More collections will be added later.</p>
+      </fieldset>
+      <button id="sketchStart" type="submit">Start</button>
+    </form>
+    <section id="quickSketchActive" class="quick-sketch-box" aria-labelledby="activeTitle" hidden>
+      <h3 id="activeTitle" tabindex="-1">Active phase</h3>
+      <p id="sketchSessionSummary"></p>
+      <p>Your setup is ready. The timed sketch session will be added in the next step.</p>
+      <button id="sketchEditSetup" type="button">Edit setup</button>
+    </section>
+    <noscript>Enable JavaScript to set up a quick-sketch session.</noscript>
+  </main>
+  <script src="back.js"></script>
+  <script src="quick_sketch.bundle.js?v=1"></script>
+</body>
+</html>
