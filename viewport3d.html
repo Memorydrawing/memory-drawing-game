@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>3D Viewport - Artist Trainer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="practice-screen viewport3d-screen">
+    <button id="backBtn">← Experimental</button>
+    <h2>3D Viewport</h2>
+    <div class="viewport3d-toolbar">
+      <button id="uploadModelBtn" type="button">Upload 3D File</button>
+      <input id="modelFile" type="file" multiple accept=".glb,.gltf,.obj,.stl,.bin,.png,.jpg,.jpeg,.webp" hidden>
+      <button id="resetViewBtn" type="button">Reset View</button>
+    </div>
+    <canvas id="modelCanvas" width="500" height="500" aria-label="Interactive 3D model. Drag to rotate; pinch to zoom."></canvas>
+    <p id="modelStatus" class="viewport3d-description" role="status" aria-live="polite">Loading viewport…</p>
+    <p class="viewport3d-description">Drag with one finger to rotate. Pinch to zoom; move two fingers to pan.<br>Mouse: drag to rotate, scroll to zoom, right-drag to pan.</p>
+    <p class="viewport3d-description viewport3d-formats">GLB, glTF, OBJ, or STL. For glTF, select the model and its .bin / texture files together.<br>OBJ and STL use a neutral material. Files stay on your device and are not saved after reload.</p>
+    <noscript>This viewport needs JavaScript enabled.</noscript>
+  </div>
+  <script src="back.js"></script>
+  <script src="viewport3d.bundle.js"></script>
+</body>
+</html>

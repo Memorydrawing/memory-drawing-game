@@ -173,6 +173,43 @@ canvas.color-drill-canvas {
   border: none;
 }
 
+/* Keep the 3D experiment in the same red canvas frame as the drawing drills. */
+.viewport3d-screen {
+  padding: 10px;
+}
+
+.viewport3d-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+#modelCanvas {
+  cursor: grab;
+}
+
+#modelCanvas:active {
+  cursor: grabbing;
+}
+
+.viewport3d-description {
+  max-width: 500px;
+  margin: 8px 0;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.viewport3d-formats {
+  color: #555;
+  font-size: 12px;
+}
+
+#modelStatus[data-error="true"] {
+  color: #a00000;
+}
+
 .value-slider {
   -webkit-appearance: none;
   appearance: none;
