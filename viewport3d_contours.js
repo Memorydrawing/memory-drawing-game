@@ -73,6 +73,10 @@ void main() {
 
 export const contourSolidShader = `
 uniform sampler2D surface;
+uniform sampler2D normals;
+uniform sampler2D reference;
+uniform vec3 lightDirection;
+uniform float lightEnabled;
 uniform vec2 texel;
 varying vec2 vUv;
 void main() {
@@ -82,7 +86,14 @@ void main() {
       ink = min(ink, texture2D(surface, clamp(vUv + vec2(float(x), float(y)) * texel, texel * 0.5, vec2(1.0) - texel * 0.5)).r);
     }
   }
-  gl_FragColor = vec4(vec3(1.0 - step(0.5, ink)), 1.0);
+  vec4 form = texture2D(normals, vUv);
+  vec3 normal = normalize(form.rgb * 2.0 - 1.0);
+  float shadow = step(0.5, form.a) * lightEnabled * (1.0 - step(0.0, dot(normal, lightDirection)));
+  vec3 shade = texture2D(reference, vUv).rgb;
+  float value = dot(shade, vec3(0.2126, 0.7152, 0.0722));
+  value = value <= 0.0031308 ? value * 12.92 : 1.055 * pow(value, 1.0 / 2.4) - 0.055;
+  float paper = mix(1.0, clamp(value, 0.0, 1.0), shadow);
+  gl_FragColor = vec4(vec3(paper * (1.0 - step(0.5, ink))), 1.0);
 }`;
 
 export const contourEdgeShader = `
@@ -142,6 +153,7 @@ export function createContourRenderer(canvas, onContextChange) {
   renderer.toneMapping = NoToneMapping;
   renderer.setClearColor(0x000000, 0);
   const target = new WebGLRenderTarget(1, 1, {minFilter: NearestFilter, magFilter: NearestFilter, depthBuffer: true});
+  const reference = new WebGLRenderTarget(1, 1, {minFilter: NearestFilter, magFilter: NearestFilter, depthBuffer: true});
   const filtered = new WebGLRenderTarget(1, 1, {minFilter: NearestFilter, magFilter: NearestFilter, depthBuffer: false});
   const lines = new WebGLRenderTarget(1, 1, {minFilter: NearestFilter, magFilter: NearestFilter, depthBuffer: false});
   const joined = new WebGLRenderTarget(1, 1, {minFilter: NearestFilter, magFilter: NearestFilter, depthBuffer: false});
@@ -160,6 +172,10 @@ export function createContourRenderer(canvas, onContextChange) {
     uniforms: {lightDirection: {value: new Vector3()}, lightEnabled: {value: 1}},
     side: DoubleSide, blending: NoBlending, toneMapped: false
   });
+  solid.uniforms.reference = {value: reference.texture};
+  solid.uniforms.normals = {value: filtered.texture};
+  solid.uniforms.lightDirection = classification.uniforms.lightDirection;
+  solid.uniforms.lightEnabled = classification.uniforms.lightEnabled;
   const edge = new ShaderMaterial({
     uniforms: {
       surface: {value: filtered.texture}, texel: {value: new Vector2(1, 1)}, planeTexel: {value: new Vector2(1, 1)},
@@ -191,7 +207,7 @@ export function createContourRenderer(canvas, onContextChange) {
     const w = Math.max(1, Math.round(width * ratio)), h = Math.max(1, Math.round(height * ratio));
     if (target.width !== w || target.height !== h) {
       renderer.setSize(width, height, false);
-      for (const buffer of [target, filtered, lines, joined]) buffer.setSize(w, h);
+      for (const buffer of [target, reference, filtered, lines, joined]) buffer.setSize(w, h);
       edge.uniforms.texel.value.set(1 / w, 1 / h);
       edge.uniforms.planeTexel.value.set(1 / w, 1 / h);
       filter.uniforms.texel.value.set(0.65 * ratio / w, 0.65 * ratio / h);
@@ -218,6 +234,9 @@ export function createContourRenderer(canvas, onContextChange) {
       renderer.setRenderTarget(null);
     }
     try {
+      renderer.setRenderTarget(reference);
+      renderer.clear();
+      renderer.render(scene, camera);
       for (const [material, buffer] of [[filter, filtered], [edge, lines], [join, joined], [solid, null]]) {
         plane.material = material;
         renderer.setRenderTarget(buffer);
@@ -226,7 +245,7 @@ export function createContourRenderer(canvas, onContextChange) {
     } finally { renderer.setRenderTarget(null); }
   }
   return {render, dispose() {
-    for (const buffer of [target, filtered, lines, joined]) buffer.dispose();
+    for (const buffer of [target, reference, filtered, lines, joined]) buffer.dispose();
     for (const material of [classification, filter, edge, join, solid]) material.dispose();
     plane.geometry.dispose(); renderer.dispose();
   }};
