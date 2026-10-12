@@ -38,6 +38,11 @@ function initViewport() {
   const scene = new Scene();
   scene.background = new Color(0xffffff);
   const camera = new PerspectiveCamera(40, 1, 0.01, 100);
+  const backgroundColor = document.getElementById('backgroundColor');
+  backgroundColor.addEventListener('input', () => {
+    scene.background.set(backgroundColor.value);
+    requestRender();
+  });
   // Gentle fill preserves visibility while letting the controlled key light
   // produce a clear change in color and form.
   scene.add(new HemisphereLight(0xffffff, 0x777777, 0.35));

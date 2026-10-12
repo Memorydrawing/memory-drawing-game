@@ -296,7 +296,8 @@ canvas.color-drill-canvas {
   font-size: 13px;
 }
 
-#lightColor {
+#lightColor,
+#backgroundColor {
   width: 100%;
   height: 32px;
   box-sizing: border-box;

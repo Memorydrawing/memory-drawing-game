@@ -51,6 +51,8 @@ It opens directly from `viewport3d.html`, with no server or CDN required.
 - Choose **Light color** and adjust **Brightness** from 0–200%. **Reset Light**
   restores a white light above and in front of your current view. A gentle fixed
   fill keeps the model visible when the key light is dimmed or behind it.
+- Choose **Background color** with the same color picker to change the viewport
+  background.
 - **Randomize Lighting** picks a new light direction, color, and brightness
   (30–200%) and updates the sphere and controls to match.
 - OBJ/STL use a neutral material; glTF/GLB retain supported materials/textures.

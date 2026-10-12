@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>3D Viewport - Artist Trainer</title>
-  <link rel="stylesheet" href="style.css?v=layout-1">
+  <link rel="stylesheet" href="style.css?v=background-1">
 </head>
 <body>
   <div class="practice-screen viewport3d-screen">
@@ -31,6 +31,8 @@
           <div class="viewport3d-light-settings">
             <label for="lightColor">Light color</label>
             <input id="lightColor" type="color" value="#ffffff">
+            <label for="backgroundColor">Background color</label>
+            <input id="backgroundColor" type="color" value="#ffffff">
             <label for="lightBrightness">Brightness <output id="lightBrightnessValue">100%</output></label>
             <input id="lightBrightness" type="range" min="0" max="200" value="100" step="1">
             <button id="resetLightBtn" type="button">Reset Light</button>
@@ -46,6 +48,6 @@
     <noscript>This viewport needs JavaScript enabled.</noscript>
   </div>
   <script src="back.js"></script>
-  <script src="viewport3d.bundle.js?v=random-1"></script>
+  <script src="viewport3d.bundle.js?v=background-1"></script>
 </body>
 </html>
