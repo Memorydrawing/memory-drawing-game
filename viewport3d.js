@@ -2,6 +2,7 @@ import { WebGLRenderer, Scene, Color, PerspectiveCamera, HemisphereLight, Direct
   Mesh, BoxGeometry, SRGBColorSpace, ACESFilmicToneMapping } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { disposeModel, normalizeModel, neutralMaterial, fitView, loadModel } from './viewport3d_model.js';
+import { prepareModelFiles, modelFiles, filePath } from './viewport3d_zip.js';
 
 
 function initViewport() {
@@ -10,6 +11,9 @@ function initViewport() {
   const upload = document.getElementById('uploadModelBtn');
   const input = document.getElementById('modelFile');
   const reset = document.getElementById('resetViewBtn');
+  const archiveSelect = document.getElementById('archiveModel');
+  const archiveLabel = document.getElementById('archiveModelLabel');
+  let preparedFiles = [];
   const setStatus = (message, error = false) => {
     status.textContent = message;
     status.dataset.error = String(error);
@@ -67,13 +71,12 @@ function initViewport() {
     fitView(camera, controls, model);
     requestRender();
   });
-  input.addEventListener('change', async () => {
-    const files = [...input.files];
-    if (!files.length) return;
+  async function showModel(file) {
     upload.disabled = true;
+    archiveSelect.disabled = true;
     setStatus('Loading model…');
     try {
-      const result = await loadModel(files);
+      const result = await loadModel(preparedFiles, file);
       const previous = model;
       model = result.model;
       scene.remove(previous);
@@ -85,9 +88,38 @@ function initViewport() {
     } catch (error) {
       setStatus('Could not load model. ' + error.message, true);
     } finally {
+      upload.disabled = false;
+      archiveSelect.disabled = false;
+    }
+  }
+  input.addEventListener('change', async () => {
+    const files = [...input.files];
+    if (!files.length) return;
+    upload.disabled = true;
+    archiveSelect.disabled = true;
+    archiveLabel.hidden = true;
+    setStatus(/\.zip$/i.test(files[0].name) ? 'Unpacking ZIP…' : 'Loading model…');
+    try {
+      preparedFiles = await prepareModelFiles(files);
+      const candidates = modelFiles(preparedFiles);
+      if (candidates.length > 1) {
+        archiveSelect.replaceChildren(new Option('Choose a model…', ''), ...candidates.map((file, index) => new Option(filePath(file), String(index))));
+        archiveLabel.hidden = false;
+        setStatus('Found ' + candidates.length + ' models. Choose one above.');
+      } else {
+        await showModel(candidates[0]);
+      }
+    } catch (error) {
+      preparedFiles = [];
+      setStatus('Could not load model. ' + error.message, true);
+    } finally {
       input.value = '';
       upload.disabled = false;
+      archiveSelect.disabled = false;
     }
+  });
+  archiveSelect.addEventListener('change', () => {
+    if (archiveSelect.value !== '') showModel(modelFiles(preparedFiles)[Number(archiveSelect.value)]);
   });
   canvas.addEventListener('webglcontextlost', () => {
     setStatus('3D rendering was interrupted. Reload if the viewport does not recover.', true);

@@ -12,16 +12,19 @@
     <h2>3D Viewport</h2>
     <div class="viewport3d-toolbar">
       <button id="uploadModelBtn" type="button">Upload 3D File</button>
-      <input id="modelFile" type="file" multiple accept=".glb,.gltf,.obj,.stl,.bin,.png,.jpg,.jpeg,.webp" hidden>
+      <input id="modelFile" type="file" multiple accept=".zip,application/zip,application/x-zip-compressed,.glb,.gltf,.obj,.stl,.bin,.png,.jpg,.jpeg,.webp" hidden>
       <button id="resetViewBtn" type="button">Reset View</button>
     </div>
+    <label id="archiveModelLabel" class="viewport3d-description" hidden>Model inside ZIP:
+      <select id="archiveModel" aria-label="Choose a model inside the ZIP"></select>
+    </label>
     <canvas id="modelCanvas" width="500" height="500" aria-label="Interactive 3D model. Drag to rotate; pinch to zoom."></canvas>
     <p id="modelStatus" class="viewport3d-description" role="status" aria-live="polite">Loading viewport…</p>
     <p class="viewport3d-description">Drag with one finger to rotate. Pinch to zoom; move two fingers to pan.<br>Mouse: drag to rotate, scroll to zoom, right-drag to pan.</p>
-    <p class="viewport3d-description viewport3d-formats">GLB, glTF, OBJ, or STL. For glTF, select the model and its .bin / texture files together.<br>OBJ and STL use a neutral material. Files stay on your device and are not saved after reload.</p>
+    <p class="viewport3d-description viewport3d-formats">ZIP, GLB, glTF, OBJ, or STL. Select a ZIP directly—no need to unzip it first.<br>For loose glTF files, select the model and its .bin / texture files together.<br>OBJ and STL use a neutral material. Files stay on your device and are not saved after reload.</p>
     <noscript>This viewport needs JavaScript enabled.</noscript>
   </div>
   <script src="back.js"></script>
-  <script src="viewport3d.bundle.js"></script>
+  <script src="viewport3d.bundle.js?v=zip-1"></script>
 </body>
 </html>

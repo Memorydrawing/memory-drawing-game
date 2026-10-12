@@ -9,6 +9,7 @@
   },
   "devDependencies": {
     "esbuild": "0.28.2",
+    "fflate": "0.8.2",
     "jest": "^30.0.5",
     "jest-environment-jsdom": "^30.0.0",
     "three": "0.186.1"

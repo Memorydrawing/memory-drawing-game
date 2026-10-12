@@ -2,6 +2,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { STLLoader } from 'three/addons/loaders/STLLoader.js';
 import { Box3, Group, Vector3, Sphere, MeshStandardMaterial, DoubleSide, LoadingManager, Mesh } from 'three';
+import { filePath, modelFiles, normalizePath } from './viewport3d_zip.js';
 
 export function disposeModel(model) {
   const geometries = new Set(), materials = new Set(), textures = new Set();
@@ -61,10 +62,12 @@ export function fitView(camera, controls, model) {
   controls.saveState();
 }
 
-export async function loadModel(files) {
-  const candidates = files.filter(file => /\.(glb|gltf|obj|stl)$/i.test(file.name));
-  if (candidates.length !== 1) throw new Error('Select one 3D model, plus any glTF companion files.');
-  const file = candidates[0], extension = file.name.split('.').pop().toLowerCase();
+export async function loadModel(files, selectedFile) {
+  const candidates = modelFiles(files);
+  if (selectedFile ? !candidates.includes(selectedFile) : candidates.length !== 1) {
+    throw new Error('Select one 3D model, plus any glTF companion files.');
+  }
+  const file = selectedFile || candidates[0], extension = file.name.split('.').pop().toLowerCase();
   let model;
   if (extension === 'obj') {
     model = new OBJLoader().parse(await file.text());
@@ -82,24 +85,30 @@ export async function loadModel(files) {
     const urls = new Map();
     try {
       for (const companion of files) {
-        if (urls.has(companion.name)) throw new Error('Companion files must have unique filenames.');
-        urls.set(companion.name, URL.createObjectURL(companion));
+        const path = normalizePath(filePath(companion));
+        if (urls.has(path)) throw new Error('Companion files must have unique paths.');
+        urls.set(path, URL.createObjectURL(companion));
       }
       const manager = new LoadingManager();
       manager.setURLModifier(url => {
         if (url.startsWith('data:') || url.startsWith('blob:')) return url;
-        const name = decodeURIComponent(url.split(/[?#]/)[0].split('/').pop());
-        if (urls.has(name)) return urls.get(name);
+        const path = normalizePath(decodeURIComponent(url.split(/[?#]/)[0]));
+        if (urls.has(path)) return urls.get(path);
+        const name = path.split('/').pop();
+        const matches = [...urls.keys()].filter(key => key.split('/').pop() === name);
+        if (matches.length === 1) return urls.get(matches[0]);
         throw new Error('Missing companion file: ' + name + '. Select it together with the model.');
       });
-      const result = await new GLTFLoader(manager).parseAsync(await file.arrayBuffer(), '');
+      const path = filePath(file);
+      const directory = path.includes('/') ? path.slice(0, path.lastIndexOf('/') + 1) : '';
+      const result = await new GLTFLoader(manager).parseAsync(await file.arrayBuffer(), directory);
       model = result.scene;
     } finally {
       urls.forEach(url => URL.revokeObjectURL(url));
     }
   }
   try {
-    return { model: normalizeModel(model), name: file.name };
+    return { model: normalizeModel(model), name: filePath(file) };
   } catch (error) {
     disposeModel(model);
     throw error;

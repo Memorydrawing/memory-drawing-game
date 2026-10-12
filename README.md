@@ -32,7 +32,11 @@ It opens directly from `viewport3d.html`, with no server or CDN required.
 
 ### 3D Viewport experiment
 
-- Upload one GLB, glTF, OBJ, or STL model. For glTF, select its `.bin` and texture
+- Upload a ZIP directly, or one GLB, glTF, OBJ, or STL model. ZIP files are
+  unpacked locally, including nested folders and glTF companion files. If an
+  archive contains several models, a dropdown lets you choose one. Standard,
+  unencrypted ZIPs up to 100 MB (250 MB of extracted model files) are supported.
+  For loose glTF files, select their `.bin` and texture
   files in the same selection. GLB is the simplest single-file option.
 - Drag with one finger to orbit, pinch to zoom, or move two fingers to pan.
   Mouse controls are left-drag, scroll, and right-drag respectively.
