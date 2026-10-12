@@ -7,10 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.href = 'drawing_canvas.html';
   });
 
-  document.getElementById('viewport3dBtn')?.addEventListener('click', () => {
-    window.location.href = 'viewport3d.html';
-  });
-
   document.getElementById('resetScoresBtn')?.addEventListener('click', () => {
     if (!confirm('Reset all high scores?')) return;
     try {
