@@ -5,6 +5,7 @@ import { disposeModel, normalizeModel, neutralMaterial, fitView, loadModel } fro
 import { prepareModelFiles, modelFiles, filePath } from './viewport3d_zip.js';
 import { createLightingControls } from './viewport3d_lighting.js';
 import { randomizeModel, applyLens } from './viewport3d_model.js';
+import { createContourRenderer } from './viewport3d_contours.js';
 
 
 function initViewport() {
@@ -64,12 +65,19 @@ function initViewport() {
   scene.add(model);
   let pendingFrame = 0;
   let lighting;
+  let contour;
   function requestRender() {
     if (pendingFrame) return;
     pendingFrame = requestAnimationFrame(() => {
       pendingFrame = 0;
       controls.update();
       renderer.render(scene, camera);
+      if (contour) {
+        try { contour.render(scene, camera, key); }
+        catch {
+          document.getElementById('contourStatus').textContent = 'Line drawing interrupted — reload to recover';
+        }
+      }
       lighting?.draw();
     });
   }
@@ -96,6 +104,18 @@ function initViewport() {
     randomize: document.getElementById('randomLightBtn'),
     camera, light: key, requestRender
   });
+  const contourCanvas = document.getElementById('contourCanvas');
+  if (contourCanvas) {
+    try {
+      contour = createContourRenderer(contourCanvas, restored => {
+        document.getElementById('contourStatus').textContent = restored ? 'Line drawing' : 'Line drawing interrupted — reload to recover';
+        if (restored) requestRender();
+      });
+      new ResizeObserver(requestRender).observe(contourCanvas);
+    } catch {
+      document.getElementById('contourStatus').textContent = 'Line drawing unavailable — WebGL 2 is required';
+    }
+  }
   requestRender();
   setStatus('Sample cube — upload a model to begin.');
   upload.addEventListener('click', () => input.click());

@@ -74,7 +74,17 @@ For development, use `npm ci`, `npm run build:3d`, and `npm test`. Commit the
 generated `viewport3d.bundle.js` and its legal notice after changing the viewport
 source. See `vendor/README.md` for dependency and license details.
 
+### Contour Study experiment
+
+**Experimental → Contour Study** copies the 3D viewport controls into a separate
+exercise. A matching viewport on the left shows black lines on white for the
+visible outer contour and the main light's form-shadow boundary. It shares the
+same model and camera, updating after orbiting, importing, lens changes, random
+orientation, and light changes. The original 3D Viewport remains available.
+
+The line pass uses depth-tested visible surface normals and a light-facing mask,
+then extracts silhouette and light/shadow transitions on the GPU. Hidden surfaces
+do not draw through the model. Cast shadows, texture markings, and drawing/scoring
+are outside this first experiment.
+
 ## License
-
-
-

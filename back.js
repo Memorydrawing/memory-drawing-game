@@ -82,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'tutorial.html': { label: 'Experimental', target: 'experimental.html' },
     'drawing_canvas.html': { label: 'Experimental', target: 'experimental.html' },
     'viewport3d.html': { label: 'Experimental', target: 'experimental.html' },
+    'contour_study.html': { label: 'Experimental', target: 'experimental.html' },
     'scenario_play.html': { label: 'Scenarios', target: 'scenarios.html' },
     'scenario_player.html': { label: 'Scenarios', target: 'scenarios.html' },
     'drills.html': { label: 'Main Menu', target: 'index.html' },
