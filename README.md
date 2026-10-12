@@ -87,10 +87,12 @@ then extracts silhouette and light/shadow transitions on the GPU. Hidden surface
 do not draw through the model. Cast shadows, texture markings, and drawing/scoring
 are outside this first experiment.
 
-**Light-side planes** adds selected plane changes within the light, close to the
-form-shadow boundary. **Plane detail** tunes the minimum plane angle, proximity
+**Light-side planes** adds selected plane changes across the light, with a
+broader and more sensitive range of detection. **Plane detail** tunes the minimum plane angle, proximity
 to shadow, and light-value difference. Lower values keep only stronger, darker
 plane changes; higher values include more detail. Disabling the option restores
 the contour and form-shadow-only view.
+Surface-normal filtering removes small scan noise, and a binary gap-closing pass
+produces connected, strengthened black strokes with no gray shader output.
 
 ## License
