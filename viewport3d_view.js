@@ -3,8 +3,10 @@ export function bindContourStudySwitch(root = document, onChange = () => {}) {
   if (!toggle) return;
   const update = () => {
     const enabled = toggle.checked;
-    root.querySelector('.viewport3d-screen').classList.toggle('contour-study-screen', enabled);
-    root.getElementById('contourPanel').hidden = !enabled;
+    root.querySelector('.viewport3d-screen').classList.toggle('lines-view', enabled);
+    root.getElementById('contourCanvas').hidden = !enabled;
+    root.getElementById('contourStatus').hidden = !enabled;
+    root.getElementById('modelCanvas').setAttribute('aria-label', enabled ? 'Interactive line drawing. Drag to rotate; pinch to zoom.' : 'Interactive 3D model. Drag to rotate; pinch to zoom.');
     root.getElementById('contourOptions').hidden = !enabled;
     onChange(enabled);
   };

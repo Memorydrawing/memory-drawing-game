@@ -68,7 +68,7 @@ test('failed contour pass restores scene state and render target', () => {
 test('combined viewer retains model, camera, lighting and line controls', () => {
   document.body.innerHTML=readFileSync(new URL('../viewport3d.html',import.meta.url),'utf8');
   for (const id of ['uploadModelBtn','cameraLens','lightBall','lightColor','backgroundColor','contourStudyToggle','planeDetail','lightPlaneLines']) expect(document.getElementById(id)).not.toBeNull();
-  expect(document.getElementById('contourPanel').hidden).toBe(true);
+  expect(document.getElementById('contourCanvas').hidden).toBe(true);
   expect(document.getElementById('contourOptions').hidden).toBe(true);
   document.body.innerHTML=readFileSync(new URL('../experimental.html',import.meta.url),'utf8');
   expect(document.getElementById('contourStudyBtn')).toBeNull();

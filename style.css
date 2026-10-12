@@ -292,42 +292,6 @@ canvas.color-drill-canvas {
   .viewport3d-controls { flex: 0 0 auto; width: min(90vmin, 500px); }
 }
 
-.contour-study-screen .viewport3d-workspace {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 280px;
-  max-width: 1328px;
-}
-.contour-study-screen .viewport3d-reference { width: 100%; }
-.contour-study-screen .viewport3d-description {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-#contourCanvas {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 1;
-  margin: 0;
-}
-@media (max-width: 1100px) {
-  .contour-study-screen .viewport3d-workspace {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 16px;
-  }
-  .contour-study-screen .viewport3d-controls {
-    grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1.2fr;
-    gap: 14px;
-    width: 100%;
-  }
-  .contour-study-screen .viewport3d-help-button { grid-column: 1 / -1; }
-  .contour-study-screen .viewport3d-camera-row { flex-wrap: wrap; }
-}
-@media (max-width: 600px) {
-  .contour-study-screen .viewport3d-workspace { grid-template-columns: minmax(0, 1fr); max-width: 500px; }
-  .contour-study-screen .viewport3d-controls { display: block; }
-}
 
 .value-slider {
   -webkit-appearance: none;
@@ -1230,8 +1194,12 @@ h2, h1 { margin: 10px 0; }
   }
 }
 
-.viewport3d-screen #contourPanel[hidden], .viewport3d-screen #contourOptions[hidden] { display: none; }
+.viewport3d-screen #contourCanvas[hidden], .viewport3d-screen #contourOptions[hidden] { display: none; }
 #contourStudyToggle { accent-color: #a00000; }
 
 .viewport3d-controls #contourStudyToggle:checked + .slider { background: #a00000; }
 #contourStudyToggle:focus-visible + .slider { outline: 2px solid #222; outline-offset: 2px; }
+
+.viewport3d-surface { position: relative; }
+.viewport3d-surface #contourCanvas { position: absolute; top: 0; left: 0; width: 100%; height: auto; aspect-ratio: 1; margin: 0; pointer-events: none; }
+.lines-view #modelCanvas { opacity: 0; }
