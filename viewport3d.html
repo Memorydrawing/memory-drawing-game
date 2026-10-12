@@ -4,61 +4,79 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>3D Viewport - Artist Trainer</title>
-  <link rel="stylesheet" href="style.css?v=lenses-1">
+  <link rel="stylesheet" href="style.css?v=ui-1">
 </head>
 <body>
   <div class="practice-screen viewport3d-screen">
     <button id="backBtn">← Experimental</button>
     <h2>3D Viewport</h2>
-    <div class="viewport3d-toolbar">
-      <button id="uploadModelBtn" type="button">Upload 3D File</button>
-      <input id="modelFile" type="file" multiple accept=".zip,application/zip,application/x-zip-compressed,.glb,.gltf,.obj,.stl,.bin,.png,.jpg,.jpeg,.webp" hidden>
-      <button id="resetViewBtn" type="button">Reset View</button>
-      <button id="randomModelBtn" type="button">Random Position</button>
-      <label class="viewport3d-lens" for="cameraLens">Lens
-        <select id="cameraLens">
-          <option value="15">15 mm · Ultra wide</option>
-          <option value="24">24 mm · Wide</option>
-          <option value="35" selected>35 mm · Moderate wide</option>
-          <option value="50">50 mm · Standard</option>
-          <option value="85">85 mm · Portrait</option>
-          <option value="135">135 mm · Telephoto</option>
-        </select>
-      </label>
-    </div>
-    <label id="archiveModelLabel" class="viewport3d-description" hidden>Model inside ZIP:
-      <select id="archiveModel" aria-label="Choose a model inside the ZIP"></select>
-    </label>
     <div class="viewport3d-workspace">
-      <canvas id="modelCanvas" width="500" height="500" aria-label="Interactive 3D model. Drag to rotate; pinch to zoom."></canvas>
-      <fieldset class="viewport3d-lighting">
-        <legend>Lighting</legend>
-        <div class="viewport3d-lighting-layout">
+      <div class="viewport3d-reference">
+        <p id="modelStatus" class="viewport3d-description" role="status" aria-live="polite">Loading viewport…</p>
+        <canvas id="modelCanvas" width="500" height="500" aria-label="Interactive 3D model. Drag to rotate; pinch to zoom."></canvas>
+        <p class="viewport3d-description viewport3d-gesture-hint">Drag to rotate · Pinch to zoom</p>
+      </div>
+      <aside class="viewport3d-controls" aria-label="3D viewport controls">
+        <fieldset class="viewport3d-control-section">
+          <legend>Model</legend>
+          <div class="viewport3d-actions">
+            <button id="uploadModelBtn" type="button">Upload</button>
+            <button id="randomModelBtn" type="button">Random Orientation</button>
+          </div>
+          <input id="modelFile" type="file" multiple accept=".zip,application/zip,application/x-zip-compressed,.glb,.gltf,.obj,.stl,.bin,.png,.jpg,.jpeg,.webp" hidden>
+          <label id="archiveModelLabel" class="viewport3d-archive-choice" hidden>Model inside ZIP
+            <select id="archiveModel" aria-label="Choose a model inside the ZIP"></select>
+          </label>
+        </fieldset>
+        <fieldset class="viewport3d-control-section">
+          <legend>Camera</legend>
+          <div class="viewport3d-camera-row">
+            <label for="cameraLens">Lens</label>
+            <select id="cameraLens">
+              <option value="15">15 mm</option>
+              <option value="24">24 mm</option>
+              <option value="35" selected>35 mm</option>
+              <option value="50">50 mm</option>
+              <option value="85">85 mm</option>
+              <option value="135">135 mm</option>
+            </select>
+            <button id="resetViewBtn" type="button">Reset View</button>
+          </div>
+        </fieldset>
+        <fieldset class="viewport3d-control-section viewport3d-lighting">
+          <legend>Lighting</legend>
           <div class="viewport3d-light-ball-group">
             <canvas id="lightBall" width="112" height="112" tabindex="0" role="group" aria-label="Light direction sphere. Drag or use arrow keys to move the light around the model." aria-describedby="lightBallHelp"></canvas>
             <output id="lightDirection" aria-live="off">Front / above</output>
           </div>
           <div class="viewport3d-light-settings">
-            <label for="lightColor">Light color</label>
-            <input id="lightColor" type="color" value="#ffffff">
-            <label for="backgroundColor">Background color</label>
-            <input id="backgroundColor" type="color" value="#ffffff">
             <label for="lightBrightness">Brightness <output id="lightBrightnessValue">100%</output></label>
             <input id="lightBrightness" type="range" min="0" max="200" value="100" step="1">
-            <button id="resetLightBtn" type="button">Reset Light</button>
-            <button id="randomLightBtn" type="button">Randomize Lighting</button>
+            <div class="viewport3d-color-row">
+              <label for="lightColor">Light color<input id="lightColor" type="color" value="#ffffff"></label>
+              <label for="backgroundColor">Background color<input id="backgroundColor" type="color" value="#ffffff"></label>
+            </div>
+            <div class="viewport3d-actions">
+              <button id="resetLightBtn" type="button" aria-label="Reset light">Reset</button>
+              <button id="randomLightBtn" type="button" aria-label="Randomize lighting">Randomize</button>
+            </div>
           </div>
-        </div>
-        <p id="lightBallHelp">Roll the sphere with your thumb to move the light around the model. Keep swiping to reach the back or underside.</p>
-      </fieldset>
+        </fieldset>
+        <button id="viewportHelpBtn" class="viewport3d-help-button" type="button">Help</button>
+      </aside>
     </div>
-    <p id="modelStatus" class="viewport3d-description" role="status" aria-live="polite">Loading viewport…</p>
-    <p class="viewport3d-description">Drag with one finger to rotate. Pinch to zoom; move two fingers to pan.<br>Mouse: drag to rotate, scroll to zoom, right-drag to pan.</p>
-    <p class="viewport3d-description viewport3d-formats">Lens values use a full-frame camera with a square crop. Switching lenses adjusts camera distance to keep the model framed.</p>
-    <p class="viewport3d-description viewport3d-formats">ZIP, GLB, glTF, OBJ, or STL. Select a ZIP directly—no need to unzip it first.<br>For loose glTF files, select the model and its .bin / texture files together.<br>OBJ and STL use a neutral material. Files stay on your device and are not saved after reload.</p>
     <noscript>This viewport needs JavaScript enabled.</noscript>
   </div>
+  <dialog id="viewportHelp" aria-labelledby="viewportHelpTitle">
+    <h2 id="viewportHelpTitle">Using the 3D Viewport</h2>
+    <p><strong>View:</strong> Drag with one finger to rotate. Pinch to zoom, or move two fingers to pan. With a mouse, drag to rotate, scroll to zoom, and right-drag to pan.</p>
+    <p><strong>Models:</strong> Upload ZIP, GLB, glTF, OBJ, or STL files. ZIPs are unpacked automatically, including ZIPs inside ZIPs. If several models are found, choose one from the dropdown. For loose glTF files, select the model and its .bin / texture files together. OBJ and STL use a neutral material.</p>
+    <p><strong>Camera:</strong> Random Orientation rotates the model into a new angle. Reset View centers it in the frame. Lens values use a full-frame camera with a square crop. Switching lenses preserves your viewing angle and adjusts camera distance to keep the model framed: wide lenses exaggerate depth and long lenses give a flatter view.</p>
+    <p id="lightBallHelp"><strong>Lighting:</strong> Roll the sphere with your thumb to move the light around the model. Keep swiping to reach the back or underside. Arrow keys also move the light when the sphere is focused. Adjust brightness, light color, and background color below it. Reset restores the light; Randomize changes its direction, color, and brightness.</p>
+    <p>Files stay on your device and are not saved after reload. Use standard unencrypted ZIPs under 100 MB. Compressed glTF geometry and KTX2 textures are not supported yet.</p>
+    <form method="dialog"><button type="submit">Close</button></form>
+  </dialog>
   <script src="back.js"></script>
-  <script src="viewport3d.bundle.js?v=lenses-1"></script>
+  <script src="viewport3d.bundle.js?v=ui-1"></script>
 </body>
 </html>

@@ -32,6 +32,11 @@ It opens directly from `viewport3d.html`, with no server or CDN required.
 
 ### 3D Viewport experiment
 
+The reference and one compact control panel form a centered workspace. The panel
+groups Model, Camera, and Lighting controls; a Help button opens the full
+instructions. Model filenames sit above the red outlined viewport, and light /
+background color pickers share one row.
+
 - Upload a ZIP directly, or one GLB, glTF, OBJ, or STL model. ZIP files are
   unpacked locally, including ZIPs inside other ZIPs, nested folders, and glTF
   companion files. If an
@@ -47,7 +52,7 @@ It opens directly from `viewport3d.html`, with no server or CDN required.
   by adjusting camera distance: wider lenses view it from closer up; longer
   lenses from farther away. These are ideal perspective lenses without barrel
   distortion or depth-of-field blur.
-- **Random Position** gives the model a random 3D orientation, including tilt,
+- **Random Orientation** gives the model a random 3D orientation, including tilt,
   and fits it back into the frame.
 - Roll the **Lighting** sphere with one finger to move the light around the
   model. Swipes continue around the full sphere, including the back, top, and

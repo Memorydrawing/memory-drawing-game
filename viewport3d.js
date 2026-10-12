@@ -21,7 +21,11 @@ function initViewport() {
   const setStatus = (message, error = false) => {
     status.textContent = message;
     status.dataset.error = String(error);
+    status.title = '';
   };
+  document.getElementById('viewportHelpBtn').addEventListener('click', () => {
+    document.getElementById('viewportHelp').showModal();
+  });
   let renderer;
   try {
     renderer = new WebGLRenderer({ canvas, antialias: true });
@@ -122,7 +126,8 @@ function initViewport() {
       scene.add(model);
       disposeModel(previous);
       fitView(camera, controls, model);
-      setStatus(result.name);
+      setStatus(result.name.split('/').pop());
+      status.title = result.name;
       requestRender();
     } catch (error) {
       setStatus('Could not load model. ' + error.message, true);
