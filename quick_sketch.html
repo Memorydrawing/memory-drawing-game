@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Quick-sketch - Artist Trainer</title>
+  <link rel="stylesheet" href="style.css?v=quick-sketch-5">
+  <link rel="stylesheet" href="quick_sketch.css?v=5">
+</head>
+<body>
+  <main class="practice-screen quick-sketch-screen">
+    <button id="backBtn" type="button">← Experimental</button>
+    <h2>Quick-sketch</h2>
+    <ol class="quick-sketch-phases" aria-label="Session phases">
+      <li id="setupStep" aria-current="step">Setup</li><li id="activeStep">Active</li><li id="reviewStep">Review</li>
+    </ol>
+    <form id="quickSketchSetup" class="quick-sketch-box">
+      <fieldset>
+        <legend>Time</legend>
+        <label for="sketchTime">Seconds per pose</label>
+        <input id="sketchTime" name="time" type="number" min="1" max="3600" step="1" value="60" required inputmode="numeric">
+        <p>How long the reference stays still before changing.</p>
+      </fieldset>
+      <fieldset>
+        <legend>Intervals</legend>
+        <label for="sketchIntervals">Number of intervals</label>
+        <input id="sketchIntervals" name="intervals" type="number" min="1" max="1000" step="1" value="10" required inputmode="numeric">
+        <p>How many timed sketches to complete. Each interval starts with a new reference.</p>
+      </fieldset>
+      <fieldset>
+        <legend>Reference</legend>
+        <label for="sketchReference">Reference collection</label>
+        <select id="sketchReference" name="reference">
+          <option value="basic-forms">Cube</option>
+          <option value="vector-studies">Vector studies</option>
+          <option value="bargue" disabled>Bargue plates — coming soon</option>
+          <option value="upload">Add your own 3D model</option>
+        </select>
+        <div id="sketchUpload" hidden>
+          <button id="sketchUploadBtn" type="button">Choose model or ZIP</button>
+          <input id="sketchFiles" type="file" multiple accept=".zip,application/zip,application/x-zip-compressed,.glb,.gltf,.obj,.stl,.bin,.png,.jpg,.jpeg,.webp" hidden>
+          <p>ZIP, GLB, glTF, OBJ, or STL. Include companion files with loose glTF models. Files stay on your device for this session.</p>
+        </div>
+        <div id="sketchPreviewWrap">
+          <canvas id="sketchPreview" width="260" height="260" aria-label="Reference preview. Drag to rotate; pinch to zoom."></canvas>
+          <p class="sketch-preview-hint">Drag to rotate · Pinch to zoom</p>
+        </div>
+        <p id="sketchReferenceStatus" role="status" aria-live="polite">Simple 3D forms for a quick study. More collections will be added later.</p>
+      </fieldset>
+      <button id="sketchStart" type="submit">Start</button>
+    </form>
+    <section id="quickSketchActive" class="quick-sketch-box" aria-labelledby="activeTitle" hidden>
+      <h3 id="activeTitle" tabindex="-1">Quick-sketch session</h3>
+      <p id="sketchSessionSummary"></p>
+      <div class="sketch-session-bar">
+        <span>Time remaining <strong id="sketchTimer" role="timer">—</strong></span>
+        <strong id="sketchIntervalTally">Interval 1</strong>
+        <button id="sketchPause" type="button">Pause</button>
+        <button id="sketchFinish" type="button">Finish &amp; review</button>
+      </div>
+      <p id="sketchActiveStatus" role="status" aria-live="polite"></p>
+      <div class="sketch-viewports">
+        <div><h4>Reference</h4><canvas id="sketchReferenceCanvas" width="500" height="500" aria-label="Fixed reference for this interval"></canvas></div>
+        <div><h4>Your drawing</h4><div class="sketch-drawing-surface"><canvas id="sketchDrawCanvas" width="500" height="500" aria-label="Draw the reference here"></canvas><svg id="sketchReferenceDots" viewBox="0 0 500 500" aria-hidden="true" focusable="false"></svg></div></div>
+      </div>
+      <div id="sketchToolbar" class="sketch-toolbar" role="toolbar" aria-label="Drawing tools">
+        <button type="button" data-tool="pencil" aria-pressed="true">Pencil</button>
+        <button type="button" data-tool="eraser" aria-pressed="false">Eraser</button>
+        <button type="button" data-action="undo">Undo</button>
+        <button type="button" data-action="redo">Redo</button>
+        <button type="button" data-action="clear">Clear</button>
+        <label>Size <input data-size type="range" min="1" max="40" step="1" value="3"><output>3px</output></label>
+      </div>
+      <p>Draw in the right viewport. Small blue dots mark the reference’s top, bottom, left, and right extremes. Each interval saves your drawing and grades it before starting a new reference. Green sections match; red sections fall outside the line tolerance.</p>
+      <button id="sketchEditSetup" type="button">Return to setup</button>
+    </section>
+    <section id="quickSketchReview" class="quick-sketch-box" aria-labelledby="sketchReviewTitle" hidden>
+      <h3 id="sketchReviewTitle" tabindex="-1">Review</h3>
+      <p id="sketchAverage"></p>
+      <p>Each preview shows your color-coded lines over the grading lines. Tap an attempt to enlarge the same view. Accuracy is the percentage of your drawn line pixels within 4 pixels of a reference line at 500 × 500. It measures line placement, not completeness. Blank attempts score 0%.</p>
+      <div id="sketchAttempts" class="sketch-attempts"></div>
+      <button id="sketchNewSession" type="button">New session</button>
+      <p>Attempts stay available for this session. Reloading the page clears them.</p>
+    </section>
+    <dialog id="sketchAttemptDialog" aria-labelledby="sketchAttemptTitle">
+      <h3 id="sketchAttemptTitle"></h3>
+      <img id="sketchAttemptImage" alt="Your lines over the reference: green sections are accurate, red sections are outside the tolerance.">
+      <p class="sketch-grade-legend"><span>Green: accurate</span> · <span>Red: outside tolerance</span></p>
+      <form method="dialog"><button type="submit">Close</button></form>
+    </dialog>
+    <noscript>Enable JavaScript to set up a quick-sketch session.</noscript>
+  </main>
+  <script src="back.js"></script>
+  <script src="quick_sketch.bundle.js?v=5"></script>
+</body>
+</html>
