@@ -37,7 +37,9 @@ test('active session saves attempts, averages their grades, and opens a colored 
   expect(document.getElementById('sketchAverage').textContent).toContain('50.0%');
   const cards = document.querySelectorAll('.sketch-attempt'); expect(cards.length).toBe(2); cards[0].click();
   expect(document.getElementById('sketchAttemptDialog').showModal).toHaveBeenCalled();
-  expect(document.getElementById('sketchAttemptImage').src).toContain('data:image/png');
+  expect(document.getElementById('sketchAttemptImage').src).toBe(cards[0].querySelector('img').src);
+  expect(document.getElementById('sketchAttemptImage').src).toBe(session.getAttempts()[0].contourOverlay);
+  expect(document.getElementById('sketchOverlayMode')).toBeNull();
 });
 test('returning to setup cancels timers and preserves the setup inputs', async () => {
   const {session, drawing} = setup(); await session.start({time: 1, intervals: 2});

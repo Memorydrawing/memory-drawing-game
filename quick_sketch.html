@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Quick-sketch - Artist Trainer</title>
-  <link rel="stylesheet" href="style.css?v=quick-sketch-4">
-  <link rel="stylesheet" href="quick_sketch.css?v=4">
+  <link rel="stylesheet" href="style.css?v=quick-sketch-5">
+  <link rel="stylesheet" href="quick_sketch.css?v=5">
 </head>
 <body>
   <main class="practice-screen quick-sketch-screen">
@@ -77,14 +77,13 @@
     <section id="quickSketchReview" class="quick-sketch-box" aria-labelledby="sketchReviewTitle" hidden>
       <h3 id="sketchReviewTitle" tabindex="-1">Review</h3>
       <p id="sketchAverage"></p>
-      <p>Tap an attempt to see your graded lines over its reference. Accuracy is the percentage of your drawn line pixels within 4 pixels of a reference line at 500 × 500. It measures line placement, not completeness. Blank attempts score 0%.</p>
+      <p>Each preview shows your color-coded lines over the grading lines. Tap an attempt to enlarge the same view. Accuracy is the percentage of your drawn line pixels within 4 pixels of a reference line at 500 × 500. It measures line placement, not completeness. Blank attempts score 0%.</p>
       <div id="sketchAttempts" class="sketch-attempts"></div>
       <button id="sketchNewSession" type="button">New session</button>
       <p>Attempts stay available for this session. Reloading the page clears them.</p>
     </section>
     <dialog id="sketchAttemptDialog" aria-labelledby="sketchAttemptTitle">
       <h3 id="sketchAttemptTitle"></h3>
-      <label>Overlay reference <select id="sketchOverlayMode"><option value="model">Original reference</option><option value="lines">Grading lines</option></select></label>
       <img id="sketchAttemptImage" alt="Your lines over the reference: green sections are accurate, red sections are outside the tolerance.">
       <p class="sketch-grade-legend"><span>Green: accurate</span> · <span>Red: outside tolerance</span></p>
       <form method="dialog"><button type="submit">Close</button></form>
@@ -92,6 +91,6 @@
     <noscript>Enable JavaScript to set up a quick-sketch session.</noscript>
   </main>
   <script src="back.js"></script>
-  <script src="quick_sketch.bundle.js?v=4"></script>
+  <script src="quick_sketch.bundle.js?v=5"></script>
 </body>
 </html>

@@ -33,7 +33,7 @@ export function createQuickSketchSession(root = document, {referenceFactory = cr
     drawing.setEnabled(false);
     const image = drawing.capture(), grade = gradeDrawing(image, current.matches);
     attempts.push({number: index + 1, name: current.name, partial, accuracy: grade.accuracy,
-      drawing: snapshot(null, image.data), overlay: snapshot(current.image, grade.colored, true), contourOverlay: snapshot(current.lines, grade.colored, true)});
+      drawing: snapshot(null, image.data), contourOverlay: snapshot(current.lines, grade.colored, true)});
     current = null;
   }
   function review() {
@@ -42,13 +42,11 @@ export function createQuickSketchSession(root = document, {referenceFactory = cr
     get('sketchAverage').textContent = `Average accuracy: ${averageAccuracy(attempts).toFixed(1)}% · ${attempts.length} ${attempts.length === 1 ? 'attempt' : 'attempts'}`;
     get('sketchAttempts').replaceChildren(...attempts.map(attempt => {
       const button = root.createElement('button'); button.type = 'button'; button.className = 'sketch-attempt';
-      const image = root.createElement('img'); image.src = attempt.drawing; image.alt = `Drawing from interval ${attempt.number}`;
+      const image = root.createElement('img'); image.src = attempt.contourOverlay; image.alt = `Drawing from interval ${attempt.number}`;
       const caption = root.createElement('span'); caption.textContent = `Attempt ${attempt.number}${attempt.partial ? ' (ended early)' : ''} · ${attempt.accuracy.toFixed(1)}%`;
       button.append(image, caption); button.addEventListener('click', () => {
         get('sketchAttemptTitle').textContent = `Attempt ${attempt.number} · ${attempt.accuracy.toFixed(1)}%`;
-        get('sketchAttemptImage').src = attempt.overlay;
-        get('sketchOverlayMode').value = 'model';
-        get('sketchOverlayMode').onchange = () => {get('sketchAttemptImage').src = get('sketchOverlayMode').value === 'lines' ? attempt.contourOverlay : attempt.overlay;};
+        get('sketchAttemptImage').src = attempt.contourOverlay;
         get('sketchAttemptDialog').showModal();
       }); return button;
     }));

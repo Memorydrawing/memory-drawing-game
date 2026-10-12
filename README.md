@@ -127,6 +127,7 @@ measures line placement, not how completely the reference was drawn. Blank
 attempts score zero. Erased ink does not count.
 
 Review lists all attempts in order with individual and mean accuracy. Open an
-attempt to inspect colored lines over the original reference or grading lines.
+attempt to inspect colored lines over the grading lines. Thumbnails and expanded
+attempts use the identical graded overlay.
 Uploads and attempts stay in memory for the session; reloading clears them.
 Run `npm run build:quick-sketch` and `npm run build:3d` after shared source changes.
