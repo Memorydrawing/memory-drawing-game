@@ -111,7 +111,10 @@ Start opens two fixed 500 × 500 study viewports: reference and drawing. Pencil,
 eraser, separate sizes, undo/redo and undoable clear mirror the Canvas Tool.
 Each interval starts with a randomized 3D orientation or a randomly selected
 vector study (no immediate repeats when the collection has several plates).
-References remain fixed during the interval. The countdown begins after the
+References remain fixed during the interval. Four small translucent blue dots
+on the drawing surface mark the reference’s screen-space top, bottom, left and
+right extrema. This separate overlay follows each pose and is excluded from
+stroke capture, erasing, undo history and grading. The countdown begins after the
 reference is ready, supports Pause/Resume, and pauses when the page is hidden.
 Finish & review saves the current partial attempt; Return to setup cancels it.
 

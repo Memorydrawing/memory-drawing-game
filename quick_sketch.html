@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Quick-sketch - Artist Trainer</title>
-  <link rel="stylesheet" href="style.css?v=quick-sketch-3">
-  <link rel="stylesheet" href="quick_sketch.css?v=3">
+  <link rel="stylesheet" href="style.css?v=quick-sketch-4">
+  <link rel="stylesheet" href="quick_sketch.css?v=4">
 </head>
 <body>
   <main class="practice-screen quick-sketch-screen">
@@ -61,7 +61,7 @@
       <p id="sketchActiveStatus" role="status" aria-live="polite"></p>
       <div class="sketch-viewports">
         <div><h4>Reference</h4><canvas id="sketchReferenceCanvas" width="500" height="500" aria-label="Fixed reference for this interval"></canvas></div>
-        <div><h4>Your drawing</h4><canvas id="sketchDrawCanvas" width="500" height="500" aria-label="Draw the reference here"></canvas></div>
+        <div><h4>Your drawing</h4><div class="sketch-drawing-surface"><canvas id="sketchDrawCanvas" width="500" height="500" aria-label="Draw the reference here"></canvas><svg id="sketchReferenceDots" viewBox="0 0 500 500" aria-hidden="true" focusable="false"></svg></div></div>
       </div>
       <div id="sketchToolbar" class="sketch-toolbar" role="toolbar" aria-label="Drawing tools">
         <button type="button" data-tool="pencil" aria-pressed="true">Pencil</button>
@@ -71,7 +71,7 @@
         <button type="button" data-action="clear">Clear</button>
         <label>Size <input data-size type="range" min="1" max="40" step="1" value="3"><output>3px</output></label>
       </div>
-      <p>Draw in the right viewport. Each interval saves your drawing and grades it before starting a new reference. Green sections match; red sections fall outside the line tolerance.</p>
+      <p>Draw in the right viewport. Small blue dots mark the reference’s top, bottom, left, and right extremes. Each interval saves your drawing and grades it before starting a new reference. Green sections match; red sections fall outside the line tolerance.</p>
       <button id="sketchEditSetup" type="button">Return to setup</button>
     </section>
     <section id="quickSketchReview" class="quick-sketch-box" aria-labelledby="sketchReviewTitle" hidden>
@@ -92,6 +92,6 @@
     <noscript>Enable JavaScript to set up a quick-sketch session.</noscript>
   </main>
   <script src="back.js"></script>
-  <script src="quick_sketch.bundle.js?v=3"></script>
+  <script src="quick_sketch.bundle.js?v=4"></script>
 </body>
 </html>

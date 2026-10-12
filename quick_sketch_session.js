@@ -1,3 +1,4 @@
+import {showReferenceDots} from './quick_sketch_landmarks.js';
 import {createSessionReference} from './quick_sketch_references.js';
 import {createSketchDrawing} from './quick_sketch_drawing.js';
 import {createSketchClock} from './quick_sketch_clock.js';
@@ -7,6 +8,7 @@ export function createQuickSketchSession(root = document, {referenceFactory = cr
   const get = id => root.getElementById(id);
   const canvas = get('sketchDrawCanvas'), referenceCanvas = get('sketchReferenceCanvas');
   const ctx = referenceCanvas.getContext('2d');
+  const dots = get('sketchReferenceDots');
   const drawing = drawingFactory(canvas, get('sketchToolbar'));
   let clock, source, current, attempts = [], token = 0, paused = false;
   function setPhase(phase) {
@@ -60,16 +62,16 @@ export function createQuickSketchSession(root = document, {referenceFactory = cr
     get('sketchPause').disabled = true; get('sketchPause').textContent = 'Pause';
     get('sketchActiveStatus').textContent = 'Preparing reference…'; get('sketchTimer').textContent = '—';
     get('sketchIntervalTally').textContent = `Interval 1 / ${session.intervals}`;
-    drawing.reset(); ctx.clearRect(0, 0, STUDY_SIZE, STUDY_SIZE);
+    drawing.reset(); showReferenceDots(dots); ctx.clearRect(0, 0, STUDY_SIZE, STUDY_SIZE);
     try {
       const prepared = await referenceFactory(session);
       if (request !== token) {prepared.dispose(); return;}
       source = prepared;
       clock = clockFactory({seconds: session.time, count: session.intervals,
         async prepare() {
-          drawing.setEnabled(false); drawing.reset(); get('sketchActiveStatus').textContent = 'Preparing next reference…';
+          drawing.setEnabled(false); drawing.reset(); showReferenceDots(dots); get('sketchActiveStatus').textContent = 'Preparing next reference…';
           const reference = await source.next(); if (request !== token) return;
-          current = reference; ctx.clearRect(0, 0, STUDY_SIZE, STUDY_SIZE); ctx.drawImage(reference.image, 0, 0);
+          current = reference; showReferenceDots(dots, reference.points); ctx.clearRect(0, 0, STUDY_SIZE, STUDY_SIZE); ctx.drawImage(reference.image, 0, 0);
           get('sketchActiveStatus').textContent = reference.name;
         }, record,
         tick(seconds, index, count) {

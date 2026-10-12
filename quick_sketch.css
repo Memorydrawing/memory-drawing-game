@@ -41,3 +41,7 @@
 .sketch-grade-legend span:first-child { color: #008b35; }
 .sketch-grade-legend span:last-child { color: #c71919; }
 @media (max-width: 600px) { .sketch-viewports { grid-template-columns: 1fr; } }
+
+.sketch-drawing-surface { position: relative; margin: 10px 0; }
+.sketch-drawing-surface #sketchDrawCanvas { margin: 0; }
+#sketchReferenceDots { position: absolute; top: 2px; left: 2px; width: calc(100% - 4px); height: calc(100% - 4px); pointer-events: none; fill: rgba(0, 105, 255, 0.38); }

@@ -1,6 +1,7 @@
 import {WebGLRenderer, Scene, Color, PerspectiveCamera, HemisphereLight, DirectionalLight, Mesh, BoxGeometry, Vector3} from 'three';
 import {loadModel, normalizeModel, neutralMaterial, fitView, randomizeModel, disposeModel} from './viewport3d_model.js';
 import {createContourRenderer} from './viewport3d_contours.js';
+import {referenceExtrema} from './quick_sketch_landmarks.js';
 import {STUDY_SIZE, rasterMatcher, vectorMatcher} from './quick_sketch_grading.js';
 
 const p = (x, y) => ({x, y});
@@ -26,7 +27,7 @@ export async function createSessionReference(session) {
         const image = canvas(), ctx = image.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, STUDY_SIZE, STUDY_SIZE);
         ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.lineJoin = 'round';
         for (const path of plate.paths) {ctx.beginPath(); path.forEach((point, index) => index ? ctx.lineTo(point.x, point.y) : ctx.moveTo(point.x, point.y)); ctx.stroke();}
-        return {image, lines: image, matches: vectorMatcher(plate.paths), name: plate.name};
+        return {image, lines: image, points: referenceExtrema(ctx.getImageData(0, 0, STUDY_SIZE, STUDY_SIZE)), matches: vectorMatcher(plate.paths), name: plate.name};
       }, dispose() {}
     };
   }
@@ -47,7 +48,8 @@ export async function createSessionReference(session) {
         const image = snapshot(surface);
         contours.render(scene, camera, light, {size: STUDY_SIZE, shadowTone: false, planes: true, detail: 50});
         const lines = snapshot(lineSurface);
-        return {image, lines, matches: rasterMatcher(lines.getContext('2d').getImageData(0, 0, STUDY_SIZE, STUDY_SIZE)), name: session.model?.name || 'Cube'};
+        const lineData = lines.getContext('2d').getImageData(0, 0, STUDY_SIZE, STUDY_SIZE);
+        return {image, lines, points: referenceExtrema(lineData), matches: rasterMatcher(lineData), name: session.model?.name || 'Cube'};
       },
       dispose() {contours.dispose(); disposeModel(model); renderer.dispose();}
     };
