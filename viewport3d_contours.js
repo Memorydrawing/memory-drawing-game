@@ -55,7 +55,7 @@ void main() {
   gl_FragColor = vec4(normalize(sum / max(weights, 1.0)) * 0.5 + 0.5, center.a);
 }`;
 
-// Closing small gaps before slightly strengthening the stroke produces connected
+// Closing small gaps without adding stroke weight produces connected
 // binary black lines, with no gray texture samples in the final drawing.
 export const contourJoinShader = `
 uniform sampler2D surface;
@@ -196,7 +196,7 @@ export function createContourRenderer(canvas, onContextChange) {
       edge.uniforms.planeTexel.value.set(1 / w, 1 / h);
       filter.uniforms.texel.value.set(0.65 * ratio / w, 0.65 * ratio / h);
       join.uniforms.texel.value.set(0.85 * ratio / w, 0.85 * ratio / h);
-      solid.uniforms.texel.value.set(0.35 * ratio / w, 0.35 * ratio / h);
+      solid.uniforms.texel.value.set(0.85 * ratio / w, 0.85 * ratio / h);
     }
     camera.updateMatrixWorld();
     light.updateMatrixWorld();
