@@ -73,6 +73,7 @@ void main() {
 
 export const contourSolidShader = `
 uniform sampler2D surface;
+uniform float shadowToneEnabled;
 uniform sampler2D normals;
 uniform sampler2D reference;
 uniform vec3 lightDirection;
@@ -92,7 +93,7 @@ void main() {
   vec3 shade = texture2D(reference, vUv).rgb;
   float value = dot(shade, vec3(0.2126, 0.7152, 0.0722));
   value = value <= 0.0031308 ? value * 12.92 : 1.055 * pow(value, 1.0 / 2.4) - 0.055;
-  float paper = mix(1.0, clamp(value, 0.0, 1.0), shadow);
+  float paper = mix(1.0, clamp(value, 0.0, 1.0), shadow * shadowToneEnabled);
   gl_FragColor = vec4(vec3(paper * (1.0 - step(0.5, ink))), 1.0);
 }`;
 
@@ -147,9 +148,9 @@ export function planeSettings(detail = 50) {
   };
 }
 
-export function createContourRenderer(canvas, onContextChange) {
+export function createContourRenderer(canvas, onContextChange, {pixelRatio = Math.min(window.devicePixelRatio || 1, 2)} = {}) {
   const renderer = new WebGLRenderer({canvas, antialias: false});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setPixelRatio(pixelRatio);
   renderer.toneMapping = NoToneMapping;
   renderer.setClearColor(0x000000, 0);
   const target = new WebGLRenderTarget(1, 1, {minFilter: NearestFilter, magFilter: NearestFilter, depthBuffer: true});
@@ -172,6 +173,7 @@ export function createContourRenderer(canvas, onContextChange) {
     uniforms: {lightDirection: {value: new Vector3()}, lightEnabled: {value: 1}},
     side: DoubleSide, blending: NoBlending, toneMapped: false
   });
+  solid.uniforms.shadowToneEnabled = {value: 1};
   solid.uniforms.reference = {value: reference.texture};
   solid.uniforms.normals = {value: filtered.texture};
   solid.uniforms.lightDirection = classification.uniforms.lightDirection;
@@ -201,7 +203,8 @@ export function createContourRenderer(canvas, onContextChange) {
     edge.uniforms.planeCosAngle.value = settings.cosAngle;
     edge.uniforms.planeLightCutoff.value = settings.lightCutoff;
     edge.uniforms.planeContrast.value = settings.contrast;
-    const width = canvas.clientWidth, height = canvas.clientHeight;
+    solid.uniforms.shadowToneEnabled.value = options.shadowTone === false ? 0 : 1;
+    const width = options.size ?? canvas.clientWidth, height = options.size ?? canvas.clientHeight;
     if (!width || !height) return;
     const ratio = renderer.getPixelRatio();
     const w = Math.max(1, Math.round(width * ratio)), h = Math.max(1, Math.round(height * ratio));

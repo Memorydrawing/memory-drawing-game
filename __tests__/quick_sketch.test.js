@@ -9,7 +9,10 @@ const {initQuickSketch} = await import('../quick_sketch.js');
 let app;
 beforeEach(async () => {
   document.body.innerHTML = readFileSync(new URL('../quick_sketch.html', import.meta.url), 'utf8');
-  app = initQuickSketch(document, {previewFactory: () => ({show: async () => {}, clear() {}, dispose() {}})});
+  app = initQuickSketch(document, {sessionFactory: () => {
+    get('sketchEditSetup').addEventListener('click', () => {get('quickSketchActive').hidden = true; get('quickSketchSetup').hidden = false;});
+    return {start() {}, cancel() {}};
+  }, previewFactory: () => ({show: async () => {}, clear() {}, dispose() {}})});
   await Promise.resolve();
 });
 const get = id => document.getElementById(id);
@@ -20,7 +23,7 @@ const upload = async files => {
   get('sketchFiles').dispatchEvent(new Event('change'));
   await new Promise(resolve => setTimeout(resolve, 0));
 };
-test('Start retains settings and opens active placeholder; editing preserves values', () => {
+test('Start retains settings and opens active phase; editing preserves values', () => {
   get('sketchTime').value = '120'; get('sketchIntervals').value = '15'; submit();
   expect(app.getSession()).toMatchObject({time: 120, intervals: 15, reference: 'basic-forms'});
   expect(get('quickSketchSetup').hidden).toBe(true);

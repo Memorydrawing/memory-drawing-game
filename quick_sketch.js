@@ -1,13 +1,15 @@
+import {createQuickSketchSession} from './quick_sketch_session.js';
 import {createSketchPreview} from './quick_sketch_preview.js';
 import { prepareModelFiles, modelFiles, filePath } from './viewport3d_zip.js';
 
-export function initQuickSketch(root = document, {previewFactory = createSketchPreview} = {}) {
+export function initQuickSketch(root = document, {previewFactory = createSketchPreview, sessionFactory = createQuickSketchSession} = {}) {
   const get = id => root.getElementById(id);
   const form = get('quickSketchSetup');
   if (!form) return;
   const reference = get('sketchReference'), status = get('sketchReferenceStatus');
   const start = get('sketchStart');
   const entries = new Map();
+  let activeSession;
   let nextId = 0, uploading = false, loading = false, previewError = false, revision = 0, session = null, preview = null;
   function selectedEntry() { return entries.get(reference.value); }
   function updateStart() { start.disabled = uploading || loading || previewError || reference.value === 'upload' || (selectedEntry()?.error ?? false); }
@@ -15,6 +17,11 @@ export function initQuickSketch(root = document, {previewFactory = createSketchP
     const request = ++revision;
     const entry = selectedEntry();
     const showModel = reference.value === 'basic-forms' || !!entry;
+    if (reference.value === 'vector-studies') {
+      get('sketchUpload').hidden = get('sketchPreviewWrap').hidden = true;
+      loading = previewError = false; preview?.clear(); updateStart();
+      status.textContent = 'A small set of vector line studies. A new study is chosen for each interval.'; return;
+    }
     get('sketchUpload').hidden = reference.value !== 'upload' && !entry;
     get('sketchPreviewWrap').hidden = !showModel;
     status.dataset.error = 'false'; previewError = false;
@@ -71,17 +78,14 @@ export function initQuickSketch(root = document, {previewFactory = createSketchP
     const entry = selectedEntry();
     const model = entry?.model || null;
     session = {time, intervals, reference: reference.value, model, files: entry ? entry.files.slice() : []};
-    get('sketchSessionSummary').textContent = `${time} seconds per pose · ${intervals} pose changes · ${model ? filePath(model) : 'Cube'}`;
+    get('sketchSessionSummary').textContent = `${time} seconds per pose · ${intervals} intervals · ${model ? filePath(model) : reference.value === 'vector-studies' ? 'Vector studies' : 'Cube'}`;
+    if (!activeSession) activeSession = sessionFactory(root);
+    activeSession.start(session);
     form.hidden = true; get('quickSketchActive').hidden = false;
     get('setupStep').removeAttribute('aria-current'); get('activeStep').setAttribute('aria-current', 'step');
     get('activeTitle').focus();
   });
-  get('sketchEditSetup').addEventListener('click', () => {
-    get('quickSketchActive').hidden = true; form.hidden = false;
-    get('activeStep').removeAttribute('aria-current'); get('setupStep').setAttribute('aria-current', 'step');
-    get('sketchTime').focus();
-  });
   updateReference();
-  return {getSession: () => session, dispose: () => { ++revision; preview?.dispose(); }};
+  return {getSession: () => session, dispose: () => { ++revision; preview?.dispose(); activeSession?.cancel(); }};
 }
 initQuickSketch();

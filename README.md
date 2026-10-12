@@ -99,17 +99,31 @@ produces connected, strengthened black strokes with no gray shader output.
 
 ### Quick-sketch experiment
 
-**Experimental → Quick-sketch** implements the setup phase only: seconds per pose
-(1–3600), number of randomized pose changes (1–1000), and a reference dropdown.
-Cube is the initial model entry; Bargue plates is a disabled placeholder.
-Every uploaded model becomes its own Reference dropdown entry. Choose **Add your own 3D model** to select
-GLB, glTF, OBJ, STL, or ZIP files using the shared nested archive preparation.
-Multiple models inside a ZIP each get an entry, and companion files remain
-associated with their model. A small red-outlined preview parses the selected
-model and supports one-finger orbit, pinch zoom and two-finger pan. Adding more
-models retains previous entries for this session.
+**Experimental → Quick-sketch** has setup, active, and review phases. Choose
+seconds per pose (1–3600), the number of timed intervals (1–1000), and a reference.
+Cube is the initial model; each uploaded GLB/glTF/OBJ/STL or nested ZIP model gets
+its own dropdown entry, with companion files retained. The small setup preview
+supports touch orbit, zoom and pan. Vector studies provides a small demonstration
+collection of normalized polylines; Bargue plates remains a disabled placeholder
+until actual vector plates are added.
 
-Start validates the setup and switches to an active-phase placeholder, retaining
-settings and files in memory. Edit setup restores the form without losing them.
-Reloading clears uploads. Timed randomization and review are not implemented yet.
-Run `npm run build:quick-sketch` after changing its source.
+Start opens two fixed 500 × 500 study viewports: reference and drawing. Pencil,
+eraser, separate sizes, undo/redo and undoable clear mirror the Canvas Tool.
+Each interval starts with a randomized 3D orientation or a randomly selected
+vector study (no immediate repeats when the collection has several plates).
+References remain fixed during the interval. The countdown begins after the
+reference is ready, supports Pause/Resume, and pauses when the page is hidden.
+Finish & review saves the current partial attempt; Return to setup cancels it.
+
+Every completed interval captures the drawing and grades its visible ink pixels.
+For 3D references, a matching black/white contour mask is generated from the same
+camera, orientation and light, with shadow tone excluded. Vector references use
+point-to-segment projection. Sections within four pixels of reference lines are
+green; others are red, using the shared accuracy calculation. The percentage
+measures line placement, not how completely the reference was drawn. Blank
+attempts score zero. Erased ink does not count.
+
+Review lists all attempts in order with individual and mean accuracy. Open an
+attempt to inspect colored lines over the original reference or grading lines.
+Uploads and attempts stay in memory for the session; reloading clears them.
+Run `npm run build:quick-sketch` and `npm run build:3d` after shared source changes.
