@@ -1,7 +1,7 @@
 /** @jest-environment node */
 import { jest } from '@jest/globals';
 import { Box3, Vector3, Group, Mesh, BoxGeometry, PerspectiveCamera, BufferGeometry } from 'three';
-import { loadModel, normalizeModel, neutralMaterial, fitView, disposeModel, randomizeModel } from '../viewport3d_model.js';
+import { loadModel, normalizeModel, neutralMaterial, fitView, disposeModel, randomizeModel, applyLens } from '../viewport3d_model.js';
 
 const obj = 'v 0 0 0\nv 1 0 0\nv 0 1 0\nf 1 2 3\n';
 const textFile = (name, content) => ({name, text: async () => content});
@@ -93,4 +93,29 @@ test('random positioning rotates an imported model and keeps it in frame', () =>
       expect(Math.abs(point.y)).toBeLessThan(1);
     }
   } finally {random.mockRestore();disposeModel(model);}
+});
+
+test('lens presets change field of view and camera distance while preserving viewing direction', () => {
+  const model = normalizeModel(new Mesh(new BoxGeometry(1,2,1), neutralMaterial()));
+  const camera = new PerspectiveCamera(40,1,0.01,100);
+  camera.position.set(0,0,5);
+  const controls = {target:new Vector3(), update() {camera.lookAt(this.target);camera.updateMatrixWorld();}, saveState() {}};
+  const measurements = [];
+  for (const focal of [15,24,35,50,85,135]) {
+    applyLens(camera,focal);
+    fitView(camera,controls,model,true);
+    expect(camera.getFocalLength()).toBeCloseTo(focal);
+    expect(camera.position.clone().sub(controls.target).normalize().dot(new Vector3(0,0,1))).toBeCloseTo(1);
+    // Compare projected widths of equal-sized details at the front and back.
+    const front = new Vector3(0.25,0,0.5).project(camera).x;
+    const back = new Vector3(0.25,0,-0.5).project(camera).x;
+    measurements.push({fov:camera.fov,distance:camera.position.length(),depthRatio:front/back});
+  }
+  for (let i=1;i<measurements.length;i++) {
+    expect(measurements[i].fov).toBeLessThan(measurements[i-1].fov);
+    expect(measurements[i].distance).toBeGreaterThan(measurements[i-1].distance);
+    expect(measurements[i].depthRatio).toBeLessThan(measurements[i-1].depthRatio);
+  }
+  expect(camera.filmGauge).toBe(24);
+  disposeModel(model);
 });

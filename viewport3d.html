@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>3D Viewport - Artist Trainer</title>
-  <link rel="stylesheet" href="style.css?v=background-1">
+  <link rel="stylesheet" href="style.css?v=lenses-1">
 </head>
 <body>
   <div class="practice-screen viewport3d-screen">
@@ -15,6 +15,16 @@
       <input id="modelFile" type="file" multiple accept=".zip,application/zip,application/x-zip-compressed,.glb,.gltf,.obj,.stl,.bin,.png,.jpg,.jpeg,.webp" hidden>
       <button id="resetViewBtn" type="button">Reset View</button>
       <button id="randomModelBtn" type="button">Random Position</button>
+      <label class="viewport3d-lens" for="cameraLens">Lens
+        <select id="cameraLens">
+          <option value="15">15 mm · Ultra wide</option>
+          <option value="24">24 mm · Wide</option>
+          <option value="35" selected>35 mm · Moderate wide</option>
+          <option value="50">50 mm · Standard</option>
+          <option value="85">85 mm · Portrait</option>
+          <option value="135">135 mm · Telephoto</option>
+        </select>
+      </label>
     </div>
     <label id="archiveModelLabel" class="viewport3d-description" hidden>Model inside ZIP:
       <select id="archiveModel" aria-label="Choose a model inside the ZIP"></select>
@@ -44,10 +54,11 @@
     </div>
     <p id="modelStatus" class="viewport3d-description" role="status" aria-live="polite">Loading viewport…</p>
     <p class="viewport3d-description">Drag with one finger to rotate. Pinch to zoom; move two fingers to pan.<br>Mouse: drag to rotate, scroll to zoom, right-drag to pan.</p>
+    <p class="viewport3d-description viewport3d-formats">Lens values use a full-frame camera with a square crop. Switching lenses adjusts camera distance to keep the model framed.</p>
     <p class="viewport3d-description viewport3d-formats">ZIP, GLB, glTF, OBJ, or STL. Select a ZIP directly—no need to unzip it first.<br>For loose glTF files, select the model and its .bin / texture files together.<br>OBJ and STL use a neutral material. Files stay on your device and are not saved after reload.</p>
     <noscript>This viewport needs JavaScript enabled.</noscript>
   </div>
   <script src="back.js"></script>
-  <script src="viewport3d.bundle.js?v=background-1"></script>
+  <script src="viewport3d.bundle.js?v=lenses-1"></script>
 </body>
 </html>

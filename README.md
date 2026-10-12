@@ -42,6 +42,11 @@ It opens directly from `viewport3d.html`, with no server or CDN required.
 - Drag with one finger to orbit, pinch to zoom, or move two fingers to pan.
   Mouse controls are left-drag, scroll, and right-drag respectively.
 - **Reset View** fits the model back into the frame.
+- **Lens** selects a 15, 24, 35, 50, 85, or 135 mm full-frame-equivalent view,
+  using the center crop for the square viewport. Lens changes refit the model
+  by adjusting camera distance: wider lenses view it from closer up; longer
+  lenses from farther away. These are ideal perspective lenses without barrel
+  distortion or depth-of-field blur.
 - **Random Position** gives the model a random 3D orientation, including tilt,
   and fits it back into the frame.
 - Roll the **Lighting** sphere with one finger to move the light around the

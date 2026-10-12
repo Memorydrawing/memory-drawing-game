@@ -183,6 +183,19 @@ canvas.color-drill-canvas {
   flex-wrap: wrap;
   justify-content: center;
   gap: 8px;
+  align-items: center;
+}
+
+.viewport3d-lens {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+
+#cameraLens {
+  padding: 6px;
+  font: inherit;
 }
 
 .viewport3d-workspace {

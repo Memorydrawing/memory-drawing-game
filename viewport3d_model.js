@@ -46,13 +46,16 @@ export function normalizeModel(model) {
   return wrapper;
 }
 
-export function fitView(camera, controls, model) {
+export function fitView(camera, controls, model, preserveDirection = false) {
+  const viewDirection = preserveDirection
+    ? camera.position.clone().sub(controls.target).normalize()
+    : new Vector3(0.6, 0.35, 1).normalize();
   const sphere = new Box3().setFromObject(model, true).getBoundingSphere(new Sphere());
   const verticalFov = camera.fov * Math.PI / 180;
   const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * camera.aspect);
   const distance = sphere.radius / Math.sin(Math.min(verticalFov, horizontalFov) / 2) * 1.15;
   controls.target.copy(sphere.center);
-  camera.position.copy(sphere.center).add(new Vector3(0.6, 0.35, 1).normalize().multiplyScalar(distance));
+  camera.position.copy(sphere.center).add(viewDirection.multiplyScalar(distance));
   camera.near = Math.max(sphere.radius / 1000, 0.0001);
   camera.far = distance + sphere.radius * 100;
   camera.updateProjectionMatrix();
@@ -60,6 +63,14 @@ export function fitView(camera, controls, model) {
   controls.maxDistance = sphere.radius * 30;
   controls.update();
   controls.saveState();
+}
+
+export function applyLens(camera, focalLength) {
+  // Full-frame (36 × 24 mm), cropped to the viewport's aspect ratio. A square
+  // viewport uses the central 24 × 24 mm portion of the virtual sensor.
+  const sensorHeight = Math.min(24, 36 / camera.aspect);
+  camera.filmGauge = sensorHeight * Math.max(camera.aspect, 1);
+  camera.setFocalLength(Number(focalLength));
 }
 
 export function randomizeModel(model) {

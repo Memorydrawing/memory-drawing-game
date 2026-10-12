@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { disposeModel, normalizeModel, neutralMaterial, fitView, loadModel } from './viewport3d_model.js';
 import { prepareModelFiles, modelFiles, filePath } from './viewport3d_zip.js';
 import { createLightingControls } from './viewport3d_lighting.js';
-import { randomizeModel } from './viewport3d_model.js';
+import { randomizeModel, applyLens } from './viewport3d_model.js';
 
 
 function initViewport() {
@@ -14,6 +14,7 @@ function initViewport() {
   const input = document.getElementById('modelFile');
   const reset = document.getElementById('resetViewBtn');
   const randomModel = document.getElementById('randomModelBtn');
+  const lens = document.getElementById('cameraLens');
   const archiveSelect = document.getElementById('archiveModel');
   const archiveLabel = document.getElementById('archiveModelLabel');
   let preparedFiles = [];
@@ -29,6 +30,7 @@ function initViewport() {
     upload.disabled = true;
     reset.disabled = true;
     randomModel.disabled = true;
+    lens.disabled = true;
     document.querySelector('.viewport3d-lighting').disabled = true;
     return;
   }
@@ -38,6 +40,7 @@ function initViewport() {
   const scene = new Scene();
   scene.background = new Color(0xffffff);
   const camera = new PerspectiveCamera(40, 1, 0.01, 100);
+  applyLens(camera, lens.value);
   const backgroundColor = document.getElementById('backgroundColor');
   backgroundColor.addEventListener('input', () => {
     scene.background.set(backgroundColor.value);
@@ -72,7 +75,7 @@ function initViewport() {
     if (!width || !height) return;
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
-    camera.updateProjectionMatrix();
+    applyLens(camera, lens.value);
     requestRender();
   }
   const observer = new ResizeObserver(resize);
@@ -99,6 +102,11 @@ function initViewport() {
   randomModel.addEventListener('click', () => {
     randomizeModel(model);
     fitView(camera, controls, model);
+    requestRender();
+  });
+  lens.addEventListener('change', () => {
+    applyLens(camera, lens.value);
+    fitView(camera, controls, model, true);
     requestRender();
   });
   async function showModel(file) {
