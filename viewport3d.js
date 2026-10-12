@@ -4,6 +4,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { disposeModel, normalizeModel, neutralMaterial, fitView, loadModel } from './viewport3d_model.js';
 import { prepareModelFiles, modelFiles, filePath } from './viewport3d_zip.js';
 import { createLightingControls } from './viewport3d_lighting.js';
+import { randomizeModel } from './viewport3d_model.js';
 
 
 function initViewport() {
@@ -12,6 +13,7 @@ function initViewport() {
   const upload = document.getElementById('uploadModelBtn');
   const input = document.getElementById('modelFile');
   const reset = document.getElementById('resetViewBtn');
+  const randomModel = document.getElementById('randomModelBtn');
   const archiveSelect = document.getElementById('archiveModel');
   const archiveLabel = document.getElementById('archiveModelLabel');
   let preparedFiles = [];
@@ -26,6 +28,7 @@ function initViewport() {
     setStatus('3D rendering is unavailable. Try a browser with WebGL 2 enabled.', true);
     upload.disabled = true;
     reset.disabled = true;
+    randomModel.disabled = true;
     document.querySelector('.viewport3d-lighting').disabled = true;
     return;
   }
@@ -78,12 +81,18 @@ function initViewport() {
     brightnessValue: document.getElementById('lightBrightnessValue'),
     directionLabel: document.getElementById('lightDirection'),
     reset: document.getElementById('resetLightBtn'),
+    randomize: document.getElementById('randomLightBtn'),
     camera, light: key, requestRender
   });
   requestRender();
   setStatus('Sample cube — upload a model to begin.');
   upload.addEventListener('click', () => input.click());
   reset.addEventListener('click', () => {
+    fitView(camera, controls, model);
+    requestRender();
+  });
+  randomModel.addEventListener('click', () => {
+    randomizeModel(model);
     fitView(camera, controls, model);
     requestRender();
   });

@@ -62,6 +62,11 @@ export function fitView(camera, controls, model) {
   controls.saveState();
 }
 
+export function randomizeModel(model) {
+  model.quaternion.random();
+  model.updateMatrixWorld(true);
+}
+
 export async function loadModel(files, selectedFile) {
   const candidates = modelFiles(files);
   if (selectedFile ? !candidates.includes(selectedFile) : candidates.length !== 1) {

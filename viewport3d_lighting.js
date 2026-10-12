@@ -1,4 +1,4 @@
-import { Vector3 } from 'three';
+import { Vector3, Color } from 'three';
 
 const UP = new Vector3(0, 1, 0);
 const RIGHT = new Vector3(1, 0, 0);
@@ -21,7 +21,7 @@ export function describeLight(local) {
   return [depth, vertical, horizontal].filter(Boolean).join(' / ') || 'Side';
 }
 
-export function createLightingControls({ball, color, brightness, brightnessValue, directionLabel, reset, camera, light, requestRender}) {
+export function createLightingControls({ball, color, brightness, brightnessValue, directionLabel, reset, randomize, camera, light, requestRender}) {
   let direction = new Vector3();
   let activePointer = null, lastX = 0, lastY = 0;
   const context = ball.getContext('2d');
@@ -76,6 +76,12 @@ export function createLightingControls({ball, color, brightness, brightnessValue
     color.value = '#ffffff'; brightness.value = '100';
     updateLight();
   }
+  function randomLight() {
+    direction.randomDirection();
+    color.value = '#' + new Color().setHSL(Math.random(), 0.25 + Math.random() * 0.5, 0.5 + Math.random() * 0.25).getHexString();
+    brightness.value = String(30 + Math.floor(Math.random() * 171));
+    updateLight();
+  }
   function pointerDown(event) {
     if (activePointer !== null || (event.pointerType === 'mouse' && event.button !== 0)) return;
     event.preventDefault();
@@ -108,6 +114,7 @@ export function createLightingControls({ball, color, brightness, brightnessValue
   color.addEventListener('input', updateLight);
   brightness.addEventListener('input', updateLight);
   reset.addEventListener('click', resetLight);
+  randomize?.addEventListener('click', randomLight);
   resetLight();
   return {draw, getDirection: () => direction.clone()};
 }

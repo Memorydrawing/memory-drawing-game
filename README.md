@@ -42,6 +42,8 @@ It opens directly from `viewport3d.html`, with no server or CDN required.
 - Drag with one finger to orbit, pinch to zoom, or move two fingers to pan.
   Mouse controls are left-drag, scroll, and right-drag respectively.
 - **Reset View** fits the model back into the frame.
+- **Random Position** gives the model a random 3D orientation, including tilt,
+  and fits it back into the frame.
 - Roll the **Lighting** sphere with one finger to move the light around the
   model. Swipes continue around the full sphere, including the back, top, and
   underside. The sphere preview shows the current direction relative to your
@@ -49,11 +51,13 @@ It opens directly from `viewport3d.html`, with no server or CDN required.
 - Choose **Light color** and adjust **Brightness** from 0–200%. **Reset Light**
   restores a white light above and in front of your current view. A gentle fixed
   fill keeps the model visible when the key light is dimmed or behind it.
+- **Randomize Lighting** picks a new light direction, color, and brightness
+  (30–200%) and updates the sphere and controls to match.
 - OBJ/STL use a neutral material; glTF/GLB retain supported materials/textures.
   Draco/Meshopt-compressed geometry and KTX2 textures are not supported yet.
 - Imports are local, are not uploaded, and are not retained after reload.
 
-The experiment deliberately has no timer or randomization.
+The experiment deliberately has no timer or automatic interval changes.
 For development, use `npm ci`, `npm run build:3d`, and `npm test`. Commit the
 generated `viewport3d.bundle.js` and its legal notice after changing the viewport
 source. See `vendor/README.md` for dependency and license details.

@@ -285,9 +285,11 @@ canvas.color-drill-canvas {
   margin: 0 0 12px;
 }
 
-#resetLightBtn {
+#resetLightBtn,
+#randomLightBtn {
   padding: 6px 10px;
   font-size: 12px;
+  margin: 3px 0;
 }
 
 #lightBallHelp {

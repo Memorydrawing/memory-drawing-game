@@ -73,3 +73,26 @@ test('thumb drag, pointer cancellation, color, brightness, and reset update the 
   closeTo(controller.getDirection(), before.toArray());
   expect(requestRender).toHaveBeenCalled();
 });
+
+test('Randomize Lighting changes direction, color, and brightness and updates the controls', () => {
+  document.body.innerHTML = readFileSync(new URL('../viewport3d.html', import.meta.url), 'utf8');
+  const el = id => document.getElementById(id);
+  el('lightBall').getContext = () => null;
+  const light = new DirectionalLight();
+  const controller = createLightingControls({ball:el('lightBall'),color:el('lightColor'),brightness:el('lightBrightness'),
+    brightnessValue:el('lightBrightnessValue'),directionLabel:el('lightDirection'),reset:el('resetLightBtn'),
+    randomize:el('randomLightBtn'),camera:new PerspectiveCamera(),light,requestRender:jest.fn()});
+  const before = controller.getDirection();
+  const random = jest.spyOn(Math, 'random').mockReturnValue(0.25);
+  try {
+    el('randomLightBtn').click();
+    expect(controller.getDirection().distanceTo(before)).toBeGreaterThan(0.1);
+    expect(controller.getDirection().length()).toBeCloseTo(1);
+    expect(el('lightColor').value).not.toBe('#ffffff');
+    expect('#' + light.color.getHexString()).toBe(el('lightColor').value);
+    expect(+el('lightBrightness').value).toBeGreaterThanOrEqual(30);
+    expect(+el('lightBrightness').value).toBeLessThanOrEqual(200);
+    expect(light.intensity).toBeCloseTo(+el('lightBrightness').value * 0.03);
+    expect(el('lightBrightnessValue').textContent).toBe(el('lightBrightness').value + '%');
+  } finally {random.mockRestore();}
+});

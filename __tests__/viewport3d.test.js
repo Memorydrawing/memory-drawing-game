@@ -1,7 +1,7 @@
 /** @jest-environment node */
 import { jest } from '@jest/globals';
 import { Box3, Vector3, Group, Mesh, BoxGeometry, PerspectiveCamera, BufferGeometry } from 'three';
-import { loadModel, normalizeModel, neutralMaterial, fitView, disposeModel } from '../viewport3d_model.js';
+import { loadModel, normalizeModel, neutralMaterial, fitView, disposeModel, randomizeModel } from '../viewport3d_model.js';
 
 const obj = 'v 0 0 0\nv 1 0 0\nv 0 1 0\nf 1 2 3\n';
 const textFile = (name, content) => ({name, text: async () => content});
@@ -73,4 +73,24 @@ test('camera fitting centers translated models and keeps every corner in view', 
   expect(controls.target.length()).toBeCloseTo(0);
   expect(controls.saveState).toHaveBeenCalled();
   disposeModel(model);
+});
+
+test('random positioning rotates an imported model and keeps it in frame', () => {
+  const model = normalizeModel(new Mesh(new BoxGeometry(2, 10, 3), neutralMaterial()));
+  const original = model.quaternion.clone();
+  const random = jest.spyOn(Math, 'random').mockReturnValue(0.37);
+  try {
+    randomizeModel(model);
+    expect(model.quaternion.angleTo(original)).toBeGreaterThan(0.1);
+    expect(model.quaternion.length()).toBeCloseTo(1);
+    const camera = new PerspectiveCamera(40, 1, 0.01, 100);
+    const controls = {target: new Vector3(), update() {camera.lookAt(this.target);camera.updateMatrixWorld();}, saveState() {}};
+    fitView(camera, controls, model);
+    const bounds = new Box3().setFromObject(model, true);
+    for (const x of [bounds.min.x, bounds.max.x]) for (const y of [bounds.min.y, bounds.max.y]) for (const z of [bounds.min.z, bounds.max.z]) {
+      const point = new Vector3(x,y,z).project(camera);
+      expect(Math.abs(point.x)).toBeLessThan(1);
+      expect(Math.abs(point.y)).toBeLessThan(1);
+    }
+  } finally {random.mockRestore();disposeModel(model);}
 });

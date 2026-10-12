@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>3D Viewport - Artist Trainer</title>
-  <link rel="stylesheet" href="style.css?v=lighting-1">
+  <link rel="stylesheet" href="style.css?v=random-1">
 </head>
 <body>
   <div class="practice-screen viewport3d-screen">
@@ -14,6 +14,7 @@
       <button id="uploadModelBtn" type="button">Upload 3D File</button>
       <input id="modelFile" type="file" multiple accept=".zip,application/zip,application/x-zip-compressed,.glb,.gltf,.obj,.stl,.bin,.png,.jpg,.jpeg,.webp" hidden>
       <button id="resetViewBtn" type="button">Reset View</button>
+      <button id="randomModelBtn" type="button">Random Position</button>
     </div>
     <label id="archiveModelLabel" class="viewport3d-description" hidden>Model inside ZIP:
       <select id="archiveModel" aria-label="Choose a model inside the ZIP"></select>
@@ -34,6 +35,7 @@
           <label for="lightBrightness">Brightness <output id="lightBrightnessValue">100%</output></label>
           <input id="lightBrightness" type="range" min="0" max="200" value="100" step="1">
           <button id="resetLightBtn" type="button">Reset Light</button>
+          <button id="randomLightBtn" type="button">Randomize Lighting</button>
         </div>
       </div>
       <p id="lightBallHelp">Roll the sphere with your thumb to move the light around the model. Keep swiping to reach the back or underside.</p>
@@ -42,6 +44,6 @@
     <noscript>This viewport needs JavaScript enabled.</noscript>
   </div>
   <script src="back.js"></script>
-  <script src="viewport3d.bundle.js?v=lighting-1"></script>
+  <script src="viewport3d.bundle.js?v=random-1"></script>
 </body>
 </html>
