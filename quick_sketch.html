@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Quick-sketch - Artist Trainer</title>
-  <link rel="stylesheet" href="style.css?v=quick-sketch-1">
-  <link rel="stylesheet" href="quick_sketch.css?v=1">
+  <link rel="stylesheet" href="style.css?v=quick-sketch-2">
+  <link rel="stylesheet" href="quick_sketch.css?v=2">
 </head>
 <body>
   <main class="practice-screen quick-sketch-screen">
@@ -31,17 +31,18 @@
         <legend>Reference</legend>
         <label for="sketchReference">Reference collection</label>
         <select id="sketchReference" name="reference">
-          <option value="basic-forms">Basic 3D forms</option>
+          <option value="basic-forms">Cube</option>
           <option value="bargue" disabled>Bargue plates — coming soon</option>
-          <option value="model-library" disabled>3D model library — coming soon</option>
           <option value="upload">Add your own 3D model</option>
         </select>
         <div id="sketchUpload" hidden>
           <button id="sketchUploadBtn" type="button">Choose model or ZIP</button>
           <input id="sketchFiles" type="file" multiple accept=".zip,application/zip,application/x-zip-compressed,.glb,.gltf,.obj,.stl,.bin,.png,.jpg,.jpeg,.webp" hidden>
-          <label id="sketchModelLabel" for="sketchModel" hidden>Model inside ZIP / selected files</label>
-          <select id="sketchModel" hidden></select>
           <p>ZIP, GLB, glTF, OBJ, or STL. Include companion files with loose glTF models. Files stay on your device for this session.</p>
+        </div>
+        <div id="sketchPreviewWrap">
+          <canvas id="sketchPreview" width="260" height="260" aria-label="Reference preview. Drag to rotate; pinch to zoom."></canvas>
+          <p class="sketch-preview-hint">Drag to rotate · Pinch to zoom</p>
         </div>
         <p id="sketchReferenceStatus" role="status" aria-live="polite">Simple 3D forms for a quick study. More collections will be added later.</p>
       </fieldset>
@@ -56,6 +57,6 @@
     <noscript>Enable JavaScript to set up a quick-sketch session.</noscript>
   </main>
   <script src="back.js"></script>
-  <script src="quick_sketch.bundle.js?v=1"></script>
+  <script src="quick_sketch.bundle.js?v=2"></script>
 </body>
 </html>

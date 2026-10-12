@@ -101,12 +101,13 @@ produces connected, strengthened black strokes with no gray shader output.
 
 **Experimental → Quick-sketch** implements the setup phase only: seconds per pose
 (1–3600), number of randomized pose changes (1–1000), and a reference dropdown.
-Basic 3D forms is the initial reference key; Bargue plates and the future 3D model
-library are disabled placeholders. Choose **Add your own 3D model** to select
+Cube is the initial model entry; Bargue plates is a disabled placeholder.
+Every uploaded model becomes its own Reference dropdown entry. Choose **Add your own 3D model** to select
 GLB, glTF, OBJ, STL, or ZIP files using the shared nested archive preparation.
-Multiple models get a chooser, and companion files remain associated with the
-selected model. This step prepares files; model parsing/rendering belongs to the
-future active phase.
+Multiple models inside a ZIP each get an entry, and companion files remain
+associated with their model. A small red-outlined preview parses the selected
+model and supports one-finger orbit, pinch zoom and two-finger pan. Adding more
+models retains previous entries for this session.
 
 Start validates the setup and switches to an active-phase placeholder, retaining
 settings and files in memory. Edit setup restores the form without losing them.

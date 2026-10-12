@@ -7,9 +7,10 @@ jest.unstable_mockModule('fflate', () => require('fflate'));
 const {initQuickSketch} = await import('../quick_sketch.js');
 
 let app;
-beforeEach(() => {
+beforeEach(async () => {
   document.body.innerHTML = readFileSync(new URL('../quick_sketch.html', import.meta.url), 'utf8');
-  app = initQuickSketch();
+  app = initQuickSketch(document, {previewFactory: () => ({show: async () => {}, clear() {}, dispose() {}})});
+  await Promise.resolve();
 });
 const get = id => document.getElementById(id);
 const submit = () => get('quickSketchSetup').dispatchEvent(new Event('submit', {cancelable: true}));
@@ -37,10 +38,12 @@ test('upload requires a model and preserves companions and selected model into a
   chooseUpload(); expect(get('sketchStart').disabled).toBe(true);
   const files = [new File(['mesh'], 'head.obj'), new File(['mesh'], 'body.gltf'), new File(['data'], 'body.bin')];
   await upload(files);
-  expect(get('sketchStart').disabled).toBe(false); expect(get('sketchModel').hidden).toBe(false);
-  get('sketchModel').value = '1'; submit();
+  expect(get('sketchStart').disabled).toBe(false);
+  expect(Array.from(get('sketchReference').options).map(o => o.textContent)).toContain('head.obj');
+  get('sketchReference').value = 'model:2'; get('sketchReference').dispatchEvent(new Event('change'));
+  await Promise.resolve(); submit();
   expect(app.getSession().model).toBe(files[1]); expect(app.getSession().files).toEqual(files);
-  get('sketchEditSetup').click(); expect(get('sketchModel').value).toBe('1');
+  get('sketchEditSetup').click(); expect(get('sketchReference').value).toBe('model:2');
 });
 test('unsupported upload reports an error and prevents Start', async () => {
   chooseUpload(); await upload([new File(['hello'], 'notes.txt')]);
@@ -49,6 +52,15 @@ test('unsupported upload reports an error and prevents Start', async () => {
 });
 test('future references are disabled and experimental navigation uses a native form', () => {
   expect(get('sketchReference').querySelector('option[value=bargue]').disabled).toBe(true);
+  expect(get('sketchReference').querySelector('option[value=model-library]')).toBeNull();
   document.body.innerHTML = readFileSync(new URL('../experimental.html', import.meta.url), 'utf8');
   expect(get('quickSketchBtn').form.getAttribute('action')).toBe('quick_sketch.html');
+});
+
+test('adding another model retains prior dropdown entries and companion groups', async () => {
+  chooseUpload(); const first = new File(['mesh'], 'first.obj'); await upload([first]);
+  await upload([new File(['mesh'], 'second.obj')]);
+  expect(get('sketchReference').querySelector('option[value="model:1"]').textContent).toBe('first.obj');
+  get('sketchReference').value = 'model:1'; get('sketchReference').dispatchEvent(new Event('change')); await Promise.resolve(); submit();
+  expect(app.getSession().model).toBe(first); expect(app.getSession().files).toEqual([first]);
 });
