@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Contour Study - Artist Trainer</title>
-  <link rel="stylesheet" href="style.css?v=contours-1">
+  <link rel="stylesheet" href="style.css?v=planes-1">
 </head>
 <body>
   <div class="practice-screen viewport3d-screen contour-study-screen">
@@ -67,6 +67,12 @@
             </div>
           </div>
         </fieldset>
+        <fieldset class="viewport3d-control-section viewport3d-line-options">
+          <legend>Line drawing</legend>
+          <label class="viewport3d-plane-toggle"><input id="lightPlaneLines" type="checkbox" checked> Light-side planes</label>
+          <label for="planeDetail">Plane detail <output id="planeDetailValue">50%</output></label>
+          <input id="planeDetail" type="range" min="0" max="100" value="50" step="1">
+        </fieldset>
         <button id="viewportHelpBtn" class="viewport3d-help-button" type="button">Help</button>
       </aside>
     </div>
@@ -74,7 +80,7 @@
   </div>
   <dialog id="viewportHelp" aria-labelledby="viewportHelpTitle">
     <h2 id="viewportHelpTitle">Using Contour Study</h2>
-    <p><strong>Line drawing:</strong> The left viewport traces the visible outer contour and the boundary where surfaces turn away from the main light. It updates with the 3D view, model orientation, lens, and light direction. This first version shows form-shadow boundaries; cast shadows and texture details are not included. The line drawing stays black on white.</p>
+    <p><strong>Line drawing:</strong> The left viewport traces the visible outer contour and the boundary where surfaces turn away from the main light. It updates with the 3D view, model orientation, lens, and light direction. Light-side planes adds stronger plane changes within the light near the shadow boundary. Increase Plane detail to include smaller changes or planes farther from shadow; decrease it for fewer lines. Uncheck Light-side planes for just contours and form-shadow boundaries. Cast shadows and texture details are not included. The line drawing stays black on white.</p>
     <p><strong>View:</strong> Drag with one finger to rotate. Pinch to zoom, or move two fingers to pan. With a mouse, drag to rotate, scroll to zoom, and right-drag to pan.</p>
     <p><strong>Models:</strong> Upload ZIP, GLB, glTF, OBJ, or STL files. ZIPs are unpacked automatically, including ZIPs inside ZIPs. If several models are found, choose one from the dropdown. For loose glTF files, select the model and its .bin / texture files together. OBJ and STL use a neutral material.</p>
     <p><strong>Camera:</strong> Random Orientation rotates the model into a new angle. Reset View centers it in the frame. Lens values use a full-frame camera with a square crop. Switching lenses preserves your viewing angle and adjusts camera distance to keep the model framed: wide lenses exaggerate depth and long lenses give a flatter view.</p>
@@ -83,6 +89,6 @@
     <form method="dialog"><button type="submit">Close</button></form>
   </dialog>
   <script src="back.js"></script>
-  <script src="viewport3d.bundle.js?v=contours-1"></script>
+  <script src="viewport3d.bundle.js?v=planes-1"></script>
 </body>
 </html>

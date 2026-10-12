@@ -73,7 +73,10 @@ function initViewport() {
       controls.update();
       renderer.render(scene, camera);
       if (contour) {
-        try { contour.render(scene, camera, key); }
+        try { contour.render(scene, camera, key, {
+          planes: document.getElementById('lightPlaneLines')?.checked ?? true,
+          detail: Number(document.getElementById('planeDetail')?.value ?? 50)
+        }); }
         catch {
           document.getElementById('contourStatus').textContent = 'Line drawing interrupted — reload to recover';
         }
@@ -112,6 +115,16 @@ function initViewport() {
         if (restored) requestRender();
       });
       new ResizeObserver(requestRender).observe(contourCanvas);
+      const planeLines = document.getElementById('lightPlaneLines');
+      const planeDetail = document.getElementById('planeDetail');
+      planeLines.addEventListener('change', () => {
+        planeDetail.disabled = !planeLines.checked;
+        requestRender();
+      });
+      planeDetail.addEventListener('input', () => {
+        document.getElementById('planeDetailValue').textContent = planeDetail.value + '%';
+        requestRender();
+      });
     } catch {
       document.getElementById('contourStatus').textContent = 'Line drawing unavailable — WebGL 2 is required';
     }
