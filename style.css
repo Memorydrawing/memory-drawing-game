@@ -210,6 +210,94 @@ canvas.color-drill-canvas {
   color: #a00000;
 }
 
+.viewport3d-lighting {
+  width: min(90vmin, 500px);
+  box-sizing: border-box;
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.viewport3d-lighting legend {
+  font-size: 14px;
+}
+
+.viewport3d-lighting-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.viewport3d-light-ball-group {
+  text-align: center;
+  flex: 0 0 112px;
+}
+
+#lightBall {
+  width: 112px;
+  height: 112px;
+  margin: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  touch-action: none;
+  cursor: grab;
+}
+
+#lightBall:active {
+  cursor: grabbing;
+}
+
+#lightBall:focus-visible {
+  outline: 2px solid #2196F3;
+  outline-offset: 3px;
+}
+
+#lightDirection {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+}
+
+.viewport3d-light-settings {
+  flex: 1;
+  max-width: 250px;
+  min-width: 100px;
+}
+
+.viewport3d-light-settings label {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+  font-size: 13px;
+}
+
+#lightColor {
+  width: 100%;
+  height: 32px;
+  box-sizing: border-box;
+}
+
+#lightBrightness {
+  width: 100%;
+  margin: 0 0 12px;
+}
+
+#resetLightBtn {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+#lightBallHelp {
+  margin: 12px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: center;
+  color: #555;
+}
+
 .value-slider {
   -webkit-appearance: none;
   appearance: none;

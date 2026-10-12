@@ -3,6 +3,7 @@ import { WebGLRenderer, Scene, Color, PerspectiveCamera, HemisphereLight, Direct
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { disposeModel, normalizeModel, neutralMaterial, fitView, loadModel } from './viewport3d_model.js';
 import { prepareModelFiles, modelFiles, filePath } from './viewport3d_zip.js';
+import { createLightingControls } from './viewport3d_lighting.js';
 
 
 function initViewport() {
@@ -25,6 +26,7 @@ function initViewport() {
     setStatus('3D rendering is unavailable. Try a browser with WebGL 2 enabled.', true);
     upload.disabled = true;
     reset.disabled = true;
+    document.querySelector('.viewport3d-lighting').disabled = true;
     return;
   }
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -33,22 +35,27 @@ function initViewport() {
   const scene = new Scene();
   scene.background = new Color(0xffffff);
   const camera = new PerspectiveCamera(40, 1, 0.01, 100);
-  scene.add(new HemisphereLight(0xffffff, 0x777777, 2));
+  // Gentle fill preserves visibility while letting the controlled key light
+  // produce a clear change in color and form.
+  scene.add(new HemisphereLight(0xffffff, 0x777777, 0.35));
   const key = new DirectionalLight(0xffffff, 3);
   key.position.set(3, 4, 5);
   scene.add(key);
+  scene.add(key.target);
   const controls = new OrbitControls(camera, canvas);
   controls.enableDamping = true;
   controls.dampingFactor = 0.12;
   let model = normalizeModel(new Mesh(new BoxGeometry(1, 1, 1), neutralMaterial()));
   scene.add(model);
   let pendingFrame = 0;
+  let lighting;
   function requestRender() {
     if (pendingFrame) return;
     pendingFrame = requestAnimationFrame(() => {
       pendingFrame = 0;
       controls.update();
       renderer.render(scene, camera);
+      lighting?.draw();
     });
   }
   controls.addEventListener('change', requestRender);
@@ -64,6 +71,15 @@ function initViewport() {
   observer.observe(canvas);
   resize();
   fitView(camera, controls, model);
+  lighting = createLightingControls({
+    ball: document.getElementById('lightBall'),
+    color: document.getElementById('lightColor'),
+    brightness: document.getElementById('lightBrightness'),
+    brightnessValue: document.getElementById('lightBrightnessValue'),
+    directionLabel: document.getElementById('lightDirection'),
+    reset: document.getElementById('resetLightBtn'),
+    camera, light: key, requestRender
+  });
   requestRender();
   setStatus('Sample cube — upload a model to begin.');
   upload.addEventListener('click', () => input.click());
@@ -79,6 +95,7 @@ function initViewport() {
       const result = await loadModel(preparedFiles, file);
       const previous = model;
       model = result.model;
+      model.traverse(object => { if (object.isLight) object.visible = false; });
       scene.remove(previous);
       scene.add(model);
       disposeModel(previous);
