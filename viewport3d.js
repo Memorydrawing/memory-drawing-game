@@ -5,6 +5,7 @@ import { disposeModel, normalizeModel, neutralMaterial, fitView, loadModel } fro
 import { prepareModelFiles, modelFiles, filePath } from './viewport3d_zip.js';
 import { createLightingControls } from './viewport3d_lighting.js';
 import { randomizeModel, applyLens } from './viewport3d_model.js';
+import { bindContourStudySwitch } from './viewport3d_view.js';
 import { createContourRenderer } from './viewport3d_contours.js';
 
 
@@ -37,6 +38,7 @@ function initViewport() {
     randomModel.disabled = true;
     lens.disabled = true;
     document.querySelector('.viewport3d-lighting').disabled = true;
+    document.getElementById('contourStudyToggle').disabled = true;
     return;
   }
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -72,7 +74,7 @@ function initViewport() {
       pendingFrame = 0;
       controls.update();
       renderer.render(scene, camera);
-      if (contour) {
+      if (contour && document.getElementById('contourStudyToggle').checked) {
         try { contour.render(scene, camera, key, {
           planes: document.getElementById('lightPlaneLines')?.checked ?? true,
           detail: Number(document.getElementById('planeDetail')?.value ?? 50)
@@ -108,27 +110,32 @@ function initViewport() {
     camera, light: key, requestRender
   });
   const contourCanvas = document.getElementById('contourCanvas');
-  if (contourCanvas) {
-    try {
-      contour = createContourRenderer(contourCanvas, restored => {
-        document.getElementById('contourStatus').textContent = restored ? 'Line drawing' : 'Line drawing interrupted — reload to recover';
-        if (restored) requestRender();
-      });
-      new ResizeObserver(requestRender).observe(contourCanvas);
-      const planeLines = document.getElementById('lightPlaneLines');
-      const planeDetail = document.getElementById('planeDetail');
-      planeLines.addEventListener('change', () => {
-        planeDetail.disabled = !planeLines.checked;
-        requestRender();
-      });
-      planeDetail.addEventListener('input', () => {
-        document.getElementById('planeDetailValue').textContent = planeDetail.value + '%';
-        requestRender();
-      });
-    } catch {
-      document.getElementById('contourStatus').textContent = 'Line drawing unavailable — WebGL 2 is required';
+  const planeLines = document.getElementById('lightPlaneLines');
+  const planeDetail = document.getElementById('planeDetail');
+  planeLines.addEventListener('change', () => {
+    planeDetail.disabled = !planeLines.checked;
+    requestRender();
+  });
+  planeDetail.addEventListener('input', () => {
+    document.getElementById('planeDetailValue').textContent = planeDetail.value + '%';
+    requestRender();
+  });
+  document.getElementById('contourStudyToggle').checked = new URLSearchParams(location.search).get('contour') === '1';
+  bindContourStudySwitch(document, enabled => {
+    if (enabled && !contour) {
+      try {
+        contour = createContourRenderer(contourCanvas, restored => {
+          document.getElementById('contourStatus').textContent = restored ? 'Line drawing' : 'Line drawing interrupted — reload to recover';
+          if (restored) requestRender();
+        });
+        new ResizeObserver(requestRender).observe(contourCanvas);
+      } catch {
+        document.getElementById('contourStatus').textContent = 'Line drawing unavailable — WebGL 2 is required';
+      }
     }
-  }
+    resize();
+    requestRender();
+  });
   requestRender();
   setStatus('Sample cube — upload a model to begin.');
   upload.addEventListener('click', () => input.click());

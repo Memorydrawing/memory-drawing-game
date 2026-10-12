@@ -65,14 +65,11 @@ test('failed contour pass restores scene state and render target', () => {
   } finally {failClassification=false;contour.dispose();geometry.dispose();material.dispose();}
 });
 
-test('Contour Study keeps all existing controls and places the line viewport first', () => {
-  const original=readFileSync(new URL('../viewport3d.html',import.meta.url),'utf8');
-  document.body.innerHTML=original;
-  const controls=[...document.querySelectorAll('button,input,select')].map(el=>el.id).filter(Boolean);
-  document.body.innerHTML=readFileSync(new URL('../contour_study.html',import.meta.url),'utf8');
-  controls.forEach(id=>expect(document.getElementById(id)).not.toBeNull());
-  const canvases=[...document.querySelectorAll('.viewport3d-reference canvas')].map(el=>el.id);
-  expect(canvases).toEqual(['contourCanvas','modelCanvas']);
+test('combined viewer retains model, camera, lighting and line controls', () => {
+  document.body.innerHTML=readFileSync(new URL('../viewport3d.html',import.meta.url),'utf8');
+  for (const id of ['uploadModelBtn','cameraLens','lightBall','lightColor','backgroundColor','contourStudyToggle','planeDetail','lightPlaneLines']) expect(document.getElementById(id)).not.toBeNull();
+  expect(document.getElementById('contourPanel').hidden).toBe(true);
+  expect(document.getElementById('contourOptions').hidden).toBe(true);
   document.body.innerHTML=readFileSync(new URL('../experimental.html',import.meta.url),'utf8');
-  expect(document.getElementById('contourStudyBtn').form.getAttribute('action')).toBe('contour_study.html');
+  expect(document.getElementById('contourStudyBtn')).toBeNull();
 });
