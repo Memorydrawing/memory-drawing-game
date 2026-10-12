@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>3D Viewport - Artist Trainer</title>
-  <link rel="stylesheet" href="style.css?v=random-1">
+  <link rel="stylesheet" href="style.css?v=layout-1">
 </head>
 <body>
   <div class="practice-screen viewport3d-screen">
@@ -19,27 +19,29 @@
     <label id="archiveModelLabel" class="viewport3d-description" hidden>Model inside ZIP:
       <select id="archiveModel" aria-label="Choose a model inside the ZIP"></select>
     </label>
-    <canvas id="modelCanvas" width="500" height="500" aria-label="Interactive 3D model. Drag to rotate; pinch to zoom."></canvas>
+    <div class="viewport3d-workspace">
+      <canvas id="modelCanvas" width="500" height="500" aria-label="Interactive 3D model. Drag to rotate; pinch to zoom."></canvas>
+      <fieldset class="viewport3d-lighting">
+        <legend>Lighting</legend>
+        <div class="viewport3d-lighting-layout">
+          <div class="viewport3d-light-ball-group">
+            <canvas id="lightBall" width="112" height="112" tabindex="0" role="group" aria-label="Light direction sphere. Drag or use arrow keys to move the light around the model." aria-describedby="lightBallHelp"></canvas>
+            <output id="lightDirection" aria-live="off">Front / above</output>
+          </div>
+          <div class="viewport3d-light-settings">
+            <label for="lightColor">Light color</label>
+            <input id="lightColor" type="color" value="#ffffff">
+            <label for="lightBrightness">Brightness <output id="lightBrightnessValue">100%</output></label>
+            <input id="lightBrightness" type="range" min="0" max="200" value="100" step="1">
+            <button id="resetLightBtn" type="button">Reset Light</button>
+            <button id="randomLightBtn" type="button">Randomize Lighting</button>
+          </div>
+        </div>
+        <p id="lightBallHelp">Roll the sphere with your thumb to move the light around the model. Keep swiping to reach the back or underside.</p>
+      </fieldset>
+    </div>
     <p id="modelStatus" class="viewport3d-description" role="status" aria-live="polite">Loading viewport…</p>
     <p class="viewport3d-description">Drag with one finger to rotate. Pinch to zoom; move two fingers to pan.<br>Mouse: drag to rotate, scroll to zoom, right-drag to pan.</p>
-    <fieldset class="viewport3d-lighting">
-      <legend>Lighting</legend>
-      <div class="viewport3d-lighting-layout">
-        <div class="viewport3d-light-ball-group">
-          <canvas id="lightBall" width="112" height="112" tabindex="0" role="group" aria-label="Light direction sphere. Drag or use arrow keys to move the light around the model." aria-describedby="lightBallHelp"></canvas>
-          <output id="lightDirection" aria-live="off">Front / above</output>
-        </div>
-        <div class="viewport3d-light-settings">
-          <label for="lightColor">Light color</label>
-          <input id="lightColor" type="color" value="#ffffff">
-          <label for="lightBrightness">Brightness <output id="lightBrightnessValue">100%</output></label>
-          <input id="lightBrightness" type="range" min="0" max="200" value="100" step="1">
-          <button id="resetLightBtn" type="button">Reset Light</button>
-          <button id="randomLightBtn" type="button">Randomize Lighting</button>
-        </div>
-      </div>
-      <p id="lightBallHelp">Roll the sphere with your thumb to move the light around the model. Keep swiping to reach the back or underside.</p>
-    </fieldset>
     <p class="viewport3d-description viewport3d-formats">ZIP, GLB, glTF, OBJ, or STL. Select a ZIP directly—no need to unzip it first.<br>For loose glTF files, select the model and its .bin / texture files together.<br>OBJ and STL use a neutral material. Files stay on your device and are not saved after reload.</p>
     <noscript>This viewport needs JavaScript enabled.</noscript>
   </div>
